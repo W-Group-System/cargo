@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
+<!-- <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
@@ -66,6 +66,74 @@
                         </div>
                     </form>
                 </div>
+            </div>
+        </div>
+    </div>
+</div> -->
+<div id="auth">
+    <div class="row h-100">
+        <div class="col-lg-7 d-lg-block" style="padding-right: 0px">
+            <div id="auth-right"></div>
+        </div>
+        <div class="col-lg-5 col-12 login-left">
+            <div id="auth-left" class="mt-5">
+                <!-- <div class="auth-logo">
+                    <a href="index.html"><img src="assets/images/logo/logo.png" alt="Logo"></a>
+                </div> -->
+                <h2 class="text-center mt-5 text-white"><i class="bi bi-file-lock-fill"></i> Welcome back!</h2>
+                <!-- <p class="auth-subtitle mb-5">Log in with your data that you entered during registration.</p> -->
+
+                <form method="POST" action="{{ route('login') }}">
+                    @csrf
+                    <div class="form-group position-relative has-icon-left mb-4">
+                        <p class="text-white mb-2">Email</p>
+                        <div class="form-group position-relative has-icon-left">
+                            <input id="email" type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ old('email') }}" required placeholder="Email">
+                            @if ($errors->has('email'))
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $errors->first('email') }}</strong>
+                                </span>
+                            @endif
+                            <div class="form-control-icon">
+                                <i class="bi bi-person"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group position-relative has-icon-left mb-4">
+                        <p class="text-white mb-2">Password</p>
+                        <div class="form-group position-relative has-icon-left">
+                            <input id="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" required placeholder="*********">
+                            @if ($errors->has('password'))
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $errors->first('password') }}</strong>
+                                </span>
+                            @endif
+                            <div class="form-control-icon">
+                                <i class="bi bi-shield-lock"></i>
+                            </div>
+                        </div>
+                    </div>
+                    @if (Route::has('password.request'))
+                    <div class="form-group position-relative">
+                        <a href="{{ route('password.request') }}">
+                            {{ __('Forgot Your Password?') }}
+                        </a>
+                    </div>
+                    @endif
+                    <!-- <button class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Log in</button> -->
+                    <button type="submit" class="btn btn-light btn-block btn-lg shadow-lg mt-3">
+                        {{ __('SIGN IN') }}
+                    </button>
+                    <div class="d-flex align-items-center my-4">
+                        <hr class="flex-grow-1 text-light">
+                        <span class="mx-3 text-white">OR</span>
+                        <hr class="flex-grow-1 text-light">
+                    </div>
+                    <div class="form-group position-relative text-center">
+                        <p class="text-white">Don't you have account?&nbsp;<a href="https://ticketing.rico.com.ph/itd/" class="text-white">Request Here</p>
+                        </a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

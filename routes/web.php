@@ -1,5 +1,6 @@
 <?php
-
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -11,10 +12,26 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
 Auth::routes();
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('', 'HomeController@index');
+    Route::get('/home', 'HomeController@index')->name('home');
 
-Route::get('/home', 'HomeController@index')->name('home');
+    // Order
+    Route::get('/orders','OrderController@index')->name('orders.index');
+    Route::get('/salesorder','OrderController@salesOrder');
+
+    // Cargo
+    Route::get('/cargo','CargoController@index');
+
+    // Shipments
+    Route::get('/shipments','ShipmentController@index');
+
+    // Users
+    Route::get('/users','UserController@index');
+    Route::post('/new_user', 'UserController@store');
+});
