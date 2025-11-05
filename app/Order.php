@@ -6,5 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    //
+
+    protected $fillable = [
+        'sap_server',
+        'DocNum',
+        'CardCode',
+        'CardName',
+        'Label',
+        'Packaging',
+    ];
 }

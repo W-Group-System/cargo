@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Order;
 use GuzzleHttp\Client;
 
 
@@ -63,7 +65,7 @@ class OrderController extends Controller
                     $data = $allData;
                 }
             } catch (\Exception $e) {
-                \Log::error('SAP API error: ' . $e->getMessage());
+                Log::error('SAP API error: ' . $e->getMessage());
             }
         }
 
@@ -92,5 +94,42 @@ class OrderController extends Controller
             'search' => $search
         ]);
     }
-}
 
+    public function store(Request $request)
+    {
+        // ✅ Validate input
+        $validated = $request->validate([
+            'sap_server' => 'required|string',
+            'docnum' => 'required|string',
+            'cardcode' => 'required|string',
+            'cardname' => 'required|string',
+            'label' => 'nullable|string',
+            'packaging' => 'nullable|string',
+        ]);
+
+        // ✅ Prevent duplicates based on SAP Server + DocNum
+        $exists = Order::where('sap_server', $validated['sap_server'])
+            ->where('DocNum', $validated['docnum'])
+            ->exists();
+
+        if ($exists) {
+            return response()->json([
+                'message' => 'This Sales Order already exists for this SAP Server.'
+            ], 409);
+        }
+
+        // ✅ Create new order record
+        Order::create([
+            'sap_server' => $validated['sap_server'],
+            'DocNum'     => $validated['docnum'],
+            'CardCode'   => $validated['cardcode'],
+            'CardName'   => $validated['cardname'],
+            // 👇 Use correct column names in your actual database
+            'Label'      => $validated['label'],
+            'Packaging'  => $validated['packaging'],
+        ]);
+
+        return response()->json(['message' => 'Order successfully stored!'], 201);
+    }
+
+}

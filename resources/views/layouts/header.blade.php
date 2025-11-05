@@ -90,13 +90,13 @@
                         </li>
                         <li class="sidebar-title">Reports</li>
                         <li class="sidebar-item">
-                            <a href="form-layout.html" class='sidebar-link'>
+                            <a href="" class='sidebar-link'>
                                 <i class="bi bi-bar-chart-fill"></i>
                                 <span>Orders</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="form-layout.html" class='sidebar-link'>
+                            <a href="" class='sidebar-link'>
                                 <i class="bi bi-file-earmark-medical-fill"></i>
                                 <span>Shipments</span>
                             </a>
@@ -110,7 +110,6 @@
             @yield('content')
         </div>
     </div>
-    @include('sweetalert::alert')
     <script src="{{ asset('vendors/perfect-scrollbar/perfect-scrollbar.min.js') }}"></script>
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
 
@@ -122,6 +121,8 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    @include('sweetalert::alert')
+    
     @yield('footer')
 </body>
 </html>

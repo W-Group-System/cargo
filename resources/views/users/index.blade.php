@@ -68,9 +68,14 @@
                                         <td>{{ $user->role }}</td>
                                         <td>{{ $user->status }}</td>
                                         <td>
-                                            
+                                            <div class="d-grid gap-2 d-md-block">
+                                                <button class="btn btn-sm btn-warning" type="button" title="Edit Users" data-bs-toggle="modal" data-bs-target="#editUser-{{$user->id}}" title="Edit" data-id="{{$user->id}}"><i class="bi bi-pencil"></i></button>
+                                                <button class="btn btn-sm btn-info" type="button" data-bs-toggle="modal" data-bs-target="#changePassword-{{$user->id}}" title="Change Password"><i class="bi bi-key"></i></button>
+                                            </div>
                                         </td>
                                     </tr>
+                                    @include('users.edit')
+                                    @include('users.change_password')
                                 @empty
                                     <tr>
                                         <td colspan="5" class="text-center">No users found.</td>
@@ -104,12 +109,12 @@
                 <form method="POST" id="form_user" action="{{url('new_user')}}" onsubmit="show()">
                     @csrf
                     <div class="form-group">
-                        <label for="name">Username</label>
-                        <input type="text" class="form-control" name="username" placeholder="Enter Username" required>
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" name="name" placeholder="Enter Name" required>
                     </div>
                     <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" class="form-control" name="full_name" placeholder="Enter Full Name" required>
+                        <label for="name">Email Address</label>
+                        <input type="email" class="form-control" name="email" value="{{ old('email') }}" placeholder="Enter Email Address" required>
                     </div>
                     <div class="form-group" id="formPasword">
                         <label for="name">Password</label>
@@ -120,29 +125,18 @@
                         <input type="password" class="form-control" name="password_confirmation" placeholder="Enter Password" required>
                     </div>
                     <div class="form-group">
-                        <label for="name">Email Address</label>
-                        <input type="text" class="form-control" name="email" placeholder="Enter Email Address" required>
-                    </div>
-                    <div class="form-group">
                         <label>Role</label>
-                        <select class="form-control js-example-basic-single" name="role_id" style="position: relative !important" title="Select Role" required>
+                        <select class="form-select required" name="role" title="Select Role" required>
                             <option value="" disabled selected>Select Role</option>
-                            {{-- @foreach($roles as $role)
-                                <option value="{{ $role->id }}">{{ $role->department->department_code .' - '. $role->name }}</option>
-                            @endforeach --}}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Department</label>
-                        <select class="form-control js-example-basic-single" name="department_id" style="position: relative !important" title="Select Company" required>
-                            <option value="" disabled selected>Select Department</option>
-                            {{-- @foreach($departments as $department)
-                                <option value="{{ $department->id }}">{{ $department->department_code.' - '.$department->name }}</option>
-                            @endforeach --}}
+                            <option value="Administrator">Administrator</option>
+                            <option value="Planta Personnel">Planta Personnel</option>
+                            <option value="Regulatory Officer">Regulatory Officer</option>
+                            <option value="Sales/ BDE">Sales/ BDE</option>
+                            <option value="Logistics">Logistics</option>
                         </select>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-success">Save</button>
                     </div>
                 </form>

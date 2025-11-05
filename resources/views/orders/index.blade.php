@@ -27,15 +27,13 @@
                                 <label class="col-form-label">Filter By:</label>
                             </div>
                             <div class="col-auto">
-                                {{-- Hidden inputs for date range --}}
+                                {{-- Hidden date inputs --}}
                                 <input type="hidden" name="start_date" id="start_date" value="{{ request('start_date') }}">
                                 <input type="hidden" name="end_date" id="end_date" value="{{ request('end_date') }}">
 
-                                {{-- Date range picker container --}}
                                 <div id="reportrange" style="cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
                                     <i class="bi bi-calendar"></i>&nbsp;
                                     <span>
-                                        {{-- Show date range summary or default --}}
                                         @if(request('start_date') && request('end_date'))
                                             {{ request('start_date') }} - {{ request('end_date') }}
                                         @else
@@ -54,43 +52,7 @@
                         </div>
                     </form>
 
-                    <div class="row mt-4">
-                        <div class="col-lg-6 d-flex align-items-center">
-                            <span>Show&nbsp;</span>
-
-                            {{-- Entries per page form --}}
-                            <form method="GET" class="d-inline-block me-2">
-                                {{-- Keep current filters except number_of_entries --}}
-                                @foreach(request()->except('number_of_entries', 'page') as $key => $value)
-                                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                                @endforeach
-
-                                <select name="number_of_entries" class="form-select" onchange="this.form.submit()">
-                                    <option value="10" {{ (request('number_of_entries') == 10 || !request('number_of_entries')) ? 'selected' : '' }}>10</option>
-                                    <option value="25" {{ request('number_of_entries') == 25 ? 'selected' : '' }}>25</option>
-                                    <option value="50" {{ request('number_of_entries') == 50 ? 'selected' : '' }}>50</option>
-                                    <option value="100" {{ request('number_of_entries') == 100 ? 'selected' : '' }}>100</option>
-                                </select>
-                            </form>
-                            <span>&nbsp;Entries</span>
-                        </div>
-
-                        <div class="col-lg-6">
-                            {{-- Search form --}}
-                            <form method="GET" class="custom_form mb-3 d-flex justify-content-end" enctype="multipart/form-data">
-                                {{-- Keep current filters except search and page --}}
-                                @foreach(request()->except('search', 'page') as $key => $value)
-                                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                                @endforeach
-                                <div class="search d-flex">
-                                    <i class="ti ti-search align-self-center me-2"></i>
-                                    <input type="text" class="form-control" placeholder="Search Supplier" name="search" value="{{ request('search') }}"> 
-                                    <button type="submit" class="btn btn-sm btn-success ms-2">Search</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="table-responsive mt-3">
+                    <div class="table-responsive mt-4">
                         <table class="table table-striped table-bordered table-hover">
                             <thead>
                                 <tr>
@@ -110,10 +72,20 @@
                                         <td>{{ $item->DocNum }}</td>
                                         <td>{{ $item->CardCode }}</td>
                                         <td>{{ $item->CardName }}</td>
-                                        <td>{{ $item->U_Label }}</td>
-                                        <td>{{ $item->U_Packaging }}</td>
+                                        <td>{{ $item->U_Label ?? $item->Label }}</td>
+                                        <td>{{ $item->U_Packaging ?? $item->Packaging }}</td>
                                         <td>
-                                            <button class="btn btn-success">Process</button>
+                                            <button 
+                                                type="button"
+                                                class="btn btn-success btn-process"
+                                                data-docnum="{{ $item->DocNum }}"
+                                                data-cardcode="{{ $item->CardCode }}"
+                                                data-cardname="{{ $item->CardName }}"
+                                                data-label="{{ $item->U_Label }}"
+                                                data-packaging="{{ $item->U_Packaging }}"
+                                            >
+                                                Process
+                                            </button>
                                         </td>
                                     </tr>
                                 @empty
@@ -123,6 +95,7 @@
                                 @endforelse
                             </tbody>
                         </table>
+
                         <div class="mt-2 d-flex justify-content-between align-items-center">
                             <div>
                                 {!! $data->appends(request()->except('page'))->links() !!}
@@ -146,6 +119,7 @@
 </div> 
   
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <!-- <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" /> -->
 <script type="text/javascript">
@@ -173,6 +147,48 @@
         }, cb);
 
         cb(start, end); // call it initially to set values
+    });
+
+    $(document).ready(function() {
+        $('.btn-process').on('click', function() {
+            let button = $(this);
+            let sapServer = $('#sap_server').val();
+
+            if (!sapServer) {
+                Swal.fire('Error', 'Please select an SAP Server before processing.', 'error');
+                return;
+            }
+
+            $.ajax({
+                url: "{{ route('orders.store') }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    sap_server: sapServer,
+                    docnum: button.data('docnum'),
+                    cardcode: button.data('cardcode'),
+                    cardname: button.data('cardname'),
+                    label: button.data('label'),
+                    packaging: button.data('packaging')
+                },
+                beforeSend: function() {
+                    button.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+                },
+                success: function(response) {
+                    Swal.fire('Success', response.message, 'success');
+                },
+                error: function(xhr) {
+                    if (xhr.status === 409) {
+                        Swal.fire('Warning', xhr.responseJSON.message, 'warning');
+                    } else {
+                        Swal.fire('Error', 'Something went wrong.', 'error');
+                    }
+                },
+                complete: function() {
+                    button.prop('disabled', false).text('Process');
+                }
+            });
+        });
     });
 </script>
 @endsection
