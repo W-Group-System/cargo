@@ -72,8 +72,8 @@
                                         <td>{{ $item->DocNum }}</td>
                                         <td>{{ $item->CardCode }}</td>
                                         <td>{{ $item->CardName }}</td>
-                                        <td>{{ $item->U_Label ?? $item->Label }}</td>
-                                        <td>{{ $item->U_Packaging ?? $item->Packaging }}</td>
+                                        <td>{{ $item->U_Label ?? $item->Label ?? '' }}</td>
+                                        <td>{{ $item->U_Packaging ?? $item->Packaging ?? '' }}</td>
                                         <td>
                                             <button 
                                                 type="button"

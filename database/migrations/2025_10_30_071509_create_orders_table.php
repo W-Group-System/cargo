@@ -14,7 +14,7 @@ class CreateOrdersTable extends Migration
     public function up()
     {
         Schema::create('orders', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('sap_server'); // whi, pbi, or ccc
             $table->string('DocNum');     // SO Number
             $table->string('CardCode');

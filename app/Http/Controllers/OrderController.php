@@ -26,7 +26,7 @@ class OrderController extends Controller
             try {
                 switch ($sapServer) {
                     case 'whi':
-                        $response = $client->request('GET', 'http://localhost/sap-database/public/api/salesorder');
+                        $response = $client->request('GET', 'https://sap-database.wgroup.space/api/salesorder');
                         break;
                     case 'pbi':
                         $response = $client->request('GET', 'https://sap-database.wgroup.space/api/pbi_salesorder');
@@ -124,7 +124,6 @@ class OrderController extends Controller
             'DocNum'     => $validated['docnum'],
             'CardCode'   => $validated['cardcode'],
             'CardName'   => $validated['cardname'],
-            // 👇 Use correct column names in your actual database
             'Label'      => $validated['label'],
             'Packaging'  => $validated['packaging'],
         ]);
