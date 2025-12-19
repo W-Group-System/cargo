@@ -6,38 +6,35 @@
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title">Cargo Management</h4>
-                    <small>Sync orders from SAP</small>
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="d-flex align-items-center gap-2">
-                            <span>Show</span>
-                            <select class="form-select form-select-sm" style="width: auto;">
-                                <option value="10">10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                            </select>
-                            <span>entries</span>
-                        </div>
-                        <div class="col-auto">
-                            <label class="col-form-label">Filter By:</label>
-                            {{-- Hidden date inputs --}}
-                            <input type="hidden" name="start_date" id="start_date" value="{{ request('start_date') }}">
-                            <input type="hidden" name="end_date" id="end_date" value="{{ request('end_date') }}">
+                    <form method="GET" action="{{ route('orders.index') }}" class="form-inline mt-4">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-auto">
+                                <label class="col-form-label">Filter By:</label>
+                            </div>
+                            <div class="col-auto">
+                                <input type="hidden" name="start_date" id="start_date" value="{{ request('start_date') }}">
+                                <input type="hidden" name="end_date" id="end_date" value="{{ request('end_date') }}">
 
-                            <div id="reportrange" style="cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
-                                <i class="bi bi-calendar"></i>&nbsp;
-                                <span>
-                                    @if(request('start_date') && request('end_date'))
-                                        {{ request('start_date') }} - {{ request('end_date') }}
-                                    @else
-                                        Select Date Range
-                                    @endif
-                                </span> 
-                                <i class="bi bi-caret-down"></i>
+                                <div id="reportrange" style="cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                    <i class="bi bi-calendar"></i>&nbsp;
+                                    <span>
+                                        @if(request('start_date') && request('end_date'))
+                                            {{ request('start_date') }} - {{ request('end_date') }}
+                                        @else
+                                            Select Date Range
+                                        @endif
+                                    </span> 
+                                    <i class="bi bi-caret-down"></i>
+                                </div>
+                            </div>
+
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-search"></i>&nbsp;Search
+                                </button>
                             </div>
                         </div>
-
-                    </div>
+                    </form>
                     <div class="table-responsive mt-4">
                         <table class="table table-striped table-bordered table-hover">
                             <thead>
@@ -63,7 +60,7 @@
                                         <td>Status</td>
                                         <td class="text-uppercase">{{ $item->sap_server }}</td>
                                         <td>
-                                            <button type="button" class="btn btn-success">
+                                            <button type="button" class="btn btn-success btn-rounded btn-icon" href="#edit_cargo{{$item->id}}" data-toggle="modal" title='Update Cargo'>
                                                 Update
                                             </button>
                                         </td>

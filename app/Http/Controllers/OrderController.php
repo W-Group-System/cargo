@@ -1,12 +1,15 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Order;
+use App\OrderItem;
+use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Client;
 
 
@@ -97,38 +100,58 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
-        // ✅ Validate input
-        $validated = $request->validate([
+        $this->validate($request, [
             'sap_server' => 'required|string',
-            'docnum' => 'required|string',
-            'cardcode' => 'required|string',
-            'cardname' => 'required|string',
-            'label' => 'nullable|string',
-            'packaging' => 'nullable|string',
+            'docnum'     => 'required',
+            'cardcode'   => 'nullable|string',
+            'cardname'   => 'nullable|string',
+            'label'      => 'nullable|string',
+            'packaging'  => 'nullable|string',
+            'items'      => 'required|array|min:1'
         ]);
 
-        // ✅ Prevent duplicates based on SAP Server + DocNum
-        $exists = Order::where('sap_server', $validated['sap_server'])
-            ->where('DocNum', $validated['docnum'])
-            ->exists();
+        DB::beginTransaction();
+        try {
+            $sapServer  = $request->input('sap_server');
+            $docnum     = $request->input('docnum');
+            $cardcode   = $request->input('cardcode');
+            $cardname   = $request->input('cardname');
+            $label      = $request->input('label');
+            $packaging  = $request->input('packaging');
+            
+            $items     = $request->input('items');
 
-        if ($exists) {
+            if(Order::where('docnum',$docnum)->exists()){
+                return response()->json(['message'=>'Order already exists.'],409);
+            }
+
+            $order = Order::create([
+                'sap_server' => $sapServer,
+                'DocNum'     => $docnum,
+                'CardCode'   => $cardcode,
+                'CardName'   => $cardname,
+                'Label'      => $label,
+                'Packaging'  => $packaging,
+            ]);
+
+            foreach($items as $item){
+                OrderItem::create([
+                    'order_id'   => $order->id,
+                    'CardCode'   => $cardcode,
+                    'ItemCode'   => $item['ItemCode'] ?? null,
+                    'Dscription' => $item['Dscription'] ?? null,
+                    'Quantity'   => isset($item['Quantity']) ? (int)$item['Quantity'] : 0,
+                ]);
+            }
+
+            DB::commit();
+            return response()->json(['message'=>'Order and items successfully saved.']);
+        } catch(\Exception $e){
+            DB::rollBack();
             return response()->json([
-                'message' => 'This Sales Order already exists for this SAP Server.'
-            ], 409);
+                'message'=>'Failed to save order.',
+                'error' => $e->getMessage()
+            ],500);
         }
-
-        // ✅ Create new order record
-        Order::create([
-            'sap_server' => $validated['sap_server'],
-            'DocNum'     => $validated['docnum'],
-            'CardCode'   => $validated['cardcode'],
-            'CardName'   => $validated['cardname'],
-            'Label'      => $validated['label'],
-            'Packaging'  => $validated['packaging'],
-        ]);
-
-        return response()->json(['message' => 'Order successfully stored!'], 201);
     }
-
 }
