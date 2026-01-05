@@ -1,19 +1,30 @@
-<div class="modal fade" id="edit_cargo{{$item->id}}" tabindex="-1" role="dialog" aria-labelledby="EditCargo " aria-hidden="true">
-    <div class="modal-dialog" role="document">
+<div class="modal fade" id="editCargoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <div class='row'>
-                    <div class='col-md-12'>
-                        <h5 class="modal-title" id="EditHoldayData">Edit Holiday</h5>
-                    </div>
-                </div>
-            </div>
-            <form method="POST" action="{{ url('edit-hmo/' . $availment->id) }}" enctype="multipart/form-data" onsubmit="show()">
+            <form method="POST" id="editCargoForm">
                 @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Cargo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
                 <div class="modal-body">
-                    <div class="row">
+                    <div class="mb-3">
+                        <label for="editLabel" class="form-label">Label</label>
+                        <input type="text" name="label" id="editLabel" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editPackaging" class="form-label">Packaging</label>
+                        <input type="text" name="packaging" id="editPackaging" class="form-control">
                     </div>
                 </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Update</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+
             </form>
         </div>
     </div>

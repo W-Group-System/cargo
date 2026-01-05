@@ -28,7 +28,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/orders/store', [OrderController::class, 'store'])->name('orders.store');
 
     // Cargo
-    Route::get('/cargo','CargoController@index');
+    Route::get('/cargo','CargoController@index')->name('cargoes.index');
 
     // Shipments
     Route::get('/shipments','ShipmentController@index');
