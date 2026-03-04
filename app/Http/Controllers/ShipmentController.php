@@ -8,6 +8,8 @@ class ShipmentController extends Controller
 {
     public function index(Request $request)
     {
-        return view('shipments.index');
+        $data = array();
+        $data['shipmentActive'] = true;
+        return view('shipments.index',$data);
     }
 }
