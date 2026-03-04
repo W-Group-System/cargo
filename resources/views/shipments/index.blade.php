@@ -181,210 +181,208 @@
         </div>
     </div>
     <hr>
-    <form action="" method="POST">
-        <div class="row g-4">
-            <div class="col-12 col-lg-6">
-                <label class="fw-bold" style="width: 100%; margin-right: 5px;">Shipment Tracking</label>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">Delivery status:</label>
-                    <div class="col-sm-8">
-                        <select name="deliveryStatus" id="deliveryStatus" class="form-control">
-                            <option value="">-Select Data-</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">Track points:</label>
-                    <div class="col-sm-8">
-                        <select name="trackPoints" id="trackPoints" class="form-control">
-                            <option value="">-Select Data-</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">Location</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="location">
-                    </div>
-                </div>
-                <label class="fw-bold" style="width: 100%; margin-right: 5px;">Shipment Overview</label>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">Client Reference #:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="clientRefNo">
-                    </div>
-                </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">Invoice Number:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="invoiceNo">
-                    </div>
-                </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">BDE/Account Holder</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="accHolder">
-                    </div>
-                </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">Mode:</label>
-                    <div class="col-sm-8">
-                        <select name="mode" id="mode" class="form-control">
-                            <option value="">-Select Data-</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">INCO Terms:</label>
-                    <div class="col-sm-8">
-                        <select name="incoTerms" id="incoTerms" class="form-control">
-                            <option value="">-Select Data-</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">CBW Doc Status:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="cbwDocStatus">
-                    </div>
-                </div>
-                <label class="fw-bold" style="width: 100%; margin-right: 5px;">Cargo details</label>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">Quantity:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="quantity" id="quantity">
-                    </div>
-                </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">Type of Pallets:</label>
-                    <div class="col-sm-8">
-                        <select name="palletType" id="palletType" class="form-control">
-                            <option value="">-Select Data-</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">Cargo Readyness Date:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="cargoReadinessDate">
-                    </div>
-                </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">Posting Date:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="postingDate">
-                    </div>
+    <div class="row g-4">
+        <div class="col-12 col-lg-6">
+            <label class="fw-bold" style="width: 100%; margin-right: 5px;">Shipment Tracking</label>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">Delivery status:</label>
+                <div class="col-sm-8">
+                    <select name="deliveryStatus" id="deliveryStatus" class="form-control">
+                        <option value="">-Select Data-</option>
+                    </select>
                 </div>
             </div>
-            <div class="col-12 col-lg-6">
-                <label class="fw-bold" style="width: 100%; margin-right: 5px;">Shipping & Destination Information</label>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">Current Location:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="currentLocation">
-                    </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">Track points:</label>
+                <div class="col-sm-8">
+                    <select name="trackPoints" id="trackPoints" class="form-control">
+                        <option value="">-Select Data-</option>
+                    </select>
                 </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">Port of Destination:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="destinationPort">
-                    </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">Location</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="location">
                 </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">Country of Destination:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="destinationCountry">
-                    </div>
+            </div>
+            <label class="fw-bold" style="width: 100%; margin-right: 5px;">Shipment Overview</label>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">Client Reference #:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="clientRefNo">
                 </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">Regions:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="regions">
-                    </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">Invoice Number:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="invoiceNo">
                 </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">Shipping Line / Forwarder:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="forwarder">
-                    </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">BDE/Account Holder</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="accHolder">
                 </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">ED Number / BL Number:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="blNumber">
-                    </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">Mode:</label>
+                <div class="col-sm-8">
+                    <select name="mode" id="mode" class="form-control">
+                        <option value="">-Select Data-</option>
+                    </select>
                 </div>
-
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">Container Number:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="containerNumber">
-                    </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">INCO Terms:</label>
+                <div class="col-sm-8">
+                    <select name="incoTerms" id="incoTerms" class="form-control">
+                        <option value="">-Select Data-</option>
+                    </select>
                 </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">Courier Tracking:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="courierTracking">
-                    </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">CBW Doc Status:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="cbwDocStatus">
                 </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">ETD Origin:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="etdOrigin">
-                    </div>
+            </div>
+            <label class="fw-bold" style="width: 100%; margin-right: 5px;">Cargo details</label>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">Quantity:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="quantity" id="quantity">
                 </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">ATD Origin:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="atdOrigin">
-                    </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">Type of Pallets:</label>
+                <div class="col-sm-8">
+                    <select name="palletType" id="palletType" class="form-control">
+                        <option value="">-Select Data-</option>
+                    </select>
                 </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">ETA Destination:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="etaDestination">
-                    </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">Cargo Readyness Date:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="cargoReadinessDate">
                 </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">ATA Destination:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="ataDestination">
-                    </div>
-                </div>
-
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">Initial Transit Time:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="initialTransitTime">
-                    </div>
-                </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">Actual Transit Time:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="actualTransitTime">
-                    </div>
-                </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">Delivery Date:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="deliveryDate">
-                    </div>
-                </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">Date Docs. Completed:</label>
-                    <div class="col-sm-8">
-                        <input type="text" class="form-control" name="dateDocsCompleted">
-                    </div>
-                </div>
-                <div class="row mb-3 align-items-center">
-                    <label class="col-sm-4 col-form-label">Remarks:</label>
-                    <div class="col-sm-8">
-                        <textarea class="form-control" name="remarks" id="remarks" cols="30" rows="2"></textarea>
-                    </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">Posting Date:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="postingDate">
                 </div>
             </div>
         </div>
-    </form>
+        <div class="col-12 col-lg-6">
+            <label class="fw-bold" style="width: 100%; margin-right: 5px;">Shipping & Destination Information</label>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">Current Location:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="currentLocation">
+                </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">Port of Destination:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="destinationPort">
+                </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">Country of Destination:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="destinationCountry">
+                </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">Regions:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="regions">
+                </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">Shipping Line / Forwarder:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="forwarder">
+                </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">ED Number / BL Number:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="blNumber">
+                </div>
+            </div>
+
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">Container Number:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="containerNumber">
+                </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">Courier Tracking:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="courierTracking">
+                </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">ETD Origin:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="etdOrigin">
+                </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">ATD Origin:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="atdOrigin">
+                </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">ETA Destination:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="etaDestination">
+                </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">ATA Destination:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="ataDestination">
+                </div>
+            </div>
+
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">Initial Transit Time:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="initialTransitTime">
+                </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">Actual Transit Time:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="actualTransitTime">
+                </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">Delivery Date:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="deliveryDate">
+                </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">Date Docs. Completed:</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="dateDocsCompleted">
+                </div>
+            </div>
+            <div class="row mb-3 align-items-center">
+                <label class="col-sm-4 col-form-label">Remarks:</label>
+                <div class="col-sm-8">
+                    <textarea class="form-control" name="remarks" id="remarks" cols="30" rows="2"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
 @endcomponent
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
