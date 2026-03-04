@@ -84,40 +84,41 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <form action="">
-                            <div class="row g-3 align-items-center">
-                                <div class="col-auto">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-auto">
+                            <form action="">
+                                <div class="row g-2 align-items-center">
                                     <div class="col-auto">
                                         <input type="hidden" name="start_date" id="start_date" value="">
                                         <input type="hidden" name="end_date" id="end_date" value="">
 
-                                        <div id="reportrange" style="cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                        <div id="reportrange" 
+                                            style="cursor: pointer; padding: 5px 10px; border: 1px solid #ccc;">
                                             <i class="bi bi-calendar"></i>&nbsp;
-                                            <span>
-                                                Select Date Range
-                                            </span> 
+                                            <span>Select Date Range</span> 
                                             <i class="bi bi-caret-down"></i>
                                         </div>
                                     </div>
+
+                                    <div class="col-auto">
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="bi bi-arrow-repeat"></i>&nbsp;Sync
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="col-auto">
-                                    <button type="submit" class="btn btn-success">
-                                        <i class="bi bi-arrow-repeat"></i>&nbsp;Sync
-                                    </button>
-                                </div>
-                                <div class="col-auto ms-auto">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-pencil"></i>&nbsp;Update Status
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
+                        <div class="col-auto ms-auto">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateStatusModal">
+                                <i class="bi bi-pencil"></i>&nbsp;Update Status
+                            </button>
+                        </div>
                     </div>
                     <div class="table-responsive mt-4">
                         <table class="table table-striped table-bordered table-hover">
                             <thead>
                                 <tr>
+                                    <th><input type="checkbox" name="" id=""></th>
                                     <th>STATUS</th>
                                     <th>DATE CREATED</th>
                                     <th>SO NO.</th>
@@ -125,9 +126,9 @@
                                     <th>BUYERS PO NO</th>
                                     <th>LABEL</th>
                                     <th>PACKAGING</th>
-                                    <th>ACTION</th>
                                 </tr>
                                 <tr>
+                                    <th><input type="checkbox" name="" id=""></th>
                                     @for ($i = 0; $i < 7; $i++)
                                         <th>
                                             <select class="form-control">
@@ -138,19 +139,253 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td colspan="8" class="text-center text-muted">
-                                        No records found.
-                                    </td>
-                                </tr>
+                                @foreach ( $dummyList as $key => $value)
+                                    <tr>
+                                        <td><input type="checkbox" name="" id=""></td>
+                                        <td>{{$value["status"]}}</td>
+                                        <td>{{$value["dateCreated"]}}</td>
+                                        <td>{{$value["soNo"]}}</td>
+                                        <td>{{$value["buyerCode"]}}</td>
+                                        <td>{{$value["buyerPoNo"]}}</td>
+                                        <td>{{$value["label"]}}</td>
+                                        <td>{{$value["packaging"]}}</td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
+                        <div class="mt-2 d-flex justify-content-between align-items-center">
+                        </div> 
                     </div> 
                 </div>
             </div>
         </div>
     </div>
 </div>
+@component('components.modal',['modal_id' => 'updateStatusModal','title' => 'Update shipment information','form_id' => 'updateShipmentForm', 'size' => 'modal-xl'])
+    <div class="row g-4">
+        <div class="col-12 col-lg-6">
+            <div class="d-flex mb-2 align-items-center">
+                <label class="fw-bold" style="width: 100px; margin-right: 5px;">Buyer's Code:</label>
+                <span>25001</span>
+            </div>
+            <div class="d-flex mb-2 align-items-center">
+                <label class="fw-bold" style="width: 120px; margin-right: 5px;">Selected SO #:</label>
+                <span><u>5</u></span>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="d-flex mb-2 align-items-center">
+                <label class="fw-bold" style="width: 180px; margin-right: 5px;">Overall shipping status:</label>
+                <span>Pending</span>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <form action="" method="POST">
+        <div class="row g-4">
+            <div class="col-12 col-lg-6">
+                <label class="fw-bold" style="width: 100%; margin-right: 5px;">Shipment Tracking</label>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">Delivery status:</label>
+                    <div class="col-sm-8">
+                        <select name="deliveryStatus" id="deliveryStatus" class="form-control">
+                            <option value="">-Select Data-</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">Track points:</label>
+                    <div class="col-sm-8">
+                        <select name="trackPoints" id="trackPoints" class="form-control">
+                            <option value="">-Select Data-</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">Location</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="location">
+                    </div>
+                </div>
+                <label class="fw-bold" style="width: 100%; margin-right: 5px;">Shipment Overview</label>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">Client Reference #:</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="clientRefNo">
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">Invoice Number:</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="invoiceNo">
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">BDE/Account Holder</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="accHolder">
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">Mode:</label>
+                    <div class="col-sm-8">
+                        <select name="mode" id="mode" class="form-control">
+                            <option value="">-Select Data-</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">INCO Terms:</label>
+                    <div class="col-sm-8">
+                        <select name="incoTerms" id="incoTerms" class="form-control">
+                            <option value="">-Select Data-</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">CBW Doc Status:</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="cbwDocStatus">
+                    </div>
+                </div>
+                <label class="fw-bold" style="width: 100%; margin-right: 5px;">Cargo details</label>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">Quantity:</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="quantity" id="quantity">
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">Type of Pallets:</label>
+                    <div class="col-sm-8">
+                        <select name="palletType" id="palletType" class="form-control">
+                            <option value="">-Select Data-</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">Cargo Readyness Date:</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="cargoReadinessDate">
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">Posting Date:</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="postingDate">
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6">
+                <label class="fw-bold" style="width: 100%; margin-right: 5px;">Shipping & Destination Information</label>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">Current Location:</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="currentLocation">
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">Port of Destination:</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="destinationPort">
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">Country of Destination:</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="destinationCountry">
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">Regions:</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="regions">
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">Shipping Line / Forwarder:</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="forwarder">
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">ED Number / BL Number:</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="blNumber">
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">Container Number:</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="containerNumber">
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">Courier Tracking:</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="courierTracking">
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">ETD Origin:</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="etdOrigin">
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">ATD Origin:</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="atdOrigin">
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">ETA Destination:</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="etaDestination">
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">ATA Destination:</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="ataDestination">
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">Initial Transit Time:</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="initialTransitTime">
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">Actual Transit Time:</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="actualTransitTime">
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">Delivery Date:</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="deliveryDate">
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">Date Docs. Completed:</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="dateDocsCompleted">
+                    </div>
+                </div>
+                <div class="row mb-3 align-items-center">
+                    <label class="col-sm-4 col-form-label">Remarks:</label>
+                    <div class="col-sm-8">
+                        <textarea class="form-control" name="remarks" id="remarks" cols="30" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+@endcomponent
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
