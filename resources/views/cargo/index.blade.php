@@ -34,10 +34,10 @@
                                 </button>
                             </div>
                             <div class="col-auto">
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editCargoModal">
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateCargoModal">
                                     <i class="bi bi-pen"></i>&nbsp;Update
                                 </button>
-                                @include('cargo.edit')
+                                {{-- @include('cargo.edit') --}}
                             </div>
                         </div>
                     </form>
@@ -95,6 +95,79 @@
         </div>
     </div>
 </div>
+@component('components.modalv2',['modal_id' => 'updateCargoModal','title' => 'Cargo Management','form_id' => 'updateCargoForm', 'size' => 'modal-xl'])
+    <div class="container-fluid">
+        <div class="row g-4">
+            <div class="col-12">
+                <div class="d-flex align-items-center">
+                    <label class="fw-bold me-2" style="min-width: 130px;">
+                        Buyer Code #:
+                    </label>
+                    <span>25001</span>
+                </div>
+            </div>
+            <div class="col-12 col-lg-3">
+                <div class="card border border-dark rounded-0" style="height: 540px;">
+                    <div class="card-header bg-secondary text-white rounded-0 py-1 px-3">
+                        Selected SO #.
+                    </div>
+                    <div class="card-body bg-light">
+                        <u>250001</u>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-9">
+                <div class="card border border-dark rounded-0">
+                    <div class="card-header bg-secondary text-white rounded-0 py-1 px-3">
+                        Sales Order Information
+                    </div>
+                    <div class="card-body bg-light">
+                        <br>
+                        <p style="margin-bottom: 0.25rem;">SO No.: <span style="font-weight: 700;">250001</span></p>
+                        <p style="margin-bottom: 0.25rem;">Packing: <span style="font-weight: 700;">Rico Gel</span></p>
+                        <p style="margin-bottom: 0.25rem;">Label <span style="font-weight: 700;">Rico Kraft Bag</span></p>
+                        <p style="margin-bottom: 0.25rem;">Date created: <span style="font-weight: 700;">November 14, 2025</span></p>
+                        <p style="margin-bottom: 0.25rem;">Quantity: <span style="font-weight: 700;">16</span></p>
+                        <p style="margin-bottom: 0.25rem;">Remarks:<br /><span style="font-weight: 700;">Other order details and instructions here.</span></p>
+                        <br>
+                        <p style="margin-bottom: 0.25rem;">To be  filled out by the Plant</p>
+                        <hr>
+                        <div class="row g-4">
+                            <div class="col-12 col-lg-6">
+                                <div class="row mb-3 align-items-center">
+                                    <label class="col-sm-4 col-form-label">Availability Date:</label>
+                                    <div class="col-sm-8">
+                                        <input type="date" class="form-control" name="availabilityDate" id="availabilityDate">
+                                    </div>
+                                </div>
+                                <div class="row mb-3 align-items-center">
+                                    <label class="col-sm-4 col-form-label">Date Pickup:</label>
+                                    <div class="col-sm-8">
+                                        <input type="date" class="form-control" name="datePickup" id="datePickup">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <div class="row mb-3 align-items-center">
+                                    <label class="col-sm-4 col-form-label">Status:</label>
+                                    <div class="col-sm-8">
+                                        <select name="status" id="status" class="form-control">
+                                            <option value="">-Select Data-</option>
+                                            <option value="">Ready to pickup</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <button>Process</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endcomponent
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
