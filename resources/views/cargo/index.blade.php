@@ -107,7 +107,7 @@
                 </div>
             </div>
             <div class="col-12 col-lg-3">
-                <div class="card border border-dark rounded-0" style="height: 540px;">
+                <div class="card border border-dark rounded-0" style="height: 547px;">
                     <div class="card-header bg-secondary text-white rounded-0 py-1 px-3">
                         Selected SO #.
                     </div>
@@ -132,36 +132,38 @@
                         <br>
                         <p style="margin-bottom: 0.25rem;">To be  filled out by the Plant</p>
                         <hr>
-                        <div class="row g-4">
-                            <div class="col-12 col-lg-6">
-                                <div class="row mb-3 align-items-center">
-                                    <label class="col-sm-4 col-form-label">Availability Date:</label>
-                                    <div class="col-sm-8">
-                                        <input type="date" class="form-control" name="availabilityDate" id="availabilityDate">
+                        <form action="">
+                            <div class="row g-4">
+                                <div class="col-12 col-lg-6">
+                                    <div class="row mb-3 align-items-center">
+                                        <label class="col-sm-4 col-form-label">Availability Date:</label>
+                                        <div class="col-sm-8">
+                                            <input type="date" class="form-control" name="availabilityDate" id="availabilityDate">
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3 align-items-center">
+                                        <label class="col-sm-4 col-form-label">Date Pickup:</label>
+                                        <div class="col-sm-8">
+                                            <input type="date" class="form-control" name="datePickup" id="datePickup">
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="row mb-3 align-items-center">
-                                    <label class="col-sm-4 col-form-label">Date Pickup:</label>
-                                    <div class="col-sm-8">
-                                        <input type="date" class="form-control" name="datePickup" id="datePickup">
+                                <div class="col-12 col-lg-6">
+                                    <div class="row mb-3 align-items-center">
+                                        <label class="col-sm-4 col-form-label">Status:</label>
+                                        <div class="col-sm-8">
+                                            <select name="status" id="status" class="form-control">
+                                                <option value="">-Select Data-</option>
+                                                <option value="">Ready to pickup</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-12 col-lg-6">
-                                <div class="row mb-3 align-items-center">
-                                    <label class="col-sm-4 col-form-label">Status:</label>
-                                    <div class="col-sm-8">
-                                        <select name="status" id="status" class="form-control">
-                                            <option value="">-Select Data-</option>
-                                            <option value="">Ready to pickup</option>
-                                        </select>
-                                    </div>
+                                <div class="col-12">
+                                    <button class="btn btn-secondary form-control" type="submit">Process</button>
                                 </div>
-                            </div>
-                            <div class="col-12 col-lg-6">
-                                <button>Process</button>
-                            </div>
-                        </div>
+                                </div>
+                        </form>
                     </div>
                 </div>
             </div>
