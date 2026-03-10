@@ -1,5 +1,5 @@
 .page-link.active, .active > .page-link {
-    background-color: #20c997 !important; /* lighter green on hover */
+    background-color: #2e3aa5 !important; /* lighter green on hover */
     border-color: #20c997 !important;
     color: white !important;
 }
