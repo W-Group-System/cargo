@@ -45,6 +45,7 @@
                         <table class="table table-striped table-bordered table-hover">
                             <thead>
                                 <tr>
+                                    <th><input type="checkbox" name="checkAll" id="checkAll"></th>
                                     <th>Date Created</th>
                                     <th>SO No.</th>
                                     <th>Buyer Code</th>
@@ -56,12 +57,13 @@
                             <tbody>
                                 @forelse ($cargoes as $item)
                                     <tr>
+                                        <td><input type="checkbox" name="" id=""></td>
                                         <td>{{ $item->created_at->format('Y-m-d') }}</td>
                                         <td>{{ $item->DocNum }}</td>
                                         <td>{{ $item->CardCode }}</td>
                                         <td>{{ $item->BuyerPONo ?? '-' }}</td>
-                                        <td>{{ $item->U_Label ?? $item->Label ?? '-' }}</td>
-                                        <td>{{ $item->U_Packaging ?? $item->Packaging ?? '-' }}</td>
+                                        <td>{{ $item->Label ?? $item->Label ?? '-' }}</td>
+                                        <td>{{ $item->Packaging ?? $item->Packaging ?? '-' }}</td>
                                     </tr>
                                 @empty
                                     <tr>

@@ -10,6 +10,9 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
+        $data = array();
+        $data['userActive'] = true;
+
         $search = $request->input('search');
         $entries = $request->input('number_of_entries', 10); // Default: 10 per page
 
@@ -24,7 +27,7 @@ class UserController extends Controller
 
         $users = $users->paginate($entries)->appends($request->except('page'));
 
-        return view('users.index', compact('users', 'search', 'entries'));
+        return view('users.index', compact('users', 'search', 'entries'),$data);
     }
 
     public function store(Request $request)

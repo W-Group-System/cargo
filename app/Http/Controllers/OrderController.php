@@ -94,7 +94,8 @@ class OrderController extends Controller
         return view('orders.index', [
             'data' => $pagedData,
             'entries' => $entries,
-            'search' => $search
+            'search' => $search,
+            'activeOrders' => true
         ]);
     }
 

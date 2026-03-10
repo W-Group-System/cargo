@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Cargo;
+use App\Order;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -9,7 +10,10 @@ class CargoController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Cargo::query();
+        $data = array();
+        $data['cargoActive'] = true;
+
+        $query = Order::query();
 
         // Entries per page
         $entries = $request->input('number_of_entries', 10);
@@ -27,6 +31,6 @@ class CargoController extends Controller
             ->paginate($entries)
             ->appends($request->all());
 
-        return view('cargo.index', compact('cargoes'));
+        return view('cargo.index', compact('cargoes'),$data);
     }
 }
