@@ -42,7 +42,7 @@
                         </div>
                     </form>
                     <div class="table-responsive mt-4">
-                        <table class="table table-striped table-bordered table-hover">
+                        <table class="table table-striped table-bordered table-hover" id="cargoTable">
                             <thead>
                                 <tr>
                                     <th><input type="checkbox" name="checkAll" id="checkAll"></th>
@@ -54,8 +54,8 @@
                                     <th>Packaging</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @forelse ($cargoes as $item)
+                             <tbody>
+                                {{--@forelse ($cargoes as $item)
                                     <tr>
                                         <td><input type="checkbox" name="" id=""></td>
                                         <td>{{ $item->created_at->format('Y-m-d') }}</td>
@@ -71,12 +71,12 @@
                                             No records found.
                                         </td>
                                     </tr>
-                                @endforelse
+                                @endforelse --}}
                             </tbody>
                         </table>
 
 
-                        <div class="mt-2 d-flex justify-content-between align-items-center">
+                        {{-- <div class="mt-2 d-flex justify-content-between align-items-center">
                             <div>
                                 {!! $cargoes->appends(request()->except('page'))->links() !!}
                             </div>
@@ -90,7 +90,7 @@
                             <div>
                                 Showing {{ $from }} to {{ $to }} of {{ $total }} entries
                             </div>
-                        </div> 
+                        </div>  --}}
                     </div> 
                 </div>
             </div>
@@ -201,6 +201,54 @@
         }, cb);
 
         cb(start, end);
+
+        $('#cargoTable').DataTable({
+            processing: true,
+            serverSide: true,
+            responsive: true,
+            searching: false,
+            ordering: false,
+            paging: true,
+            autoWidth: false,
+            scrollY: '480px',
+            scrollCollapse: false,
+            lengthChange: false,
+            language: {
+                processing: '<div class="spinner-border"></div>',
+            },
+            ajax: function (data, callback) {
+                let page = (data.start / data.length) + 1;
+                let limit = data.length;
+
+                $.ajax({
+                    url: "{{ route('cargoes.list') }}",
+                    type: 'GET',
+                    data: {
+                        page: page,
+                        limit: limit,                          
+                        search: '' // ✅ send search text if needed
+                    },
+                    success: function (resp) {
+                        callback({
+                            data: resp.data,            
+                            recordsTotal: resp.total,   
+                            recordsFiltered: resp.total 
+                        });
+                    }
+                });
+            },
+            columns: [
+                { data: 'id' },
+                { data: 'created_at' },
+                { data: 'DocNum' },
+                { data: 'CardCode'},
+                { data: 'CardCode' },
+                { data: 'Label'},
+                { data: 'Packaging'}
+            ],
+            rowCallback : function(row,data,DisplayIndex){
+            }
+        });
     });
 </script>
 @endsection

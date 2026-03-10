@@ -1,0 +1,14 @@
+.page-link.active, .active > .page-link {
+    background-color: #20c997 !important; /* lighter green on hover */
+    border-color: #20c997 !important;
+    color: white !important;
+}
+
+.dt-processing{
+    background: transparent !important;  /* removes any background color */
+    box-shadow: none !important;         /* removes any card shadow */
+    border: none !important;
+}
+.dt-processing > div > div{
+    display: none !important;
+}

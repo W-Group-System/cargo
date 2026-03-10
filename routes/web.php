@@ -29,6 +29,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Cargo
     Route::get('/cargo','CargoController@index')->name('cargoes.index');
+    Route::get('cargo/list','CargoController@CargoList')->name('cargoes.list');
 
     // Shipments
     Route::get('/shipments','ShipmentController@index');

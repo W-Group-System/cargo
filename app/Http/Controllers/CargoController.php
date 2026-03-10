@@ -5,6 +5,8 @@ use App\Cargo;
 use App\Order;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CargoController extends Controller
 {
@@ -32,5 +34,51 @@ class CargoController extends Controller
             ->appends($request->all());
 
         return view('cargo.index', compact('cargoes'),$data);
+    }
+
+    public function CargoList(Request $request){
+        $response = [
+            "isSuccess"=>false,
+            "message"=>"Failed to retrieve information.",
+            "total"=>0,
+            "page"=>1,
+            "data"=>null
+        ];
+        try {
+            $page = $request->page ?? 1;
+            $limit = $request->limit ?? 10;
+
+            $ordersList = Order::select("*");
+
+            if (isset($request->id) && !empty($request->id)) {
+                $ordersList = $ordersList->where("id",$request->id);
+            }
+
+            $totalCount = (clone $ordersList)->count();
+
+            if (isset($request->search) && !empty(isset($request->search))) {
+                $search = $request->search;
+                $ordersList = $ordersList->where(function ($query) use ($search) {
+                    $query->where('CardCode', 'LIKE', "%{$search}%")
+                        ->orWhere('CardName', 'LIKE', "%{$search}%")
+                        ->orWhere('Label', 'LIKE', "%{$search}%")
+                        ->orWhere('Packaging', 'LIKE', "%{$search}%")
+                        ->orWhere('DocNum', 'LIKE', "%{$search}%");
+                });
+            }
+
+            $ordersList = $ordersList->orderBy("id","desc") 
+                ->skip(($page - 1) * $limit)
+                ->take($limit)
+                ->get();
+            $response["isSuccess"] = true;
+            $response["message"] = "Successfully retrieved information.";
+            $response["total"] = $totalCount;
+            $response["data"] = $ordersList;
+        } catch (\Throwable $th) {
+            Log::error("ERROR IN GETTING CARGO LIST: ".$th);
+        }
+        
+        return $response;
     }
 }

@@ -115,7 +115,7 @@
                         </div>
                     </div>
                     <div class="table-responsive mt-4">
-                        <table class="table table-striped table-bordered table-hover">
+                        <table class="table table-striped table-bordered table-hover" id="shipmentTable">
                             <thead>
                                 <tr>
                                     <th><input type="checkbox" name="" id=""></th>
@@ -413,6 +413,8 @@
         }, cb);
 
         cb(start, end);
+
+        let table = new DataTable('#shipmentTable');
     });
 </script>
 @endsection

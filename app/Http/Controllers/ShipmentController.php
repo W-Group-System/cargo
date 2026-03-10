@@ -11,7 +11,7 @@ class ShipmentController extends Controller
         $data = array();
         $data['shipmentActive'] = true;
         $dummyList = array();
-        for ($i=0; $i < 10; $i++) { 
+        for ($i=0; $i < 100; $i++) { 
             $dummyList[] = [
                 "status" => "Pending",
                 "dateCreated" => "Oct 1, 2025",
