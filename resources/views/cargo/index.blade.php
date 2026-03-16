@@ -6,7 +6,8 @@
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title">Cargo Management</h4>
-                    <form method="GET" action="{{ route('cargoes.index') }}" class="form-inline mt-4">
+                    <form method="GET" id="cargoListForm" class="form-inline mt-4">
+                        @csrf
                         <div class="row g-3 align-items-center">
                             <div class="col-auto">
                                 <label class="col-form-label">Filter by date sync:</label>
@@ -34,7 +35,7 @@
                                 </button>
                             </div>
                             <div class="col-auto">
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateCargoModal">
+                                <button type="button" class="btn btn-primary" id="btnCargoUpdate" data-bs-toggle="modal" data-bs-target="#updateCargoModal" disabled>
                                     <i class="bi bi-pen"></i>&nbsp;Update
                                 </button>
                                 {{-- @include('cargo.edit') --}}
@@ -55,42 +56,8 @@
                                 </tr>
                             </thead>
                              <tbody>
-                                {{--@forelse ($cargoes as $item)
-                                    <tr>
-                                        <td><input type="checkbox" name="" id=""></td>
-                                        <td>{{ $item->created_at->format('Y-m-d') }}</td>
-                                        <td>{{ $item->DocNum }}</td>
-                                        <td>{{ $item->CardCode }}</td>
-                                        <td>{{ $item->BuyerPONo ?? '-' }}</td>
-                                        <td>{{ $item->Label ?? $item->Label ?? '-' }}</td>
-                                        <td>{{ $item->Packaging ?? $item->Packaging ?? '-' }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center text-muted">
-                                            No records found.
-                                        </td>
-                                    </tr>
-                                @endforelse --}}
                             </tbody>
                         </table>
-
-
-                        {{-- <div class="mt-2 d-flex justify-content-between align-items-center">
-                            <div>
-                                {!! $cargoes->appends(request()->except('page'))->links() !!}
-                            </div>
-                            @php
-                                $total = $cargoes->total();
-                                $currentPage = $cargoes->currentPage();
-                                $perPage = $cargoes->perPage();
-                                $from = ($currentPage - 1) * $perPage + 1;
-                                $to = min($currentPage * $perPage, $total);
-                            @endphp
-                            <div>
-                                Showing {{ $from }} to {{ $to }} of {{ $total }} entries
-                            </div>
-                        </div>  --}}
                     </div> 
                 </div>
             </div>
@@ -105,7 +72,7 @@
                     <label class="fw-bold me-2" style="min-width: 130px;">
                         Buyer Code #:
                     </label>
-                    <span>25001</span>
+                    <span id="soNoHeader">-</span>
                 </div>
             </div>
             <div class="col-12 col-lg-3">
@@ -113,9 +80,8 @@
                     <div class="card-header bg-secondary text-white rounded-0 py-1 px-3">
                         Selected SO #.
                     </div>
-                    <div class="card-body bg-light">
-                        <u>250001</u>
-                    </div>
+                    <ul id="selectedSOList" class="mb-0">
+                    </ul>
                 </div>
             </div>
             <div class="col-12 col-lg-9">
@@ -125,12 +91,12 @@
                     </div>
                     <div class="card-body bg-light">
                         <br>
-                        <p style="margin-bottom: 0.25rem;">SO No.: <span style="font-weight: 700;">250001</span></p>
-                        <p style="margin-bottom: 0.25rem;">Packing: <span style="font-weight: 700;">Rico Gel</span></p>
-                        <p style="margin-bottom: 0.25rem;">Label <span style="font-weight: 700;">Rico Kraft Bag</span></p>
-                        <p style="margin-bottom: 0.25rem;">Date created: <span style="font-weight: 700;">November 14, 2025</span></p>
-                        <p style="margin-bottom: 0.25rem;">Quantity: <span style="font-weight: 700;">16</span></p>
-                        <p style="margin-bottom: 0.25rem;">Remarks:<br /><span style="font-weight: 700;">Other order details and instructions here.</span></p>
+                        <p style="margin-bottom: 0.25rem;">SO No.: <span style="font-weight: 700;" id="soNo">-</span></p>
+                        <p style="margin-bottom: 0.25rem;">Packing: <span style="font-weight: 700;" id="packaging">-</span></p>
+                        <p style="margin-bottom: 0.25rem;">Label <span style="font-weight: 700;" id="label">-</span></p>
+                        <p style="margin-bottom: 0.25rem;">Date created: <span style="font-weight: 700;" id="dateCreated">-</span></p>
+                        <p style="margin-bottom: 0.25rem;">Quantity: <span style="font-weight: 700;" id="qty">-</span></p>
+                        <p style="margin-bottom: 0.25rem;">Remarks:<br /><span style="font-weight: 700;" id="remarks">-</span></p>
                         <br>
                         <p style="margin-bottom: 0.25rem;">To be  filled out by the Plant</p>
                         <hr>
@@ -177,7 +143,7 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="text/javascript">
-    $(function () {
+    $(document).ready(function () {
         var start = moment().subtract(29, 'days');
         var end = moment();
 
@@ -201,6 +167,93 @@
         }, cb);
 
         cb(start, end);
+
+        let cargoIds = [];
+        $('#cargoListForm').submit(function (e) { 
+            e.preventDefault();
+            ReloadDataTable();
+            $('#checkAll').prop('checked',false);
+            $('#btnCargoUpdate').prop('disabled',true);
+        });
+
+        $('#checkAll').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#cargoTable .cargoCheckbox').each(function () {
+                    $(this).prop('checked', true); // check checkbox
+                    let soNo = $(this).attr('data-soNo');
+                    if (!cargoIds.includes(soNo)) {
+                        cargoIds.push(soNo); // add to array if not exists
+                    }
+                });
+                $('#btnCargoUpdate').prop('disabled', false);
+            } else {
+                $('#cargoTable .cargoCheckbox').each(function () {
+                    $(this).prop('checked', false);
+
+                    let soNo = $(this).attr('data-soNo');
+                    cargoIds = cargoIds.filter(id => id !== soNo); // remove from array
+                });
+                $('#btnCargoUpdate').prop('disabled', true);
+            }
+        });
+
+        $('#cargoTable').on('change', '.cargoCheckbox', function () {
+            var soNumber = $(this).attr('data-soNo');
+
+            if ($(this).is(':checked')) {
+                $('.cargoCheckbox:checked').each(function () {
+                    var soNo = $(this).attr('data-soNo');
+                    if (!cargoIds.includes(soNo)) {
+                        cargoIds.push(soNo);
+                    }
+                });
+                $('#btnCargoUpdate').prop('disabled',false);
+            } else {
+                if(cargoIds.includes(soNumber)){
+                    var index = cargoIds.indexOf(soNumber);
+                    if (index !== -1) {
+                        cargoIds.splice(index, 1);
+                    }
+                }                
+                if (cargoIds.length === 0) {                    
+                    $('#btnCargoUpdate').prop('disabled',true);
+                }else{
+                    $('#btnCargoUpdate').prop('disabled',false);
+                }                
+            }
+        });
+        
+
+        $('#btnCargoUpdate').on('click', function () {
+            if (cargoIds.length > 0) {
+                let firstSoNo = cargoIds[0];
+                cargoIds.forEach(element => {
+                    $('#selectedSOList').append(
+                        '<li><a href="#" class="so-link" data-so="'+element+'"><u>' + element + '</u></a></li>'
+                    );
+                });
+                GetCargoDetails(firstSoNo);
+            }
+        });
+
+        $(this).on('click', '#selectedSOList .so-link', function(e) {
+            e.preventDefault();
+            let soNo = $(this).data('so');
+            console.log('Clicked SO:', soNo);
+            GetCargoDetails(soNo);
+        });
+
+        $('#updateCargoModal').on('hide.bs.modal', function () {
+            $('#selectedSOList').empty();
+            $('#soNo').text("");
+            $('#packaging').text("");
+            $('#label').text("");
+            $('#dateCreated').text("");
+        });
+
+        function ReloadDataTable() {
+            $('#cargoTable').DataTable().ajax.reload(null, true);
+        }
 
         $('#cargoTable').DataTable({
             processing: true,
@@ -226,7 +279,8 @@
                     data: {
                         page: page,
                         limit: limit,                          
-                        search: '' // ✅ send search text if needed
+                        start_date:  $('#start_date').val(),
+                        end_date:  $('#end_date').val()
                     },
                     success: function (resp) {
                         callback({
@@ -238,7 +292,11 @@
                 });
             },
             columns: [
-                { data: 'id' },
+                { 
+                    render: function (data, type, row) {
+                        return `<input type="checkbox" class="cargoCheckbox" name="${row.id}" id="${row.id}" data-soNo="${row.DocNum}">`;
+                    }
+                },
                 { data: 'created_at' },
                 { data: 'DocNum' },
                 { data: 'CardCode'},
@@ -249,6 +307,27 @@
             rowCallback : function(row,data,DisplayIndex){
             }
         });
+
+        function GetCargoDetails(soNo){
+            $.ajax({
+                type: "GET",
+                url: "{{ route('cargoes.list') }}",
+                data: {
+                    page: 1,
+                    limit: 1,
+                    search: soNo
+                },
+                dataType: "JSON",
+                success: function (response) {
+                    // console.log(response);
+                    $('#soNoHeader').text(response.data[0].DocNum);
+                    $('#soNo').text(response.data[0].DocNum);
+                    $('#packaging').text(response.data[0].Packaging);
+                    $('#label').text(response.data[0].Label);
+                    $('#dateCreated').text(response.data[0].created_at);
+                }
+            });
+        }
     });
 </script>
 @endsection

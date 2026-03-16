@@ -54,8 +54,6 @@ class CargoController extends Controller
                 $ordersList = $ordersList->where("id",$request->id);
             }
 
-            $totalCount = (clone $ordersList)->count();
-
             if (isset($request->search) && !empty(isset($request->search))) {
                 $search = $request->search;
                 $ordersList = $ordersList->where(function ($query) use ($search) {
@@ -66,6 +64,15 @@ class CargoController extends Controller
                         ->orWhere('DocNum', 'LIKE', "%{$search}%");
                 });
             }
+
+            if ($request->filled('start_date') && $request->filled('end_date')) {
+                $start = Carbon::parse($request->start_date)->startOfDay();
+                $end   = Carbon::parse($request->end_date)->endOfDay();
+
+                $ordersList->whereBetween('created_at', [$start, $end]);
+            }
+
+            $totalCount = (clone $ordersList)->count();
 
             $ordersList = $ordersList->orderBy("id","desc") 
                 ->skip(($page - 1) * $limit)
