@@ -243,18 +243,21 @@
         });
 
         $('#updateCargoModal').on('hide.bs.modal', function () {
+            // cargoIds = [];
             $('#selectedSOList').empty();
             $('#soNo').text("");
             $('#packaging').text("");
             $('#label').text("");
             $('#dateCreated').text("");
         });
+        console.log(cargoIds);
+        
 
         function ReloadDataTable() {
             $('#cargoTable').DataTable().ajax.reload(null, true);
         }
 
-        $('#cargoTable').DataTable({
+        let orderTable = $('#cargoTable').DataTable({
             processing: true,
             serverSide: true,
             responsive: true,
@@ -305,6 +308,12 @@
             ],
             rowCallback : function(row,data,DisplayIndex){
             }
+        });
+
+        orderTable.on('draw', function() {
+            $('#checkAll').prop('checked',false);
+            $('#btnCargoUpdate').prop('disabled',true);
+            cargoIds = [];
         });
 
         function GetCargoDetails(soNo){
