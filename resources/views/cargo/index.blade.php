@@ -239,7 +239,6 @@
         $(this).on('click', '#selectedSOList .so-link', function(e) {
             e.preventDefault();
             let soNo = $(this).data('so');
-            console.log('Clicked SO:', soNo);
             GetCargoDetails(soNo);
         });
 
