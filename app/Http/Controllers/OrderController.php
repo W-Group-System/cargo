@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Order;
 use App\OrderItem;
+use App\ThirdrdPartyEndpoint;
 use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Client;
 
@@ -17,86 +18,79 @@ class OrderController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->input('search');
-        $entries = $request->input('number_of_entries', 10); // Default 10 per page
-        $data = collect();  
+        return view('orders.indexV2');
+    }
 
-        if ($request->has('sap_server')) {
-            $sapServer = $request->sap_server;
+    public function SapOrderList(Request $request){
+        $response = [
+            "isSuccess"=>false,
+            "message"=>"Failed to retrieve information.",
+            "total"=>0,
+            "page"=>1,
+            "data"=>null
+        ];
 
-            $client = new Client();
+        $isSuccess = false;
 
-            try {
+        try {
+            $page = $request->page ?? 1;
+            $limit = $request->limit ?? 10;
+            $search = $request->search;
+            $start = $request->start_date??"";
+            $end = $request->end_date??"";
+
+            $endpoint = null;
+
+            $data = collect();  
+            if ($request->has('sap_server')) {
+                $sapServer = $request->sap_server;
+
+                $client = new Client();
                 switch ($sapServer) {
                     case 'whi':
-                        $response = $client->request('GET', 'https://sap-database.wgroup.space/api/salesorder');
+                        $endpointData = ThirdrdPartyEndpoint::where("Code","WHI-DIST")->first();
                         break;
                     case 'pbi':
-                        $response = $client->request('GET', 'https://sap-database.wgroup.space/api/pbi_salesorder');
+                        $endpointData = ThirdrdPartyEndpoint::where("Code","PBI-DIST")->first();
                         break;
                     case 'ccc':
-                        $response = $client->request('GET', 'https://sap-database.wgroup.space/api/ccc_salesorder');
+                        $endpointData = ThirdrdPartyEndpoint::where("Code","CCC-DIST")->first();
                         break;
                     default:
-                        $response = null;
+                        $endpointData = null;
                 }
+                
+                if (!empty($endpointData) > 0) {
 
-                if ($response && $response->getStatusCode() === 200) {
-                    $body = $response->getBody()->getContents();
-                    $allData = collect(json_decode($body));
+                    $endpoint = $endpointData->Endpoint."?page={$page}&limit={$limit}";
 
-                    // Date filter
-                    $start = $request->start_date;
-                    $end = $request->end_date;
-                    if ($start && $end) {
-                        $allData = $allData->filter(function ($item) use ($start, $end) {
-                            $docDate = Carbon::parse($item->DocDate)->format('Y-m-d');
-                            return $docDate >= $start && $docDate <= $end;
-                        })->values();
+                    if (!empty($start) && !empty($end)) {
+                        $endpoint = $endpoint."&startDate={$start}&endDate={$end}";
                     }
+                    
+                    $sapResponse = $client->request('GET', $endpoint);
 
-                    // Search filter
-                    if ($search) {
-                        $allData = $allData->filter(function ($item) use ($search) {
-                            $term = strtolower($search);
-                            return str_contains(strtolower($item->DocNum), $term) ||
-                                str_contains(strtolower($item->CardCode), $term) ||
-                                str_contains(strtolower($item->CardName), $term);
-                        })->values();
+                    if ($sapResponse && $sapResponse->getStatusCode() === 200) {
+                        $body = $sapResponse->getBody()->getContents();
+                        $allData = collect(json_decode($body));
+                        $response["isSuccess"] = true;
+                        $response["message"] = "Successfully retrieved information.";
+                        $response["total"] = $allData["total"];
+                        $response["data"] = $allData["data"];
                     }
-
-                    $data = $allData;
+                    $isSuccess = true;
                 }
-            } catch (\Exception $e) {
-                Log::error('SAP API error: ' . $e->getMessage());
             }
+            
+        } catch (\Throwable $th) {
+            Log::error("ERROR IN GETTING SAP ORDER LIST: ".$th);
         }
-
-        // Manual pagination
-        $page = $request->input('page', 1);
-        $offset = ($page * $entries) - $entries;
-
-        $pagedData = new LengthAwarePaginator(
-            $data->slice($offset, $entries)->values(),
-            $data->count(),
-            $entries,
-            $page,
-            [
-                'path' => Paginator::resolveCurrentPath(),
-                'query' => $request->query(),
-            ]
-        );
-
-        if ($request->ajax()) {
-            return view('orders._table', compact('pagedData'))->render();
+        
+        if ($isSuccess) {
+            return response()->json($response, 200);
+        }else{
+            return response()->json($response, 400);
         }
-
-        return view('orders.index', [
-            'data' => $pagedData,
-            'entries' => $entries,
-            'search' => $search,
-            'activeOrders' => true
-        ]);
     }
 
     public function store(Request $request)
