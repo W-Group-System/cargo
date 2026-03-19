@@ -167,13 +167,46 @@ $(document).ready(function(){
             {
                 render: function (data, type, row) {
                     return `<button type="button" class="btn btn-success btn-process"
-                        data-cardcode="${row.BuyersCode}">
+                        data-cardcode="${row.BuyersCode}" data-sapserver="${$('#sap_server').val()}" data-cardname="${row.CardName}" data-docdate="${row.DocDate}">
                         Process
                     </button>`
                 }
             }
         ],
         rowCallback : function(row,data,DisplayIndex){
+            $(row).find('.btn-process').unbind('click').on('click',function(){
+                let button = $(this);
+                let cardCode = $(this).attr('data-cardcode');
+                let sapServer = $(this).attr('data-sapserver');
+                let cardName = $(this).attr('data-cardname');
+                let docDate = $(this).attr('data-docdate');
+                
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('orders.store') }}",
+                    contentType: "application/json",
+                    data: JSON.stringify({
+                        _token: "{{ csrf_token() }}",
+                        cardCode : cardCode,
+                        sapServer : sapServer,
+                        cardName : cardName,
+                        docDate : docDate
+                    }),
+                    beforeSend: function(){
+                        button.prop('disabled',true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+                    },
+                    success: function (response) {
+                        ReloadDataTable();
+                        Swal.fire('Success',response.message,'success');
+                    },
+                    error: function (xhr) {
+                        Swal.fire('Error',xhr.responseJSON?.message || 'Error','error');
+                    },
+                    complete: function(){
+                        button.prop('disabled',false).text('Process');
+                    }
+                });
+            });
         }
     });
 

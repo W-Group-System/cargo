@@ -26,7 +26,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/orders','OrderController@index')->name('orders.index');
     Route::get('/salesorder','OrderController@salesOrder');
     Route::post('/orders/store', [OrderController::class, 'store'])->name('orders.store');
-    Route::get('/salesorder/list',[OrderController::class, 'SapOrderList'])->name('orders.list');
+    Route::get('/salesorder/list',[OrderController::class, 'SapOrderListDictinct'])->name('orders.list');
 
     // Cargo
     Route::get('/cargo','CargoController@index')->name('cargoes.index');
