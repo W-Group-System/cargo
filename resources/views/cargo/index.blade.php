@@ -91,19 +91,21 @@
                         <br>
                         <p style="margin-bottom: 0.25rem;">To be  filled out by the Plant</p>
                         <hr>
-                        <form action="">
+                        <form id="updateCargoDetailsForm">
+                            @csrf
                             <div class="row g-4">
                                 <div class="col-12 col-lg-6">
+                                    <input type="hidden" name="buyersCode" id="buyersCode">
                                     <div class="row mb-3 align-items-center">
                                         <label class="col-sm-4 col-form-label">Availability Date:</label>
                                         <div class="col-sm-8">
-                                            <input type="date" class="form-control" name="availabilityDate" id="availabilityDate">
+                                            <input type="date" class="form-control" name="availabilityDate" id="availabilityDate" required>
                                         </div>
                                     </div>
                                     <div class="row mb-3 align-items-center">
                                         <label class="col-sm-4 col-form-label">Date Pickup:</label>
                                         <div class="col-sm-8">
-                                            <input type="date" class="form-control" name="datePickup" id="datePickup">
+                                            <input type="date" class="form-control" name="pickupDate" id="pickupDate" required>
                                         </div>
                                     </div>
                                 </div>
@@ -113,13 +115,15 @@
                                         <div class="col-sm-8">
                                             <select name="status" id="status" class="form-control">
                                                 <option value="">-Select Data-</option>
-                                                <option value="">Ready to pickup</option>
+                                                @foreach ($shipmentStatusArr as $key => $value)
+                                                    <option value="{{ $key }}">{{ $value }}</option>
+                                                @endforeach
                                             </select>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-12">
-                                    <button class="btn btn-secondary form-control" type="submit">Process</button>
+                                    <button class="btn btn-secondary form-control" id="btnProcessCargo" type="submit">Process</button>
                                 </div>
                                 </div>
                         </form>
@@ -170,6 +174,30 @@
             let soNo = $(this).data('so');
             let buyersCode = $(this).data('buyerscode');
             GetCargoDetails(soNo,buyersCode);
+        });
+
+        $('#updateCargoDetailsForm').submit(function (e) { 
+            e.preventDefault();
+            
+            var form_data = $(this).serializeArray();
+            $.ajax({
+                type: "POST",
+                url: "{{ route('cargo.update') }}",
+                data:  form_data,
+                // contentType: "application/json",
+                beforeSend: function(){
+                    $('#btnProcessCargo').prop('disabled',true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+                },
+                success: function (response) {
+                    Swal.fire('Success',response.message,'success');
+                },
+                error: function (xhr) {
+                    Swal.fire('Error',xhr.responseJSON?.message || 'Error','error');
+                },
+                complete: function(){
+                    $('#btnProcessCargo').prop('disabled',false).text('Process');
+                }
+            });
         });
 
         function ReloadDataTable() {
@@ -230,7 +258,7 @@
                 let button = $(this);
                 let cardCode = $(this).attr('data-cardcode');
                 let sapServer = $(this).attr('data-sapserver');
-                
+                $('#buyersCode').val(cardCode);
                 $.ajax({
                     type: "GET",
                     url: "{{ route('cargo.details') }}",
@@ -277,6 +305,7 @@
             $('#packaging').text("");
             $('#label').text("");
             $('#dateCreated').text("");
+            $('#updateCargoDetailsForm').trigger('reset');
         });
 
         function GetCargoDetails(soNo,cardCode){

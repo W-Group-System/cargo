@@ -12,7 +12,10 @@ class ProcessedOrders extends Model
         "SapServer",
         "CardCode",
         "CardName",
-        "MinDocDate"
+        "MinDocDate",
+        "AvailabilityDate",
+        "PickupDate",
+        "Status"
     ];
 
     public function OrderData()

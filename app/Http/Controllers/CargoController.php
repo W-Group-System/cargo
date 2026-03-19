@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Cargo;
 use App\Order;
 use App\ProcessedOrders;
+use App\ShipmentStatus;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,26 +16,9 @@ class CargoController extends Controller
     {
         $data = array();
         $data['cargoActive'] = true;
+        $data['shipmentStatusArr'] = ShipmentStatus::ShipmentStatusArray();
 
-        $query = Order::query();
-
-        // Entries per page
-        $entries = $request->input('number_of_entries', 10);
-
-        // Date filter (created_at)
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $start = Carbon::parse($request->start_date)->startOfDay();
-            $end   = Carbon::parse($request->end_date)->endOfDay();
-
-            $query->whereBetween('created_at', [$start, $end]);
-        }
-
-        $cargoes = $query
-            ->orderBy('created_at', 'desc')
-            ->paginate($entries)
-            ->appends($request->all());
-
-        return view('cargo.index', compact('cargoes'),$data);
+        return view('cargo.index',$data);
     }
 
     public function CargoList(Request $request){
@@ -121,6 +105,38 @@ class CargoController extends Controller
             }
         } catch (\Throwable $th) {
             Log::error("ERROR IN GETTING ORDER DETAILS: ".$th->getMessage());
+        }
+
+        if ($isSuccess) {
+            return response()->json($response,200);
+        }else{
+            return response()->json($response,400);
+        }
+    }
+
+    public function UpdateProcessedOrderDetails(Request $request){
+        // dd($request->all());
+        $response = [
+            "isSuccess"=>false,
+            "message"=>"Failed to update information."
+        ];
+        $isSuccess = false;
+
+        try {
+            $buyersCode = $request->buyersCode??"";
+            $availabilityDate = $request->availabilityDate??null;
+            $pickupDate = $request->pickupDate??null;
+            $status = $request->status??null;
+            
+            if (!empty($buyersCode)) {
+                $processedOrderData = ProcessedOrders::where("CardCode",$buyersCode)->first();
+                if (!empty($processedOrderData)) {
+                    $processedOrderData = $processedOrderData->update(["AvailabilityDate"=>$availabilityDate,"PickupDate"=>$pickupDate,"Status"=>$status]);
+                }
+                $isSuccess = true;
+            }
+        } catch (\Exception $th) {
+            Log::error("ERROR IN UPDATING CARGO DETAILS: ".$th->getMessage());
         }
 
         if ($isSuccess) {
