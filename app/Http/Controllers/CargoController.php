@@ -75,6 +75,9 @@ class CargoController extends Controller
         $response = [
             "isSuccess"=>false,
             "message"=>"Failed to retrieve information.",
+            "availabilityDate" => null,
+            "pickupDate" => null,
+            "status" => null,
             "total"=>0,
             "page"=>1,
             "data"=>null
@@ -96,6 +99,13 @@ class CargoController extends Controller
                     ->skip(($page - 1) * $limit)
                     ->take($limit)
                     ->get();
+
+                $processedOrderData = ProcessedOrders::where("CardCode",$buyersCode)->first();
+                if (!empty($processedOrderData)) {
+                    $response["availabilityDate"] = $processedOrderData->AvailabilityDate;
+                    $response["pickupDate"] = $processedOrderData->PickupDate;
+                    $response["status"] = $processedOrderData->Status;
+                }
 
                 $isSuccess = true;
                 $response["isSuccess"] = $isSuccess;

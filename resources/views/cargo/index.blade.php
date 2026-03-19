@@ -189,6 +189,7 @@
                     $('#btnProcessCargo').prop('disabled',true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
                 },
                 success: function (response) {
+                    $('#updateCargoModal').modal('hide');
                     Swal.fire('Success',response.message,'success');
                 },
                 error: function (xhr) {
@@ -280,6 +281,9 @@
                             );
                         });
                         GetCargoDetails(firstSoNo,cardCode);
+                        $('#availabilityDate').val(response.availabilityDate);
+                        $('#pickupDate').val(response.pickupDate);
+                        $('#status').val(response.status);
                         $('#updateCargoModal').modal('show');
                     },
                     error: function (xhr) {
