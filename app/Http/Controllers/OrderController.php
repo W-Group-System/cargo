@@ -145,15 +145,17 @@ class OrderController extends Controller
                             if (isset($order->id)) {
                                 $orderId = $order->id;
                                 $itemsList = collect($collectedData["items"]);
-                                foreach($itemsList as $key => $value){
-                                    $itemData = collect($value);
-                                    OrderItem::create([
-                                        'order_id'   => $orderId,
-                                        'CardCode'   => $cardCode,
-                                        'ItemCode'   => $itemData['ItemCode'] ?? null,
-                                        'Dscription' => $itemData['Dscription'] ?? null,
-                                        'Quantity'   => isset($itemData['Quantity']) ? (int)$itemData['Quantity'] : 0
-                                    ]);
+                                if (count($itemsList)) {
+                                    foreach($itemsList as $key => $value){
+                                        $itemData = collect($value);
+                                        OrderItem::create([
+                                            'order_id'   => $orderId,
+                                            'CardCode'   => $cardCode,
+                                            'ItemCode'   => $itemData['ItemCode'] ?? null,
+                                            'Dscription' => $itemData['Dscription'] ?? null,
+                                            'Quantity'   => isset($itemData['Quantity']) ? (int)$itemData['Quantity'] : 0
+                                        ]);
+                                    }
                                 }
                             }
                         }
