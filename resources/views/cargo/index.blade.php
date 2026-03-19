@@ -34,25 +34,16 @@
                                     <i class="bi bi-search"></i>&nbsp;Search
                                 </button>
                             </div>
-                            <div class="col-auto">
-                                <button type="button" class="btn btn-primary" id="btnCargoUpdate" data-bs-toggle="modal" data-bs-target="#updateCargoModal" disabled>
-                                    <i class="bi bi-pen"></i>&nbsp;Update
-                                </button>
-                                {{-- @include('cargo.edit') --}}
-                            </div>
                         </div>
                     </form>
                     <div class="table-responsive mt-4">
                         <table class="table table-striped table-bordered table-hover" id="cargoTable">
                             <thead>
                                 <tr>
-                                    <th><input type="checkbox" name="checkAll" id="checkAll"></th>
                                     <th>Date Created</th>
-                                    <th>SO No.</th>
-                                    <th>Buyer Code</th>
-                                    <th>Buyer PO No.</th>
-                                    <th>Label</th>
-                                    <th>Packaging</th>
+                                    <th>Buyers Code</th>
+                                    <th>Buyers Name</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                              <tbody>
@@ -172,86 +163,14 @@
         $('#cargoListForm').submit(function (e) { 
             e.preventDefault();
             ReloadDataTable();
-            $('#checkAll').prop('checked',false);
-            $('#btnCargoUpdate').prop('disabled',true);
-        });
-
-        $('#checkAll').on('change', function() {
-            if ($(this).is(':checked')) {
-                $('#cargoTable .cargoCheckbox').each(function () {
-                    $(this).prop('checked', true); // check checkbox
-                    let soNo = $(this).attr('data-soNo');
-                    if (!cargoIds.includes(soNo)) {
-                        cargoIds.push(soNo); // add to array if not exists
-                    }
-                });
-                $('#btnCargoUpdate').prop('disabled', false);
-            } else {
-                $('#cargoTable .cargoCheckbox').each(function () {
-                    $(this).prop('checked', false);
-
-                    let soNo = $(this).attr('data-soNo');
-                    cargoIds = cargoIds.filter(id => id !== soNo); // remove from array
-                });
-                $('#btnCargoUpdate').prop('disabled', true);
-            }
-        });
-
-        $('#cargoTable').on('change', '.cargoCheckbox', function () {
-            var soNumber = $(this).attr('data-soNo');
-
-            if ($(this).is(':checked')) {
-                $('.cargoCheckbox:checked').each(function () {
-                    var soNo = $(this).attr('data-soNo');
-                    if (!cargoIds.includes(soNo)) {
-                        cargoIds.push(soNo);
-                    }
-                });
-                $('#btnCargoUpdate').prop('disabled',false);
-            } else {
-                if(cargoIds.includes(soNumber)){
-                    var index = cargoIds.indexOf(soNumber);
-                    if (index !== -1) {
-                        cargoIds.splice(index, 1);
-                    }
-                }                
-                if (cargoIds.length === 0) {                    
-                    $('#btnCargoUpdate').prop('disabled',true);
-                }else{
-                    $('#btnCargoUpdate').prop('disabled',false);
-                }                
-            }
-        });
-        
-
-        $('#btnCargoUpdate').on('click', function () {
-            if (cargoIds.length > 0) {
-                let firstSoNo = cargoIds[0];
-                cargoIds.forEach(element => {
-                    $('#selectedSOList').append(
-                        '<li><a href="#" class="so-link" data-so="'+element+'"><u>' + element + '</u></a></li>'
-                    );
-                });
-                GetCargoDetails(firstSoNo);
-            }
         });
 
         $(this).on('click', '#selectedSOList .so-link', function(e) {
             e.preventDefault();
             let soNo = $(this).data('so');
-            GetCargoDetails(soNo);
+            let buyersCode = $(this).data('buyerscode');
+            GetCargoDetails(soNo,buyersCode);
         });
-
-        $('#updateCargoModal').on('hide.bs.modal', function () {
-            // cargoIds = [];
-            $('#selectedSOList').empty();
-            $('#soNo').text("");
-            $('#packaging').text("");
-            $('#label').text("");
-            $('#dateCreated').text("");
-        });
-        console.log(cargoIds);
-        
 
         function ReloadDataTable() {
             $('#cargoTable').DataTable().ajax.reload(null, true);
@@ -294,41 +213,88 @@
                 });
             },
             columns: [
-                { 
-                    render: function (data, type, row) {
-                        return `<input type="checkbox" class="cargoCheckbox" name="${row.id}" id="${row.id}" data-soNo="${row.DocNum}">`;
-                    }
-                },
                 { data: 'created_at' },
-                { data: 'DocNum' },
-                { data: 'CardCode'},
                 { data: 'CardCode' },
-                { data: 'Label'},
-                { data: 'Packaging'}
+                { data: 'CardName'},
+                {
+                    render: function (data, type, row) {
+                        return `<button type="button" class="btn btn-primary btn-update" id="btnCargoUpdate"
+                            data-cardcode="${row.CardCode}" data-sapserver="${$('#sap_server').val()}">
+                            Update
+                        </button>`
+                    }
+                }
             ],
             rowCallback : function(row,data,DisplayIndex){
+                $(row).find('.btn-update').unbind('click').on('click',function(){
+                let button = $(this);
+                let cardCode = $(this).attr('data-cardcode');
+                let sapServer = $(this).attr('data-sapserver');
+                
+                $.ajax({
+                    type: "GET",
+                    url: "{{ route('cargo.details') }}",
+                    data: {
+                        page : 1,
+                        limit : 100,
+                        buyersCode : cardCode,
+                        sapServer : sapServer
+                    },
+                    beforeSend: function(){
+                        button.prop('disabled',true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+                    },
+                    success: function (response) {
+                        let firstSoNo = response.data[0].DocNum;
+                        $('#soNoHeader').text(cardCode);
+                        response.data.forEach(element => {
+                            $('#selectedSOList').append(
+                                '<li><a href="#" class="so-link" data-so="'+element.DocNum+'" data-buyerscode="'+element.CardCode+'"><u>' + element.DocNum + '</u></a></li>'
+                            );
+                        });
+                        GetCargoDetails(firstSoNo,cardCode);
+                        $('#updateCargoModal').modal('show');
+                    },
+                    error: function (xhr) {
+                        Swal.fire('Error',xhr.responseJSON?.message || 'Error','error');
+                    },
+                    complete: function(){
+                        button.prop('disabled',false).text('Update');
+                    }
+                });
+            });
             }
         });
 
         orderTable.on('draw', function() {
-            $('#checkAll').prop('checked',false);
-            $('#btnCargoUpdate').prop('disabled',true);
-            cargoIds = [];
+            //
         });
 
-        function GetCargoDetails(soNo){
+        $('#updateCargoModal').on('hide.bs.modal', function () {
+            $('#soNoHeader').text('');
+            $('#qty').text('');
+            $('#selectedSOList').empty();
+            $('#soNo').text("");
+            $('#packaging').text("");
+            $('#label').text("");
+            $('#dateCreated').text("");
+        });
+
+        function GetCargoDetails(soNo,cardCode){
             $.ajax({
                 type: "GET",
-                url: "{{ route('cargoes.list') }}",
+                url: "{{ route('cargo.details') }}",
                 data: {
                     page: 1,
                     limit: 1,
-                    search: soNo
+                    buyersCode : cardCode,
+                    soNo: soNo
                 },
                 dataType: "JSON",
                 success: function (response) {
-                    // console.log(response);
-                    $('#soNoHeader').text(response.data[0].DocNum);
+                    let orderItemList = response.data[0].order_item_list;
+                    if (orderItemList.length > 0) {
+                        $('#qty').text(orderItemList[0].Quantity);
+                    }
                     $('#soNo').text(response.data[0].DocNum);
                     $('#packaging').text(response.data[0].Packaging);
                     $('#label').text(response.data[0].Label);

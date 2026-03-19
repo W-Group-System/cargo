@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Cargo;
 use App\Order;
+use App\ProcessedOrders;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -48,7 +49,7 @@ class CargoController extends Controller
             $page = $request->page ?? 1;
             $limit = $request->limit ?? 10;
 
-            $ordersList = Order::select("*");
+            $ordersList = ProcessedOrders::select("*");
 
             if (isset($request->id) && !empty($request->id)) {
                 $ordersList = $ordersList->where("id",$request->id);
@@ -58,10 +59,7 @@ class CargoController extends Controller
                 $search = $request->search;
                 $ordersList = $ordersList->where(function ($query) use ($search) {
                     $query->where('CardCode', 'LIKE', "%{$search}%")
-                        ->orWhere('CardName', 'LIKE', "%{$search}%")
-                        ->orWhere('Label', 'LIKE', "%{$search}%")
-                        ->orWhere('Packaging', 'LIKE', "%{$search}%")
-                        ->orWhere('DocNum', 'LIKE', "%{$search}%");
+                        ->orWhere('CardName', 'LIKE', "%{$search}%");
                 });
             }
 
@@ -87,5 +85,48 @@ class CargoController extends Controller
         }
         
         return $response;
+    }
+
+    public function GetProcessedOrderDetails(Request $request){
+        $response = [
+            "isSuccess"=>false,
+            "message"=>"Failed to retrieve information.",
+            "total"=>0,
+            "page"=>1,
+            "data"=>null
+        ];
+        $isSuccess = false;
+
+        try {
+            $page = $request->page ?? 1;
+            $limit = $request->limit ?? 10;
+            $buyersCode = $request->buyersCode??"";
+            $soNo = $request->soNo??"";
+            if (!empty($buyersCode)) {
+                $ordersList = Order::with(['OrderItemList'])->where("CardCode",$buyersCode);
+                if (!empty($soNo)) {
+                    $ordersList = $ordersList->where("DocNum",$soNo);
+                }
+                $totalCount = (clone $ordersList)->count();
+                $ordersList = $ordersList->orderBy("id","desc")
+                    ->skip(($page - 1) * $limit)
+                    ->take($limit)
+                    ->get();
+
+                $isSuccess = true;
+                $response["isSuccess"] = $isSuccess;
+                $response["message"] = "Successfully retrieved information.";
+                $response["total"] = $totalCount;
+                $response["data"] = $ordersList;
+            }
+        } catch (\Throwable $th) {
+            Log::error("ERROR IN GETTING ORDER DETAILS: ".$th->getMessage());
+        }
+
+        if ($isSuccess) {
+            return response()->json($response,200);
+        }else{
+            return response()->json($response,400);
+        }
     }
 }

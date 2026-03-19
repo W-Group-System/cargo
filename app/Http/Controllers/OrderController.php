@@ -19,7 +19,8 @@ class OrderController extends Controller
 {
     public function index(Request $request)
     {
-        return view('orders.indexV2');
+        $data['activeOrders'] = true;
+        return view('orders.indexV2', $data);
     }
 
     public function SapOrderListDictinct(Request $request){

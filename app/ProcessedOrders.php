@@ -14,4 +14,9 @@ class ProcessedOrders extends Model
         "CardName",
         "MinDocDate"
     ];
+
+    public function OrderData()
+    {
+        return $this->hasOne(Order::class, 'process_order_id', 'id');
+    }
 }

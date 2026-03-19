@@ -1,4 +1,6 @@
 <?php
+
+use App\Http\Controllers\CargoController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
@@ -31,6 +33,7 @@ Route::group(['middleware' => 'auth'], function () {
     // Cargo
     Route::get('/cargo','CargoController@index')->name('cargoes.index');
     Route::get('cargo/list','CargoController@CargoList')->name('cargoes.list');
+    Route::get('cargo/details',[CargoController::class, 'GetProcessedOrderDetails'])->name('cargo.details');
 
     // Shipments
     Route::get('/shipments','ShipmentController@index');
