@@ -29,6 +29,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/salesorder','OrderController@salesOrder');
     Route::post('/orders/store', [OrderController::class, 'store'])->name('orders.store');
     Route::get('/salesorder/list',[OrderController::class, 'SapOrderListDictinct'])->name('orders.list');
+    Route::get('orders/soNumber/details',[OrderController::class, 'SoNumberDetails'])->name('cargo.details.soNo');
 
     // Cargo
     Route::get('/cargo','CargoController@index')->name('cargoes.index');

@@ -59,6 +59,7 @@
                                     <th>Date Created</th>
                                     <th>Buyers Code</th>
                                     <th>Buyers Name</th>
+                                    <th>Count</th>
                                     <th>Action</th>
                                 </tr>
                                 <tr>
@@ -70,6 +71,7 @@
                                             </select>
                                         </th>
                                     @endforeach
+                                    <th></th>
                                     <th></th> <!-- for Action column -->
                                 </tr>
                             </thead>
@@ -164,12 +166,22 @@ $(document).ready(function(){
             { data: 'DocDate' },
             { data: 'BuyersCode' },
             { data: 'CardName'},
+            { data: 'Count'},
             {
                 render: function (data, type, row) {
-                    return `<button type="button" class="btn btn-success btn-process"
-                        data-cardcode="${row.BuyersCode}" data-sapserver="${$('#sap_server').val()}" data-cardname="${row.CardName}" data-docdate="${row.DocDate}">
-                        Process
-                    </button>`
+                    let button = '';
+                    if (row.isProcessed == true) {
+                        button = `<button type="button" class="btn btn-success btn-process"
+                            data-cardcode="${row.BuyersCode}" data-sapserver="${$('#sap_server').val()}" data-cardname="${row.CardName}" data-docdate="${row.DocDate}" disabled>
+                            Processed
+                        </button>`;
+                    }else{
+                        button = `<button type="button" class="btn btn-success btn-process"
+                            data-cardcode="${row.BuyersCode}" data-sapserver="${$('#sap_server').val()}" data-cardname="${row.CardName}" data-docdate="${row.DocDate}">
+                            Process
+                        </button>`;
+                    }
+                    return button;
                 }
             }
         ],

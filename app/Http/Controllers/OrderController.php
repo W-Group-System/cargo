@@ -73,12 +73,24 @@ class OrderController extends Controller
                     $sapResponse = $client->request('GET', $endpoint);
 
                     if ($sapResponse && $sapResponse->getStatusCode() === 200) {
+                        $processedList = ProcessedOrders::select('id','CardCode')->where('SapServer', $sapServer)->pluck('id','CardCode');
                         $body = $sapResponse->getBody()->getContents();
                         $allData = collect(json_decode($body));
+                        $dataList = array();
                         $response["isSuccess"] = true;
                         $response["message"] = "Successfully retrieved information.";
                         $response["total"] = $allData["total"];
-                        $response["data"] = $allData["data"];
+                        
+                        foreach ($allData["data"] as $key => $value) {
+                            $dataList[] = [
+                                "DocDate"=>$value->DocDate,
+                                "BuyersCode"=>$value->BuyersCode,
+                                "CardName"=>$value->CardName,
+                                "Count"=>$value->Count,
+                                "isProcessed"=>(isset($processedList[$value->BuyersCode])?true:false)
+                            ];
+                        }
+                        $response["data"] = $dataList;
                     }
                     $isSuccess = true;
                 }
@@ -86,6 +98,7 @@ class OrderController extends Controller
             
         } catch (\Throwable $th) {
             Log::error("ERROR IN GETTING SAP ORDER LIST: ".$th);
+            dd("ERROR IN GETTING SAP ORDER LIST: ".$th);
         }
         
         if ($isSuccess) {
@@ -126,7 +139,7 @@ class OrderController extends Controller
             
             if (isset($processOrder->id)) {
                 $processOrderId = $processOrder->id;
-                $getOrderListByCode = $this->SapOrderList($cardCode,$sapServer);
+                $getOrderListByCode = $this->SapOrderList($cardCode,$sapServer,"");
                 if ($getOrderListByCode["isSuccess"]) {
                     $data = $getOrderListByCode["data"];
                     if (count($data) > 0) {
@@ -181,7 +194,42 @@ class OrderController extends Controller
         }
     }
 
-    public function SapOrderList($cardCode,$sapServer){
+    public function SoNumberDetails(Request $request){
+        $response = [
+            "isSuccess"=>false,
+            "message"=>"Failed to retrieve information.",
+            "data"=>[]
+        ];
+        $isSuccess = false;
+        try {
+            $cardCode = $request->buyersCpde??"";
+            $sapServer = $request->sapServer??"";
+            $soNumber = $request->soNo??"";
+            $page = $request->page??"1";
+            $limit = $request->limit??"1";
+            Log::info("INITIATING API CALL");
+            Log::info($soNumber);
+            $soNumberDetails = $this->SapOrderList($cardCode,$sapServer,$soNumber);
+            Log::info($soNumberDetails);
+            if ($soNumberDetails["isSuccess"]) {
+                $response = [
+                    "isSuccess"=>true,
+                    "message"=>"Successfully retrieved information.",
+                    "data"=>$soNumberDetails["data"]
+                ];
+                $isSuccess = true;
+            }
+        } catch (\Throwable $th) {
+            Log::error("ERROR IN GETTING SO NUMBER DETAILS: ".$th->getMessage());
+        }
+
+        if ($isSuccess) {
+            return response()->json($response,200);
+        }else{
+            return response()->json($response,400);
+        }
+    }
+    public function SapOrderList($cardCode,$sapServer,$soNumber){
         
         $response = [
             "isSuccess"=>false,
@@ -214,7 +262,7 @@ class OrderController extends Controller
                 
                 if (!empty($endpointData) > 0) {
 
-                    $endpoint = $endpointData->Endpoint."?buyersCode={$cardCode}&page={$page}&limit={$limit}";
+                    $endpoint = $endpointData->Endpoint."?buyersCode={$cardCode}&page={$page}&soNumber={$soNumber}&limit={$limit}";
                     $sapResponse = $client->request('GET', $endpoint);
 
                     if ($sapResponse && $sapResponse->getStatusCode() === 200) {

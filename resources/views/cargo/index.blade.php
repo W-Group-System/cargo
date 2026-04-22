@@ -43,6 +43,7 @@
                                     <th>Date Created</th>
                                     <th>Buyers Code</th>
                                     <th>Buyers Name</th>
+                                    <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -141,6 +142,9 @@
     $(document).ready(function () {
         var start = moment().subtract(29, 'days');
         var end = moment();
+        let statusArr = "{{ $shipmentStatusArr }}"
+        console.log(statusArr['RFP']);
+        
 
         function cb(start, end) {
             $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
@@ -173,7 +177,8 @@
             e.preventDefault();
             let soNo = $(this).data('so');
             let buyersCode = $(this).data('buyerscode');
-            GetCargoDetails(soNo,buyersCode);
+            let sapServer = $(this).data('sapserver');
+            GetCargoDetails(soNo,buyersCode,sapServer);
         });
 
         $('#updateCargoDetailsForm').submit(function (e) { 
@@ -197,6 +202,7 @@
                 },
                 complete: function(){
                     $('#btnProcessCargo').prop('disabled',false).text('Process');
+                    ReloadDataTable();
                 }
             });
         });
@@ -245,10 +251,11 @@
                 { data: 'created_at' },
                 { data: 'CardCode' },
                 { data: 'CardName'},
+                { data: 'Status'},
                 {
                     render: function (data, type, row) {
                         return `<button type="button" class="btn btn-primary btn-update" id="btnCargoUpdate"
-                            data-cardcode="${row.CardCode}" data-sapserver="${$('#sap_server').val()}">
+                            data-cardcode="${row.CardCode}" data-sapserver="${row.SapServer}">
                             Update
                         </button>`
                     }
@@ -277,10 +284,10 @@
                         $('#soNoHeader').text(cardCode);
                         response.data.forEach(element => {
                             $('#selectedSOList').append(
-                                '<li><a href="#" class="so-link" data-so="'+element.DocNum+'" data-buyerscode="'+element.CardCode+'"><u>' + element.DocNum + '</u></a></li>'
+                                '<li><a href="#" class="so-link" data-sapServer="'+element.sap_server+'" data-so="'+element.DocNum+'" data-buyerscode="'+element.CardCode+'"><u>' + element.DocNum + '</u></a></li>'
                             );
                         });
-                        GetCargoDetails(firstSoNo,cardCode);
+                        GetCargoDetails(firstSoNo,cardCode,sapServer);
                         $('#availabilityDate').val(response.availabilityDate);
                         $('#pickupDate').val(response.pickupDate);
                         $('#status').val(response.status);
@@ -312,26 +319,27 @@
             $('#updateCargoDetailsForm').trigger('reset');
         });
 
-        function GetCargoDetails(soNo,cardCode){
+        function GetCargoDetails(soNo,cardCode,sapServer){
             $.ajax({
                 type: "GET",
-                url: "{{ route('cargo.details') }}",
+                url: "{{ route('cargo.details.soNo') }}",
                 data: {
                     page: 1,
                     limit: 1,
                     buyersCode : cardCode,
-                    soNo: soNo
+                    soNo: soNo,
+                    sapServer: sapServer
                 },
                 dataType: "JSON",
                 success: function (response) {
-                    let orderItemList = response.data[0].order_item_list;
+                    let orderItemList = response.data[0].items;
                     if (orderItemList.length > 0) {
                         $('#qty').text(orderItemList[0].Quantity);
                     }
                     $('#soNo').text(response.data[0].DocNum);
-                    $('#packaging').text(response.data[0].Packaging);
-                    $('#label').text(response.data[0].Label);
-                    $('#dateCreated').text(response.data[0].created_at);
+                    $('#packaging').text(response.data[0].U_Packaging);
+                    $('#label').text(response.data[0].U_Label);
+                    $('#dateCreated').text(response.data[0].DocDate);
                 }
             });
         }
