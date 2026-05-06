@@ -9,7 +9,7 @@ class ShipmentController extends Controller
     public function index(Request $request)
     {
         $data = array();
-        $data['shipmentActive'] = true;
+        $data['ActiveModule'] = 'Shipments';
         $dummyList = array();
         for ($i=0; $i < 100; $i++) { 
             $dummyList[] = [

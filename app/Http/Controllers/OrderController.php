@@ -19,7 +19,7 @@ class OrderController extends Controller
 {
     public function index(Request $request)
     {
-        $data['activeOrders'] = true;
+        $data['ActiveModule'] = 'Orders';
         return view('orders.indexV2', $data);
     }
 

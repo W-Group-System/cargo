@@ -15,7 +15,7 @@ class CargoController extends Controller
     public function index(Request $request)
     {
         $data = array();
-        $data['cargoActive'] = true;
+        $data['ActiveModule'] = 'Cargo Management';
         $data['shipmentStatusArr'] = ShipmentStatus::ShipmentStatusArray();
 
         return view('cargo.index',$data);

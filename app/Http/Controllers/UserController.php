@@ -11,7 +11,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $data = array();
-        $data['userActive'] = true;
+        $data['ActiveModule'] = 'User Accounts';
 
         $search = $request->input('search');
         $entries = $request->input('number_of_entries', 10); // Default: 10 per page
