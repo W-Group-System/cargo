@@ -1,6 +1,6 @@
 @php
     use \App\Classes\RolesAccessClass;
-    $modules = RolesAccessClass::GetUserAccessPerRole(auth()->user()->id);
+    $modules = RolesAccessClass::GetUserAccessPerRole(auth()->user()->role);
 @endphp
 
 <!DOCTYPE html>
@@ -62,7 +62,7 @@
                     <ul class="menu">
                         @if (count($modules) > 0)
                             @foreach ($modules as $key => $value)
-                                <li class="sidebar-title">Transactions</li>
+                                <li class="sidebar-title">{{$key}}</li>
                                 @foreach ($value as $data)
                                     @if ($data->RolesAccess[0]['can_read'] == "1")
                                         <li class="sidebar-item {{ $data->module_name == $ActiveModule ? 'active':'' }}">
@@ -75,6 +75,14 @@
                                 @endforeach
                             @endforeach
                         @endif
+                        <li class="sidebar-item">
+                            <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class='sidebar-link'>
+                                <span>Sign out</span>
+                            </a>
+                        </li>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                            @csrf
+                        </form>
                     </ul>
                 </div>
                 <button class="sidebar-toggler btn x"><i data-feather="x"></i></button>
