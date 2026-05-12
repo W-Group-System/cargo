@@ -2,6 +2,7 @@
   <div class="modal-dialog {{ isset($size) ? $size:'' }}">
     <div class="modal-content">
       <form id="{{ isset($form_id) ? $form_id:'' }}" method="POST" enctype="{{ isset($enctype) ? $enctype:"" }}">
+        @csrf
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="staticBackdropLabel">{{ isset($title) ? $title:'' }}</h1>
           <button type="button" class="btn-close closeBtn" data-bs-dismiss="modal" aria-label="Close"></button>

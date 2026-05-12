@@ -20,13 +20,11 @@
                     </div>
                     <div class="form-group">
                         <label>Role</label>
-                        <select class="form-select required" name="role" title="Select Role" required>
-                            <option value="" disabled selected>Select Role</option>
-                            <option value="Administrator" @if($user->role == 'Administrator') selected @endif>Administrator</option>
-                            <option value="Planta Personnel" @if($user->role == 'Planta Personnel') selected @endif>Planta Personnel</option>
-                            <option value="Regulatory Officer" @if($user->role == 'Regulatory Officer') selected @endif>Regulatory Officer</option>
-                            <option value="Sales/ BDE" @if($user->role == 'Sales/ BDE') selected @endif>Sales/ BDE</option>
-                            <option value="Logistics" @if($user->role == 'Logistics') selected @endif>Logistics</option>
+                        <select class="form-control" name="role" id="role">
+                            <option value="">- Select Role -</option>
+                            @foreach ($roles as $key => $value)
+                                <option value="{{ $key }}" {{ Auth::user()->role == $key?'selected':'' }}>{{ $value }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="form-group" id="formStatus" >

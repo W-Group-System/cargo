@@ -65,7 +65,7 @@
                                     <tr>
                                         <td>{{ $user->name }}</td>
                                         <td>{{ $user->email }}</td>
-                                        <td>{{ $user->role }}</td>
+                                        <td>{{ $roles[$user->role] }}</td>
                                         <td>{{ $user->status }}</td>
                                         <td>
                                             <div class="d-grid gap-2 d-md-block">
@@ -124,15 +124,13 @@
                         <label for="name">Confirm Password</label>
                         <input type="password" class="form-control" name="password_confirmation" placeholder="Enter Password" required>
                     </div>
-                    <div class="form-group">
-                        <label>Role</label>
-                        <select class="form-select required" name="role" title="Select Role" required>
-                            <option value="" disabled selected>Select Role</option>
-                            <option value="Administrator">Administrator</option>
-                            <option value="Planta Personnel">Planta Personnel</option>
-                            <option value="Regulatory Officer">Regulatory Officer</option>
-                            <option value="Sales/ BDE">Sales/ BDE</option>
-                            <option value="Logistics">Logistics</option>
+                    <div class="form-group" id="Role">
+                        <label for="name">Role</label>
+                        <select class="form-control" name="role" id="role">
+                            <option value="">- Select Role -</option>
+                            @foreach ($roles as $key => $value)
+                                <option value="{{ $key }}">{{ $value }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div class="modal-footer">

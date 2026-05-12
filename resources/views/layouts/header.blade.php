@@ -1,6 +1,7 @@
 @php
     use \App\Classes\RolesAccessClass;
-    $modules = RolesAccessClass::GetUserAccessPerRole(auth()->user()->role);
+    $modules = RolesAccessClass::GetUserAccessPerRoleV2(auth()->user()->role);
+    // dd($modules);
 @endphp
 
 <!DOCTYPE html>
@@ -63,12 +64,12 @@
                         @if (count($modules) > 0)
                             @foreach ($modules as $key => $value)
                                 <li class="sidebar-title">{{$key}}</li>
-                                @foreach ($value as $data)
-                                    @if ($data->RolesAccess[0]['can_read'] == "1")
-                                        <li class="sidebar-item {{ $data->module_name == $ActiveModule ? 'active':'' }}">
-                                            <a href="{{ url($data->module_url) }}" onclick='show()' class='sidebar-link'>
-                                                {!! $data->icon !!}
-                                                <span>{{$data->module_name}}</span>
+                                @foreach ($value as $k => $v)
+                                    @if ($v['canRead'] == "1")
+                                        <li class="sidebar-item {{ $k == $ActiveModule ? 'active':'' }}">
+                                            <a href="{{ url($v['url']) }}" onclick='show()' class='sidebar-link'>
+                                                {!! $v['icon'] !!}
+                                                <span>{{$k}}</span>
                                             </a>
                                         </li>
                                     @endif

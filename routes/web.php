@@ -4,6 +4,8 @@ use App\Http\Controllers\CargoController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\RolesController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -46,4 +48,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/edit_user/{id}', 'UserController@edit');
     Route::post('update_user/{id}', 'UserController@update');
     Route::post('user_change_password/{id}', 'UserController@userChangePassword');
+
+    //Roles
+    Route::get('/roles/list',[RolesController::class,'RoleList'])->name('role.list');
+    Route::get('/roles',[RolesController::class,'index']);
+    Route::post('/roles/save',[RolesController::class,'SaveRole'])->name('save.role');
+    Route::get('/roles/access',[RolesController::class,'RoleAccessList'])->name('role.access.list');
+    Route::post('/roles/acces/save',[RolesController::class,'SaveRoleAccess'])->name('save.role.access');
+    
 });

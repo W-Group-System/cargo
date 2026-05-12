@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Roles;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Validator;
 use App\User;
@@ -17,6 +19,7 @@ class UserController extends Controller
         $entries = $request->input('number_of_entries', 10); // Default: 10 per page
 
         $users = User::query();
+        $roles = Roles::pluck('role_name','id');
 
         if ($search) {
             $users->where(function ($query) use ($search) {
@@ -27,7 +30,7 @@ class UserController extends Controller
 
         $users = $users->paginate($entries)->appends($request->except('page'));
 
-        return view('users.index', compact('users', 'search', 'entries'),$data);
+        return view('users.index', compact('users', 'search', 'entries','roles'),$data);
     }
 
     public function store(Request $request)
