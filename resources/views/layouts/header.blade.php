@@ -1,6 +1,6 @@
 @php
     use \App\Classes\RolesAccessClass;
-    $modules = RolesAccessClass::GetUserAccessPerRoleV2(auth()->user()->role);
+    $modules = RolesAccessClass::GetUserAccessPerRole(auth()->user()->role);
     // dd($modules);
 @endphp
 

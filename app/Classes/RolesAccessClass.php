@@ -16,35 +16,19 @@ class RolesAccessClass {
         ];
         $accessData = [];
         try {
-            $headerList = Modules::select('id','module_name')
-                ->where('status','A')
-                ->where('is_header','1')
-                ->orderBy('header_order','asc')
-                ->get()
-                ->map(function($q) use(&$accessData,$userRoleId){
-                    $totalModulesCanBeRead = 0;
-                    $moduleList = Modules::with(['RolesAccess' => function($q) use ($userRoleId) {
-                            $q->where('role_id',$userRoleId);
-                        }])
-                        ->where('status','A')
-                        ->where('is_header','<>','1')
-                        ->where('header_id',$q->id)
-                        ->orderBy('module_order','asc')
-                        ->get();
-                    
-                    foreach ($moduleList as $module) {
-                        if($module->RolesAccess[0]['can_read'] == "1"){
-                            $totalModulesCanBeRead++;
-                        }
+            $currentAccessAll = self::GetUserAccessPerRoleV2($userRoleId);
+            foreach ($currentAccessAll as $key => $value) {
+                $toAdd = false;
+                foreach ($value as $k => $v) {
+                    if($v['canRead']=="1"){
+                        $toAdd = true;
+                        break;  
                     }
-
-                    if ($totalModulesCanBeRead > 0) {
-                        $accessData[$q->module_name] = $moduleList;
-                    }
-                        
-                    return $accessData; 
-                });
-            
+                }
+                if ($toAdd) {
+                    $accessData[$key] = $value;
+                }
+            }
         } catch (\Throwable $th) {
             Log::info("ERROR IN GETTING ROLES ACCESS PER USER: ".$th->getMessage());
         }

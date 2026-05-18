@@ -23,7 +23,7 @@
                         <select class="form-control" name="role" id="role">
                             <option value="">- Select Role -</option>
                             @foreach ($roles as $key => $value)
-                                <option value="{{ $key }}" {{ Auth::user()->role == $key?'selected':'' }}>{{ $value }}</option>
+                                <option value="{{ $key }}" {{ $user->role == $key?'selected':'' }}>{{ $value }}</option>
                             @endforeach
                         </select>
                     </div>
