@@ -70,7 +70,12 @@ class OrderController extends Controller
                         $endpoint = $endpoint."&startDate={$start}&endDate={$end}";
                     }
                     
-                    $sapResponse = $client->request('GET', $endpoint);
+                    $sapResponse = $client->request('GET', $endpoint, [
+                        'headers' => [
+                            'Accept' => 'application/json', 
+                            'apiKey' => $endpointData->ApiKey
+                        ]
+                    ]);
 
                     if ($sapResponse && $sapResponse->getStatusCode() === 200) {
                         $processedList = ProcessedOrders::select('id','CardCode')->where('SapServer', $sapServer)->pluck('id','CardCode');
@@ -263,7 +268,12 @@ class OrderController extends Controller
                 if (!empty($endpointData) > 0) {
 
                     $endpoint = $endpointData->Endpoint."?buyersCode={$cardCode}&page={$page}&soNumber={$soNumber}&limit={$limit}";
-                    $sapResponse = $client->request('GET', $endpoint);
+                    $sapResponse = $client->request('GET', $endpoint, [
+                        'headers' => [
+                            'Accept' => 'application/json', 
+                            'apiKey' => $endpointData->ApiKey
+                        ]
+                    ]);
 
                     if ($sapResponse && $sapResponse->getStatusCode() === 200) {
                         $body = $sapResponse->getBody()->getContents();
