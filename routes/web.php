@@ -38,6 +38,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('cargo/list','CargoController@CargoList')->name('cargoes.list');
     Route::get('cargo/details',[CargoController::class, 'GetProcessedOrderDetails'])->name('cargo.details');
     Route::post('cargo/update/details',[CargoController::class, 'UpdateProcessedOrderDetails'])->name('cargo.update');
+    Route::get('cargo/buyersCode/details',[CargoController::class, 'GetBuyersCodeDetails'])->name('cargo.details.buyersCode');
 
     // Shipments
     Route::get('/shipments','ShipmentController@index');

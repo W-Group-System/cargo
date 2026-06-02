@@ -40,6 +40,9 @@ class OrderController extends Controller
             $search = $request->search;
             $start = $request->start_date??"";
             $end = $request->end_date??"";
+            $buyersCode = $request->buyersCode??"";
+            $buyersName = $request->buyersName??"";
+            $dateCreated = $request->dateCreated??"";
 
             $endpoint = null;
 
@@ -66,10 +69,25 @@ class OrderController extends Controller
 
                     $endpoint = $endpointData->Endpoint."?page={$page}&limit={$limit}";
 
-                    if (!empty($start) && !empty($end)) {
+                    if (!empty($start)) {
+                        if(empty($end)){
+                            $end = $start;
+                        }
                         $endpoint = $endpoint."&startDate={$start}&endDate={$end}";
                     }
-                    
+
+                    if (!empty($buyersCode)) {
+                        $endpoint = $endpoint."&buyersCode={$buyersCode}";
+                    }
+
+                    if (!empty($buyersName)) {
+                        $endpoint = $endpoint."&buyersName={$buyersName}";
+                    }
+
+                    if (!empty($dateCreated)) {
+                        $endpoint = $endpoint."&dateCreated={$dateCreated}";
+                    }
+
                     $sapResponse = $client->request('GET', $endpoint, [
                         'headers' => [
                             'Accept' => 'application/json', 
@@ -88,7 +106,7 @@ class OrderController extends Controller
                         
                         foreach ($allData["data"] as $key => $value) {
                             $dataList[] = [
-                                "DocDate"=>$value->DocDate,
+                                "DocDate"=> Carbon::parse($value->DocDate)->format('Y-m-d'),
                                 "BuyersCode"=>$value->BuyersCode,
                                 "CardName"=>$value->CardName,
                                 "Count"=>$value->Count,
@@ -239,6 +257,7 @@ class OrderController extends Controller
         $response = [
             "isSuccess"=>false,
             "message"=>"Failed to retrieve information.",
+            "data"=>[]
         ];
 
         try {

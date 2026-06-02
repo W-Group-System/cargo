@@ -125,7 +125,7 @@ class CargoController extends Controller
     }
 
     public function UpdateProcessedOrderDetails(Request $request){
-        // dd($request->all());
+
         $response = [
             "isSuccess"=>false,
             "message"=>"Failed to update information."
@@ -144,9 +144,51 @@ class CargoController extends Controller
                     $processedOrderData = $processedOrderData->update(["AvailabilityDate"=>$availabilityDate,"PickupDate"=>$pickupDate,"Status"=>$status]);
                 }
                 $isSuccess = true;
+                $response = [
+                    "isSuccess"=>true,
+                    "message"=>"Information updated successfully."
+                ];
             }
         } catch (\Exception $th) {
             Log::error("ERROR IN UPDATING CARGO DETAILS: ".$th->getMessage());
+        }
+
+        if ($isSuccess) {
+            return response()->json($response,200);
+        }else{
+            return response()->json($response,400);
+        }
+    }
+
+    public function GetBuyersCodeDetails(Request $request){
+        $response = [
+            "isSuccess"=>false,
+            "message"=>"Failed to retrieve information.",
+            "data"=>[]
+        ];
+        $isSuccess = false;
+        $data = [];
+
+        $cardCode = $request->buyersCode??"";
+        $sapServer = $request->sapServer??"";
+
+        try {
+            $data = [$cardCode=>[]];
+            $orderController = new OrderController();
+            $buyersCodeDetails = $orderController->SapOrderList($cardCode,$sapServer,"");
+            if($buyersCodeDetails["isSuccess"]){
+                $details = $buyersCodeDetails["data"];                
+                foreach ($details as $key => $value) {
+                    $data[$cardCode][] = $value->items[0]->DocEntry;
+                }
+                $isSuccess = true;
+                $response["isSuccess"] = $isSuccess;
+                $response["message"] = "Successfully retrieved information.";
+                $response["data"] = $data;
+            }
+
+        } catch (\Throwable $th) {
+            Log::error("ERROR IN GETTING BUYERS CODE DETAILS: ".$th->getMessage());
         }
 
         if ($isSuccess) {

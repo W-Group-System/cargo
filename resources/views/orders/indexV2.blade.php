@@ -63,14 +63,9 @@
                                     <th>Action</th>
                                 </tr>
                                 <tr>
-                                    @foreach(['Date','Code','Name'] as $i => $label)
-                                        <th>
-                                            <select class="form-select form-select-sm column-select select2"
-                                                    data-col="{{ $i }}">
-                                                <option value="">All {{ $label }}</option>
-                                            </select>
-                                        </th>
-                                    @endforeach
+                                    <th><input type="date" name="" id="dateCreated" placeholder="Search date" class="form-control form-control-sm column-search"></th>
+                                    <th><input type="text" name="" id="buyersCode" placeholder="Search Buyers Code" class="form-control form-control-sm column-search"></th>
+                                    <th><input type="text" name="" id="buyersName" placeholder="Search Buyers Name" class="form-control form-control-sm column-search"></th>
                                     <th></th>
                                     <th></th> <!-- for Action column -->
                                 </tr>
@@ -144,7 +139,10 @@ $(document).ready(function(){
                     limit: limit,                          
                     start_date:  $('#start_date').val(),
                     end_date:  $('#end_date').val(),
-                    sap_server: $('#sap_server').val()
+                    sap_server: $('#sap_server').val(),
+                    buyersCode: $('#buyersCode').val(),
+                    buyersName: $('#buyersName').val(),
+                    dateCreated: $('#dateCreated').val(),
                 },
                 success: function (resp) {
                     callback({
@@ -220,6 +218,10 @@ $(document).ready(function(){
                 });
             });
         }
+    });
+
+    $('#dateCreated,#buyersCode,#buyersName').on('change keyup', function () {
+        ReloadDataTable();
     });
 
     function ReloadDataTable() {

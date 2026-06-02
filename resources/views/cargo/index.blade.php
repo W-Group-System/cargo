@@ -67,16 +67,95 @@
                     <span id="soNoHeader">-</span>
                 </div>
             </div>
-            <div class="col-12 col-lg-3">
-                <div class="card border border-dark rounded-0" style="height: 547px;">
+            <div class="col-12 col-lg-5 d-flex flex-column gap-1">
+                <!-- Co-load Selection -->
+                <div class="card border border-dark rounded-0" style="height: 90px;">
                     <div class="card-header bg-secondary text-white rounded-0 py-1 px-3">
-                        Selected SO #.
+                        Co-load
                     </div>
-                    <ul id="selectedSOList" class="mb-0">
-                    </ul>
+
+                    <div class="card-body bg-light p-2">
+                        <form id="addCoLoadForm" method="GET">
+                            @csrf
+
+                            <div class="row">
+                                <div class="col-12 col-sm-8">
+                                    <select class="form-control select2"
+                                            id="coLoadBuyersCode"
+                                            name="coLoadBuyersCode">
+                                    </select>
+                                </div>
+
+                                <div class="col-12 col-sm-4">
+                                    <button class="btn btn-secondary form-control mt-2 mt-sm-0"
+                                            id="btnAddCoLoad"
+                                            type="submit">
+                                        Add
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
+
+                <!-- Selected SOs and Co-load Details -->
+                <div class="card border border-dark rounded-0 flex-grow-1">
+                    <div class="card-header bg-secondary text-white rounded-0 py-1 px-3">
+                        Selected SO #
+                    </div>
+
+                    <div class="card-body bg-light p-2 overflow-auto">
+                        <!-- Selected SO List -->
+                        <ul id="selectedSOList" class="mb-3">
+                        </ul>
+
+                        <!-- Co-load Section -->
+                        <h6 class="ms-2 mb-2">Co Loads</h6>
+
+                        <div id="coLoadDetails" class="ms-2">
+                            <!-- Example Structure -->
+                            <!--
+                            <div class="fw-bold">SKL-898</div>
+                            <ul class="mb-2">
+                                <li>
+                                    <a href="#"
+                                    class="so-link"
+                                    data-so="21231"
+                                    data-buyerscode="TEST"
+                                    data-sapserver="TEST">
+                                        <u>21231</u>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#"
+                                    class="so-link"
+                                    data-so="21232"
+                                    data-buyerscode="TEST"
+                                    data-sapserver="TEST">
+                                        <u>21232</u>
+                                    </a>
+                                </li>
+                            </ul>
+
+                            <div class="fw-bold">SKL-899</div>
+                            <ul class="mb-2">
+                                <li>
+                                    <a href="#"
+                                    class="so-link"
+                                    data-so="21555"
+                                    data-buyerscode="TEST"
+                                    data-sapserver="TEST">
+                                        <u>21555</u>
+                                    </a>
+                                </li>
+                            </ul>
+                            -->
+                        </div>
+                    </div>
+                </div>
+
             </div>
-            <div class="col-12 col-lg-9">
+            <div class="col-12 col-lg-7">
                 <div class="card border border-dark rounded-0">
                     <div class="card-header bg-secondary text-white rounded-0 py-1 px-3">
                         Sales Order Information
@@ -138,12 +217,15 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Select2 JS -->
+{{-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> --}}
 <script type="text/javascript">
     $(document).ready(function () {
+        let sapServerDefault = "";
         var start = moment().subtract(29, 'days');
         var end = moment();
         let statusArr = "{{ $shipmentStatusArr }}"
-        console.log(statusArr['RFP']);
+        // console.log(statusArr['RFP']);
         
 
         function cb(start, end) {
@@ -280,6 +362,8 @@
                         button.prop('disabled',true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
                     },
                     success: function (response) {
+                        // console.log(response);
+                        sapServerDefault = response.data[0].sap_server;
                         let firstSoNo = response.data[0].DocNum;
                         $('#soNoHeader').text(cardCode);
                         response.data.forEach(element => {
@@ -317,6 +401,60 @@
             $('#label').text("");
             $('#dateCreated').text("");
             $('#updateCargoDetailsForm').trigger('reset');
+        });
+
+        $('#coLoadBuyersCode').select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            placeholder: 'Search buyers code',
+            dropdownParent: $('#updateCargoModal'),
+            allowClear: true,
+            ajax: {
+                url: "{{ route('orders.list') }}",
+                // dataType: 'JSON',
+                type: 'GET',
+                delay: 250,
+                data: function (params) {
+                    // console.log(params);
+                    return {
+                        buyersCode: params.term, // user typing
+                        sap_server: sapServerDefault,
+                        // position: $('#searchPosition').val(),
+                        page: params.page || 1,
+                        limit: 5
+                    };
+                },
+                processResults: function (data, params) {
+                    // console.log(data);
+                    return {
+                        results: data.data.map(emp => ({
+                            id: emp.BuyersCode,
+                            text: emp.BuyersCode + ' - ' + emp.Count + ' - ' + (emp.isProcessed == true ? 'Processed' : 'Open')
+                        })),
+                        pagination: {
+                            more: data.length === 10 // enables infinite scroll
+                        }
+                    };
+                }
+            }
+        });
+
+        let coLoadArray = [];
+        $('#addCoLoadForm').submit(function (e) { 
+            e.preventDefault();
+            let buyersCode = $('#coLoadBuyersCode').val();
+            $.ajax({
+                type: "GET",
+                url: "{{ route('cargo.details.buyersCode') }}",
+                data: {
+                    buyersCode: buyersCode,
+                    sapServer: sapServerDefault
+                },
+                success: function (response) {
+                    console.log(response);
+                }
+            });
+
         });
 
         function GetCargoDetails(soNo,cardCode,sapServer){
