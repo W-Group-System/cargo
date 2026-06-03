@@ -56,162 +56,143 @@
         </div>
     </div>
 </div>
-@component('components.modalv2',['modal_id' => 'updateCargoModal','title' => 'Cargo Management','form_id' => 'updateCargoForm', 'size' => 'modal-xl'])
-    <div class="container-fluid">
-        <div class="row g-4">
-            <div class="col-12">
-                <div class="d-flex align-items-center">
-                    <label class="fw-bold me-2" style="min-width: 130px;">
-                        Buyer Code #:
-                    </label>
-                    <span id="soNoHeader">-</span>
-                </div>
+@component('components.modalv2', [
+    'modal_id' => 'updateCargoModal',
+    'title' => 'Cargo Management',
+    'form_id' => 'updateCargoForm',
+    'size' => 'modal-xl'
+])
+<div class="container-fluid">
+    <div class="row g-4">
+        <!-- Header -->
+        <div class="col-12">
+            <div class="d-flex align-items-center">
+                <label class="fw-bold me-2 mb-0">
+                    Buyer Code #:
+                </label>
+                <span id="soNoHeader">-</span>
             </div>
-            <div class="col-12 col-lg-5 d-flex flex-column gap-1">
-                <!-- Co-load Selection -->
-                <div class="card border border-dark rounded-0" style="height: 90px;">
+        </div>
+        <!-- Left Panel -->
+        <div class="col-12 col-lg-5">
+            <div class="d-flex flex-column gap-3 h-100">
+                <!-- Selected SO -->
+                <div class="card border-dark rounded-0 flex-grow-1">
                     <div class="card-header bg-secondary text-white rounded-0 py-1 px-3">
-                        Co-load
+                        Selected SO #
                     </div>
-
-                    <div class="card-body bg-light p-2">
+                    <div class="card-body bg-light py-2 px-2">
                         <form id="addCoLoadForm" method="GET">
                             @csrf
-
-                            <div class="row">
-                                <div class="col-12 col-sm-8">
-                                    <select class="form-control select2"
-                                            id="coLoadBuyersCode"
-                                            name="coLoadBuyersCode">
+                            <div class="row g-2">
+                                <div class="col-12 col-md-8">
+                                    <select
+                                        class="form-control select2"
+                                        id="coLoadBuyersCode"
+                                        name="coLoadBuyersCode">
                                     </select>
                                 </div>
-
-                                <div class="col-12 col-sm-4">
-                                    <button class="btn btn-secondary form-control mt-2 mt-sm-0"
-                                            id="btnAddCoLoad"
-                                            type="submit">
-                                        Add
+                                <div class="col-12 col-md-4">
+                                    <button
+                                        type="submit"
+                                        id="btnAddCoLoad"
+                                        class="btn btn-secondary w-100">
+                                        +
                                     </button>
                                 </div>
                             </div>
                         </form>
-                    </div>
-                </div>
-
-                <!-- Selected SOs and Co-load Details -->
-                <div class="card border border-dark rounded-0 flex-grow-1">
-                    <div class="card-header bg-secondary text-white rounded-0 py-1 px-3">
-                        Selected SO #
-                    </div>
-
-                    <div class="card-body bg-light p-2 overflow-auto">
-                        <!-- Selected SO List -->
-                        <ul id="selectedSOList" class="mb-3">
-                        </ul>
-
-                        <!-- Co-load Section -->
-                        <h6 class="ms-2 mb-2">Co Loads</h6>
-
-                        <div id="coLoadDetails" class="ms-2">
-                            <!-- Example Structure -->
-                            <!--
-                            <div class="fw-bold">SKL-898</div>
-                            <ul class="mb-2">
-                                <li>
-                                    <a href="#"
-                                    class="so-link"
-                                    data-so="21231"
-                                    data-buyerscode="TEST"
-                                    data-sapserver="TEST">
-                                        <u>21231</u>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#"
-                                    class="so-link"
-                                    data-so="21232"
-                                    data-buyerscode="TEST"
-                                    data-sapserver="TEST">
-                                        <u>21232</u>
-                                    </a>
-                                </li>
-                            </ul>
-
-                            <div class="fw-bold">SKL-899</div>
-                            <ul class="mb-2">
-                                <li>
-                                    <a href="#"
-                                    class="so-link"
-                                    data-so="21555"
-                                    data-buyerscode="TEST"
-                                    data-sapserver="TEST">
-                                        <u>21555</u>
-                                    </a>
-                                </li>
-                            </ul>
-                            -->
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-            <div class="col-12 col-lg-7">
-                <div class="card border border-dark rounded-0">
-                    <div class="card-header bg-secondary text-white rounded-0 py-1 px-3">
-                        Sales Order Information
-                    </div>
-                    <div class="card-body bg-light">
-                        <br>
-                        <p style="margin-bottom: 0.25rem;">SO No.: <span style="font-weight: 700;" id="soNo">-</span></p>
-                        <p style="margin-bottom: 0.25rem;">Packing: <span style="font-weight: 700;" id="packaging">-</span></p>
-                        <p style="margin-bottom: 0.25rem;">Label <span style="font-weight: 700;" id="label">-</span></p>
-                        <p style="margin-bottom: 0.25rem;">Date created: <span style="font-weight: 700;" id="dateCreated">-</span></p>
-                        <p style="margin-bottom: 0.25rem;">Quantity: <span style="font-weight: 700;" id="qty">-</span></p>
-                        <p style="margin-bottom: 0.25rem;">Remarks:<br /><span style="font-weight: 700;" id="remarks">-</span></p>
-                        <br>
-                        <p style="margin-bottom: 0.25rem;">To be  filled out by the Plant</p>
                         <hr>
-                        <form id="updateCargoDetailsForm">
-                            @csrf
-                            <div class="row g-4">
-                                <div class="col-12 col-lg-6">
-                                    <input type="hidden" name="buyersCode" id="buyersCode">
-                                    <div class="row mb-3 align-items-center">
-                                        <label class="col-sm-4 col-form-label">Availability Date:</label>
-                                        <div class="col-sm-8">
-                                            <input type="date" class="form-control" name="availabilityDate" id="availabilityDate" required>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-3 align-items-center">
-                                        <label class="col-sm-4 col-form-label">Date Pickup:</label>
-                                        <div class="col-sm-8">
-                                            <input type="date" class="form-control" name="pickupDate" id="pickupDate" required>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-lg-6">
-                                    <div class="row mb-3 align-items-center">
-                                        <label class="col-sm-4 col-form-label">Status:</label>
-                                        <div class="col-sm-8">
-                                            <select name="status" id="status" class="form-control">
-                                                <option value="">-Select Data-</option>
-                                                @foreach ($shipmentStatusArr as $key => $value)
-                                                    <option value="{{ $key }}">{{ $value }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <button class="btn btn-secondary form-control" id="btnProcessCargo" type="submit">Process</button>
-                                </div>
-                                </div>
-                        </form>
+                        <ul id="selectedSOList" class="list-unstyled mb-0">
+                        </ul><br>
+                        <h6 class="mb-2">
+                            Co Loads
+                        </h6>
+                        <div id="coLoadDetails">
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        <div class="col-12 col-lg-7">
+            <div class="card border-dark rounded-0">
+                <div class="card-header bg-secondary text-white rounded-0 py-1 px-3">
+                    Sales Order Information
+                </div>
+                <div class="card-body bg-light py-2 px-2">
+                    <div class="soInfoContainer">
+                    </div>
+                    <div class="mt-3">
+                        <p class="mb-2">To be filled out by the Plant</p>
+                        <hr>
+                    </div>
+                    <form id="updateCargoDetailsForm">
+                        @csrf
+                        <input
+                            type="hidden"
+                            name="buyersCode"
+                            id="buyersCode">
+                        <div class="row g-3">
+                            <!-- Left Column -->
+                            <div class="col-12 col-md-6">
+                                <div class="mb-3">
+                                    <label for="availabilityDate" class="form-label">
+                                        Availability Date
+                                    </label>
+                                    <input
+                                        type="date"
+                                        class="form-control"
+                                        name="availabilityDate"
+                                        id="availabilityDate"
+                                        required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="pickupDate" class="form-label">
+                                        Date Pickup
+                                    </label>
+                                    <input
+                                        type="date"
+                                        class="form-control"
+                                        name="pickupDate"
+                                        id="pickupDate"
+                                        required>
+                                </div>
+                            </div>
+                            <!-- Right Column -->
+                            <div class="col-12 col-md-6">
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">
+                                        Status
+                                    </label>
+                                    <select
+                                        name="status"
+                                        id="status"
+                                        class="form-control">
+                                        <option value="">-Select Data-</option>
+                                        @foreach ($shipmentStatusArr as $key => $value)
+                                            <option value="{{ $key }}">
+                                                {{ $value }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button
+                                    type="submit"
+                                    id="btnProcessCargo"
+                                    class="btn btn-secondary w-100">
+                                    Process
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     </div>
+</div>
 @endcomponent
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -397,8 +378,7 @@
             $('#qty').text('');
             $('#selectedSOList').empty();
             $('#soNo').text("");
-            $('#packaging').text("");
-            $('#label').text("");
+            $('.soInfoContainer').html("");
             $('#dateCreated').text("");
             $('#updateCargoDetailsForm').trigger('reset');
         });
@@ -470,14 +450,38 @@
                 },
                 dataType: "JSON",
                 success: function (response) {
+                    let soNo = response.data[0].DocNum;
+                    let packaging = response.data[0].U_Packaging;
+                    let label = response.data[0].U_Label;
+                    let dateCreated = response.data[0].DocDate;
+
                     let orderItemList = response.data[0].items;
-                    if (orderItemList.length > 0) {
-                        $('#qty').text(orderItemList[0].Quantity);
-                    }
-                    $('#soNo').text(response.data[0].DocNum);
-                    $('#packaging').text(response.data[0].U_Packaging);
-                    $('#label').text(response.data[0].U_Label);
-                    $('#dateCreated').text(response.data[0].DocDate);
+                    let html = `
+                        <p style="margin-bottom: 0.25rem;">SO No.: <span style="font-weight: 700;" id="soNo">${soNo}</span></p>
+                        <p style="margin-bottom: 0.25rem;">Packing: <span style="font-weight: 700;" id="packaging">${packaging}</span></p>
+                        <p style="margin-bottom: 0.25rem;">Label <span style="font-weight: 700;" id="label">${label}</span></p>
+                        <p style="margin-bottom: 0.25rem;">Date created: <span style="font-weight: 700;" id="dateCreated">${dateCreated}</span></p>
+                    `;
+                    html += `<div class="border rounded p-2 overflow-auto" style="max-height: 150px;">`;
+                    orderItemList.forEach(item => {
+                        let qty = '-';
+                        let itemCode = '-';
+                        let description = '-';
+                        
+                        qty = item.Quantity;
+                        itemCode = item.ItemCode;
+                        description = item.Dscription;
+                    
+                        html += `<br>
+                                    <p style="margin-bottom: 0.25rem;">Item Code: <span style="font-weight: 700;" id="itemCode">${itemCode}</span></p>
+                                    <p style="margin-bottom: 0.25rem;">Description: <span style="font-weight: 700;" id="description">${description}</span></p>
+                                    <p style="margin-bottom: 0.25rem;">Quantity: <span style="font-weight: 700;" id="qty">${qty}</span></p>
+                                    <p style="margin-bottom: 0.25rem;">Remarks: <span style="font-weight: 700;" id="remarks">-</span></p>`
+                                ;
+                    });
+                    html += '</div>';
+                    
+                    $('.soInfoContainer').html(html);
                 }
             });
         }

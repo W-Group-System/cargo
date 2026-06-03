@@ -179,7 +179,7 @@ class CargoController extends Controller
             if($buyersCodeDetails["isSuccess"]){
                 $details = $buyersCodeDetails["data"];                
                 foreach ($details as $key => $value) {
-                    $data[$cardCode][] = $value->items[0]->DocEntry;
+                    $data[$cardCode][] = $value->DocNum;
                 }
                 $isSuccess = true;
                 $response["isSuccess"] = $isSuccess;
