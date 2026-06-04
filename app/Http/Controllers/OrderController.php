@@ -230,10 +230,7 @@ class OrderController extends Controller
             $soNumber = $request->soNo??"";
             $page = $request->page??"1";
             $limit = $request->limit??"1";
-            Log::info("INITIATING API CALL");
-            Log::info($soNumber);
             $soNumberDetails = $this->SapOrderList($cardCode,$sapServer,$soNumber);
-            Log::info($soNumberDetails);
             if ($soNumberDetails["isSuccess"]) {
                 $response = [
                     "isSuccess"=>true,

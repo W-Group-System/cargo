@@ -85,14 +85,14 @@
                         <form id="addCoLoadForm" method="GET">
                             @csrf
                             <div class="row g-2">
-                                <div class="col-12 col-md-8">
+                                <div class="col-12 col-md-10">
                                     <select
                                         class="form-control select2"
                                         id="coLoadBuyersCode"
-                                        name="coLoadBuyersCode">
+                                        name="coLoadBuyersCode" required>
                                     </select>
                                 </div>
-                                <div class="col-12 col-md-4">
+                                <div class="col-12 col-md-2">
                                     <button
                                         type="submit"
                                         id="btnAddCoLoad"
@@ -103,8 +103,8 @@
                             </div>
                         </form>
                         <hr>
-                        <ul id="selectedSOList" class="list-unstyled mb-0">
-                        </ul><br>
+                        <ul id="selectedSOList">
+                        </ul>
                         <h6 class="mb-2">
                             Co Loads
                         </h6>
@@ -206,8 +206,8 @@
         var start = moment().subtract(29, 'days');
         var end = moment();
         let statusArr = "{{ $shipmentStatusArr }}"
-        // console.log(statusArr['RFP']);
-        
+        let coLoadArray = {};
+        let modalBuyersCode = '';
 
         function cb(start, end) {
             $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
@@ -236,7 +236,7 @@
             ReloadDataTable();
         });
 
-        $(this).on('click', '#selectedSOList .so-link', function(e) {
+        $(this).on('click', '#selectedSOList .so-link, #coLoadDetails .so-link', function(e) {
             e.preventDefault();
             let soNo = $(this).data('so');
             let buyersCode = $(this).data('buyerscode');
@@ -329,6 +329,7 @@
                 let button = $(this);
                 let cardCode = $(this).attr('data-cardcode');
                 let sapServer = $(this).attr('data-sapserver');
+                modalBuyersCode = cardCode;
                 $('#buyersCode').val(cardCode);
                 $.ajax({
                     type: "GET",
@@ -377,10 +378,15 @@
             $('#soNoHeader').text('');
             $('#qty').text('');
             $('#selectedSOList').empty();
+            $('#coLoadDetails').empty();
             $('#soNo').text("");
             $('.soInfoContainer').html("");
             $('#dateCreated').text("");
             $('#updateCargoDetailsForm').trigger('reset');
+            $('#coLoadBuyersCode').empty();
+            sapServerDefault = '';
+            coLoadArray = {};
+            modalBuyersCode = '';
         });
 
         $('#coLoadBuyersCode').select2({
@@ -395,7 +401,7 @@
                 type: 'GET',
                 delay: 250,
                 data: function (params) {
-                    // console.log(params);
+                    // console.log(params); 
                     return {
                         buyersCode: params.term, // user typing
                         sap_server: sapServerDefault,
@@ -409,7 +415,8 @@
                     return {
                         results: data.data.map(emp => ({
                             id: emp.BuyersCode,
-                            text: emp.BuyersCode + ' - ' + emp.Count + ' - ' + (emp.isProcessed == true ? 'Processed' : 'Open')
+                            text: emp.BuyersCode + ' - ' + emp.Count + ' - ' + (emp.isProcessed == true ? 'Processed' : 'Open'),
+                            disabled: emp.BuyersCode == modalBuyersCode
                         })),
                         pagination: {
                             more: data.length === 10 // enables infinite scroll
@@ -419,7 +426,6 @@
             }
         });
 
-        let coLoadArray = [];
         $('#addCoLoadForm').submit(function (e) { 
             e.preventDefault();
             let buyersCode = $('#coLoadBuyersCode').val();
@@ -431,11 +437,43 @@
                     sapServer: sapServerDefault
                 },
                 success: function (response) {
-                    console.log(response);
+                    $('#coLoadBuyersCode').empty();
+                    $.each(Object.entries(response.data), function(index, item) {
+                        let key = item[0];
+                        let value = item[1];
+                        coLoadArray[key]=value;
+                    });
+                    LoadCoLoadList(coLoadArray);
                 }
             });
-
         });
+
+        $(this).on('click','.remove-coload', function () {
+            var buyersCode = $(this).data('buyerscode');
+            delete coLoadArray[buyersCode];
+            LoadCoLoadList(coLoadArray);
+        });
+
+        function LoadCoLoadList(coLoadArray){
+            let coLoadHtml = '';
+            $.each(coLoadArray, function(buyersCode, soList) {
+                coLoadHtml += 
+                    `<div class="d-flex justify-content-between align-items-center">
+                        <div class="fw-bold">${buyersCode}</div>
+                        <button type="button" class="btn btn-sm btn-danger remove-coload" data-buyerscode="${buyersCode}">×</button>
+                    </div>
+                    <ul class="mb-2">`;
+                    $.each(soList, function(index, soNo) {
+                        coLoadHtml += `<li> <a href="#" class="so-link" data-so="${soNo}" data-buyerscode="${buyersCode}" data-sapserver="${sapServerDefault}">
+                                                <u>${soNo}</u>
+                                            </a>
+                                        </li>`;
+                    });
+                            
+                coLoadHtml += `</ul>`;
+            });
+            $('#coLoadDetails').html(coLoadHtml);
+        }
 
         function GetCargoDetails(soNo,cardCode,sapServer){
             $.ajax({
@@ -459,7 +497,7 @@
                     let html = `
                         <p style="margin-bottom: 0.25rem;">SO No.: <span style="font-weight: 700;" id="soNo">${soNo}</span></p>
                         <p style="margin-bottom: 0.25rem;">Packing: <span style="font-weight: 700;" id="packaging">${packaging}</span></p>
-                        <p style="margin-bottom: 0.25rem;">Label <span style="font-weight: 700;" id="label">${label}</span></p>
+                        <p style="margin-bottom: 0.25rem;">Label: <span style="font-weight: 700;" id="label">${label}</span></p>
                         <p style="margin-bottom: 0.25rem;">Date created: <span style="font-weight: 700;" id="dateCreated">${dateCreated}</span></p>
                     `;
                     html += `<div class="border rounded p-2 overflow-auto" style="max-height: 150px;">`;
