@@ -248,6 +248,11 @@
             e.preventDefault();
             
             var form_data = $(this).serializeArray();
+            form_data.push({
+                name:'coloads',
+                value:JSON.stringify(coLoadArray)
+            });
+            
             $.ajax({
                 type: "POST",
                 url: "{{ route('cargo.update') }}",

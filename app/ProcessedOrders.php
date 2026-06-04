@@ -15,7 +15,9 @@ class ProcessedOrders extends Model
         "MinDocDate",
         "AvailabilityDate",
         "PickupDate",
-        "Status"
+        "Status",
+        "is_coload",
+        "coloaded_by",
     ];
 
     public function OrderData()

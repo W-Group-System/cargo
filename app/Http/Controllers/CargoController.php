@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Cargo;
+use App\Classes\OrderClass;
 use App\Order;
 use App\ProcessedOrders;
 use App\ShipmentStatus;
@@ -12,6 +13,11 @@ use Illuminate\Support\Facades\Log;
 
 class CargoController extends Controller
 {
+    protected OrderClass $order;
+    public function __construct(OrderClass $orderClass)
+    {
+        $this->order = $orderClass;
+    }
     public function index(Request $request)
     {
         $data = array();
@@ -53,6 +59,7 @@ class CargoController extends Controller
 
                 $ordersList->whereBetween('created_at', [$start, $end]);
             }
+            $ordersList = $ordersList->where("is_coload",null);
 
             $totalCount = (clone $ordersList)->count();
 
@@ -105,6 +112,8 @@ class CargoController extends Controller
                     $response["availabilityDate"] = $processedOrderData->AvailabilityDate;
                     $response["pickupDate"] = $processedOrderData->PickupDate;
                     $response["status"] = $processedOrderData->Status;
+                    // $coloadList = ProcessedOrders::with(['OrderData.OrderItemList'])->where("coloaded_by",$processedOrderData->id)->where("is_coload",1)->get();
+                    // dd($coloadList);
                 }
 
                 $isSuccess = true;
@@ -137,12 +146,24 @@ class CargoController extends Controller
             $availabilityDate = $request->availabilityDate??null;
             $pickupDate = $request->pickupDate??null;
             $status = $request->status??null;
-            
+            $coloads = json_decode($request->coloads);
+
             if (!empty($buyersCode)) {
                 $processedOrderData = ProcessedOrders::where("CardCode",$buyersCode)->first();
                 if (!empty($processedOrderData)) {
+                    $sapServer = $processedOrderData->SapServer;
+                    $processedOrderId = $processedOrderData->id;
                     $processedOrderData = $processedOrderData->update(["AvailabilityDate"=>$availabilityDate,"PickupDate"=>$pickupDate,"Status"=>$status]);
+                    foreach ($coloads as $key => $value) {
+                        $processedOrderColoadData = ProcessedOrders::where("CardCode",$key)->first();
+                        if (!empty($processedOrderColoadData)) {
+                            $processedOrderColoadData = $processedOrderColoadData->where()->update(["is_coload"=>1,"coloaded_by"=>$processedOrderData->id]);
+                        }else{
+                            $this->order->SaveCoload($key,$sapServer,$processedOrderId);
+                        }
+                    }
                 }
+
                 $isSuccess = true;
                 $response = [
                     "isSuccess"=>true,
@@ -151,6 +172,7 @@ class CargoController extends Controller
             }
         } catch (\Exception $th) {
             Log::error("ERROR IN UPDATING CARGO DETAILS: ".$th->getMessage());
+            dd("CONTROLLER: ".$th->getMessage());
         }
 
         if ($isSuccess) {
