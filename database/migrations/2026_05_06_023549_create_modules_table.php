@@ -16,11 +16,14 @@ class CreateModulesTable extends Migration
         Schema::create('modules', function (Blueprint $table) {
             $table->increments('id');
             $table->string('module_name',100);
+            $table->string('icon',100);
             $table->char('is_header',1)->default('0');
+            $table->integer('header_order');
             $table->bigInteger('header_id')->nullable();
             $table->string('module_url',100)->nullable();
             $table->string('module_route',100)->nullable();
             $table->integer('module_order')->nullable();
+            $table->char('status')->default("A");
             $table->timestamps();
         });
     }

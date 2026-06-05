@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrderItem extends Model
 {
-    use SoftDeletes;
-    
     protected $table = "order_items";
     protected $primaryKey = 'id';
     protected $fillable = [

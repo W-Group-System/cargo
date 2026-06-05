@@ -17,8 +17,14 @@ class CreateProcessedOrdersTable extends Migration
             $table->increments('id');
             $table->string("SapServer",100);
             $table->string("CardCode",100);
-            $table->string("CardName",150);
-            $table->dateTime("MinDocDate");
+            $table->string("CardName",150)->nullable();
+            $table->dateTime("MinDocDate")->nullable();
+            $table->date("AvailabilityDate")->nullable();
+            $table->date("PickupDate")->nullable();
+            $table->string("Status",100)->nullable();
+            $table->char("is_coload")->nullable();
+            $table->unsignedBigInteger("coloaded_by")->nullable();
+            $table->integer("coload_order")->nullable();
             $table->timestamps();
         });
     }

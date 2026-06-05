@@ -18,6 +18,7 @@ class ProcessedOrders extends Model
         "Status",
         "is_coload",
         "coloaded_by",
+        "coload_order",
     ];
 
     public function OrderData()

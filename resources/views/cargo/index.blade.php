@@ -103,12 +103,17 @@
                             </div>
                         </form>
                         <hr>
-                        <ul id="selectedSOList">
-                        </ul>
-                        <h6 class="mb-2">
-                            Co Loads
-                        </h6>
-                        <div id="coLoadDetails">
+                        <div class="p-4 overflow-auto" style="max-height: 440px;">
+                            <ul id="selectedSOList">
+                            </ul>
+                            <h6 class="mb-2">
+                                Co Loads
+                            </h6>
+                            <div>
+                                <ul id="coLoadDetails">
+
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -208,6 +213,7 @@
         let statusArr = "{{ $shipmentStatusArr }}"
         let coLoadArray = {};
         let modalBuyersCode = '';
+        let removedColoadsArr = [];
 
         function cb(start, end) {
             $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
@@ -251,6 +257,10 @@
             form_data.push({
                 name:'coloads',
                 value:JSON.stringify(coLoadArray)
+            });
+            form_data.push({
+                name:'removedColoads',
+                value:JSON.stringify(removedColoadsArr)
             });
             
             $.ajax({
@@ -362,6 +372,12 @@
                         $('#availabilityDate').val(response.availabilityDate);
                         $('#pickupDate').val(response.pickupDate);
                         $('#status').val(response.status);
+                        $.each(Object.entries(response.coloads), function(index, item) {
+                            let key = item[0];
+                            let value = item[1];
+                            coLoadArray[key]=value;
+                        });
+                        LoadCoLoadList(coLoadArray);
                         $('#updateCargoModal').modal('show');
                     },
                     error: function (xhr) {
@@ -392,6 +408,7 @@
             sapServerDefault = '';
             coLoadArray = {};
             modalBuyersCode = '';
+            removedColoadsArr = [];
         });
 
         $('#coLoadBuyersCode').select2({
@@ -446,6 +463,11 @@
                     $.each(Object.entries(response.data), function(index, item) {
                         let key = item[0];
                         let value = item[1];
+
+                        let indexRemoved = removedColoadsArr.indexOf(key);
+                        if (index > -1) {
+                            removedColoadsArr.splice(indexRemoved, 1);
+                        }
                         coLoadArray[key]=value;
                     });
                     LoadCoLoadList(coLoadArray);
@@ -455,6 +477,7 @@
 
         $(this).on('click','.remove-coload', function () {
             var buyersCode = $(this).data('buyerscode');
+            removedColoadsArr.push(buyersCode);
             delete coLoadArray[buyersCode];
             LoadCoLoadList(coLoadArray);
         });
@@ -463,7 +486,8 @@
             let coLoadHtml = '';
             $.each(coLoadArray, function(buyersCode, soList) {
                 coLoadHtml += 
-                    `<div class="d-flex justify-content-between align-items-center">
+                    `<li>
+                    <div class="d-flex justify-content-between align-items-center">
                         <div class="fw-bold">${buyersCode}</div>
                         <button type="button" class="btn btn-sm btn-danger remove-coload" data-buyerscode="${buyersCode}">×</button>
                     </div>
@@ -475,7 +499,7 @@
                                         </li>`;
                     });
                             
-                coLoadHtml += `</ul>`;
+                coLoadHtml += `</ul></li>`;
             });
             $('#coLoadDetails').html(coLoadHtml);
         }

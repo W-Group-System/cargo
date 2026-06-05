@@ -112,8 +112,18 @@ class CargoController extends Controller
                     $response["availabilityDate"] = $processedOrderData->AvailabilityDate;
                     $response["pickupDate"] = $processedOrderData->PickupDate;
                     $response["status"] = $processedOrderData->Status;
-                    // $coloadList = ProcessedOrders::with(['OrderData.OrderItemList'])->where("coloaded_by",$processedOrderData->id)->where("is_coload",1)->get();
-                    // dd($coloadList);
+                    $coloadSoNumberArr = [];
+                    $coloadList = Order::from('orders as o')->select('o.CardCode','o.DocNum')
+                                ->leftJoin('processed_orders as po','po.id','=','o.process_order_id')
+                                ->where('po.is_coload','1')
+                                ->where('po.coloaded_by',$processedOrderData->id)
+                                ->orderBy('po.coload_order','asc')
+                                ->get()
+                                ->map(function($order) use(&$coloadSoNumberArr){
+                                    $coloadSoNumberArr[$order->CardCode][] = $order->DocNum;
+                                    return $coloadSoNumberArr;
+                                });
+                    $response["coloads"] = $coloadSoNumberArr;
                 }
 
                 $isSuccess = true;
@@ -147,6 +157,7 @@ class CargoController extends Controller
             $pickupDate = $request->pickupDate??null;
             $status = $request->status??null;
             $coloads = json_decode($request->coloads);
+            $removedColoadsArr = json_decode($request->removedColoads);
 
             if (!empty($buyersCode)) {
                 $processedOrderData = ProcessedOrders::where("CardCode",$buyersCode)->first();
@@ -154,13 +165,19 @@ class CargoController extends Controller
                     $sapServer = $processedOrderData->SapServer;
                     $processedOrderId = $processedOrderData->id;
                     $processedOrderData = $processedOrderData->update(["AvailabilityDate"=>$availabilityDate,"PickupDate"=>$pickupDate,"Status"=>$status]);
+                    $order = 1;
                     foreach ($coloads as $key => $value) {
-                        $processedOrderColoadData = ProcessedOrders::where("CardCode",$key)->first();
-                        if (!empty($processedOrderColoadData)) {
-                            $processedOrderColoadData = $processedOrderColoadData->where()->update(["is_coload"=>1,"coloaded_by"=>$processedOrderData->id]);
+                        $processedOrderColoadDataExistence = ProcessedOrders::where("CardCode",$key)->first();
+                        if (!empty($processedOrderColoadDataExistence)) {
+                            $updateProcessedOrderColoadDataExistence = $processedOrderColoadDataExistence->where("CardCode",$key)->update(["is_coload"=>1,"coloaded_by"=>$processedOrderId,"coload_order"=>$order]);
                         }else{
-                            $this->order->SaveCoload($key,$sapServer,$processedOrderId);
+                            $saveCoLoad = $this->order->SaveCoload($key,$sapServer,$processedOrderId,$order);
                         }
+                        $order++;
+                    }
+
+                    if (count($removedColoadsArr) > 0) {
+                        $deleteCoLoads = ProcessedOrders::whereIn("CardCode",$removedColoadsArr)->where("is_coload","1")->where("coloaded_by",$processedOrderId)->delete();
                     }
                 }
 

@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 
 class OrderClass {
 
-    public function SaveCoload($cardCode,$sapServer,$coloadedBy){
+    public function SaveCoload($cardCode,$sapServer,$coloadedBy,$coloadOrder=null){
         $response = [
             "isSuccess"=>false,
             "message"=>"Failed to save order."
@@ -31,7 +31,8 @@ class OrderClass {
                     'CardName'   => $data[0]->CardName,
                     'MinDocDate' => $data[0]->DocDate,
                     'is_coload' => 1,
-                    'coloaded_by' => $coloadedBy
+                    'coloaded_by' => $coloadedBy,
+                    'coload_order' => $coloadOrder
                 ]);
                 
                 if (isset($processOrder->id)) {
