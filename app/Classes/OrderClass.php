@@ -32,7 +32,8 @@ class OrderClass {
                     'MinDocDate' => $data[0]->DocDate,
                     'is_coload' => 1,
                     'coloaded_by' => $coloadedBy,
-                    'coload_order' => $coloadOrder
+                    'coload_order' => $coloadOrder,
+                    "OrderStatus"=>"CL"
                 ]);
                 
                 if (isset($processOrder->id)) {

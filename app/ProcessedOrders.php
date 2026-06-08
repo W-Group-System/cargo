@@ -15,7 +15,8 @@ class ProcessedOrders extends Model
         "MinDocDate",
         "AvailabilityDate",
         "PickupDate",
-        "Status",
+        "ShipmentStatus",
+        "OrderStatus",
         "is_coload",
         "coloaded_by",
         "coload_order",
@@ -24,5 +25,13 @@ class ProcessedOrders extends Model
     public function OrderData()
     {
         return $this->hasOne(Order::class, 'process_order_id', 'id');
+    }
+    public function ShipmentStatus()
+    {
+        return $this->hasOne(ShipmentStatus::class, 'code', 'ShipmentStatus');
+    }
+    public function ProcessedOrderStatus()
+    {
+        return $this->hasOne(ProcessedOrderStatus::class, 'code', 'OrderStatus');
     }
 }

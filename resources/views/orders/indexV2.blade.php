@@ -59,13 +59,15 @@
                                     <th>Date Created</th>
                                     <th>Buyers Code</th>
                                     <th>Buyers Name</th>
-                                    <th>Count</th>
+                                    <th>SO # Count</th>
+                                    <th>Status/Remarks</th>
                                     <th>Action</th>
                                 </tr>
                                 <tr>
                                     <th><input type="date" name="" id="dateCreated" placeholder="Search date" class="form-control form-control-sm column-search"></th>
                                     <th><input type="text" name="" id="buyersCode" placeholder="Search Buyers Code" class="form-control form-control-sm column-search"></th>
                                     <th><input type="text" name="" id="buyersName" placeholder="Search Buyers Name" class="form-control form-control-sm column-search"></th>
+                                    <th></th>
                                     <th></th>
                                     <th></th> <!-- for Action column -->
                                 </tr>
@@ -165,10 +167,11 @@ $(document).ready(function(){
             { data: 'BuyersCode' },
             { data: 'CardName'},
             { data: 'Count'},
+            { data: 'Remarks'},
             {
                 render: function (data, type, row) {
                     let button = '';
-                    if (row.isProcessed == true) {
+                    if (row.OrderStatus !== "") {
                         button = `<button type="button" class="btn btn-success btn-process"
                             data-cardcode="${row.BuyersCode}" data-sapserver="${$('#sap_server').val()}" data-cardname="${row.CardName}" data-docdate="${row.DocDate}" disabled>
                             Processed

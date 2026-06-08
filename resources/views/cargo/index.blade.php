@@ -174,7 +174,7 @@
                                         id="status"
                                         class="form-control">
                                         <option value="">-Select Data-</option>
-                                        @foreach ($shipmentStatusArr as $key => $value)
+                                        @foreach (["FP"=>"For packing","POP"=>"Pakcing on process","RFP"=>"Ready for pickup"] as $key => $value)
                                             <option value="{{ $key }}">
                                                 {{ $value }}
                                             </option>
@@ -210,7 +210,6 @@
         let sapServerDefault = "";
         var start = moment().subtract(29, 'days');
         var end = moment();
-        let statusArr = "{{ $shipmentStatusArr }}"
         let coLoadArray = {};
         let modalBuyersCode = '';
         let removedColoadsArr = [];
@@ -329,7 +328,7 @@
                 { data: 'created_at' },
                 { data: 'CardCode' },
                 { data: 'CardName'},
-                { data: 'Status'},
+                { data: 'shipment_status.description'},
                 {
                     render: function (data, type, row) {
                         return `<button type="button" class="btn btn-primary btn-update" id="btnCargoUpdate"
@@ -437,8 +436,8 @@
                     return {
                         results: data.data.map(emp => ({
                             id: emp.BuyersCode,
-                            text: emp.BuyersCode + ' - ' + emp.Count + ' - ' + (emp.isProcessed == true ? 'Processed' : 'Open'),
-                            disabled: emp.BuyersCode == modalBuyersCode
+                            text: emp.BuyersCode + ' - ' + emp.Count + ' - ' + (emp.OrderStatus !== ''?emp.OrderStatus:'Open'),
+                            disabled: emp.BuyersCode == modalBuyersCode || emp.OrderStatus == 'Base Load'
                         })),
                         pagination: {
                             more: data.length === 10 // enables infinite scroll
