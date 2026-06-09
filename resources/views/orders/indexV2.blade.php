@@ -209,7 +209,8 @@ $(document).ready(function(){
                         button.prop('disabled',true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
                     },
                     success: function (response) {
-                        ReloadDataTable();
+                        // ReloadDataTable();
+                        $('#ordersTable').DataTable().ajax.reload(null, false);
                         Swal.fire('Success',response.message,'success');
                     },
                     error: function (xhr) {
