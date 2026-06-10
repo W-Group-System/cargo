@@ -21,7 +21,7 @@ class CreateProcessedOrdersTable extends Migration
             $table->dateTime("MinDocDate")->nullable();
             $table->date("AvailabilityDate")->nullable();
             $table->date("PickupDate")->nullable();
-            $table->string("ShipmentStatus",100)->nullable();
+            $table->string("CargoStatus",100)->nullable();
             $table->string("OrderStatus",100)->default('S');
             $table->char("is_coload")->nullable();
             $table->unsignedBigInteger("coloaded_by")->nullable();

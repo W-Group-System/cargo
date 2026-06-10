@@ -174,7 +174,7 @@
                                         id="status"
                                         class="form-control">
                                         <option value="">-Select Data-</option>
-                                        @foreach (["FP"=>"For packing","POP"=>"Pakcing on process","RFP"=>"Ready for pickup"] as $key => $value)
+                                        @foreach (["FP"=>"For packing","POP"=>"Packing on process","RFP"=>"Ready for pickup"] as $key => $value)
                                             <option value="{{ $key }}">
                                                 {{ $value }}
                                             </option>
@@ -328,7 +328,7 @@
                 { data: 'created_at' },
                 { data: 'CardCode' },
                 { data: 'CardName'},
-                { data: 'shipment_status.description'},
+                { data: 'cargo_status.description'},
                 {
                     render: function (data, type, row) {
                         return `<button type="button" class="btn btn-primary btn-update" id="btnCargoUpdate"

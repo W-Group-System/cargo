@@ -39,7 +39,7 @@ class CargoController extends Controller
             $page = $request->page ?? 1;
             $limit = $request->limit ?? 10;
 
-            $ordersList = ProcessedOrders::with(['ShipmentStatus'])->select("*");
+            $ordersList = ProcessedOrders::with(['CargoStatus'])->select("*");
 
             if (isset($request->id) && !empty($request->id)) {
                 $ordersList = $ordersList->where("id",$request->id);
@@ -111,7 +111,7 @@ class CargoController extends Controller
                 if (!empty($processedOrderData)) {
                     $response["availabilityDate"] = $processedOrderData->AvailabilityDate;
                     $response["pickupDate"] = $processedOrderData->PickupDate;
-                    $response["status"] = $processedOrderData->ShipmentStatus;
+                    $response["status"] = $processedOrderData->CargoStatus;
                     $coloadSoNumberArr = [];
                     $coloadList = Order::from('orders as o')->select('o.CardCode','o.DocNum')
                                 ->leftJoin('processed_orders as po','po.id','=','o.process_order_id')
@@ -164,7 +164,7 @@ class CargoController extends Controller
                 if (!empty($processedOrderData)) {
                     $sapServer = $processedOrderData->SapServer;
                     $processedOrderId = $processedOrderData->id;
-                    $processedOrderData = $processedOrderData->update(["AvailabilityDate"=>$availabilityDate,"PickupDate"=>$pickupDate,"ShipmentStatus"=>$status,"OrderStatus"=>(!empty($coloads) && count(array_keys($coloads)) > 0?'BL':'S')]);
+                    $processedOrderData = $processedOrderData->update(["AvailabilityDate"=>$availabilityDate,"PickupDate"=>$pickupDate,"CargoStatus"=>$status,"OrderStatus"=>(!empty($coloads) && count(array_keys($coloads)) > 0?'BL':'S')]);
                     $order = 1;
                     foreach ($coloads as $key => $value) {
                         $processedOrderColoadDataExistence = ProcessedOrders::where("CardCode",$key)->first();
