@@ -164,7 +164,8 @@ class CargoController extends Controller
                 if (!empty($processedOrderData)) {
                     $sapServer = $processedOrderData->SapServer;
                     $processedOrderId = $processedOrderData->id;
-                    $processedOrderData = $processedOrderData->update(["AvailabilityDate"=>$availabilityDate,"PickupDate"=>$pickupDate,"CargoStatus"=>$status,"OrderStatus"=>(!empty($coloads) && count(array_keys($coloads)) > 0?'BL':'S')]);
+                    $orderStatus = (!empty($coloads) && count(array_keys($coloads)) > 0?'BL':'S');
+                    $processedOrderData = $processedOrderData->update(["AvailabilityDate"=>$availabilityDate,"PickupDate"=>$pickupDate,"CargoStatus"=>$status,"OrderStatus"=>$orderStatus]);
                     $order = 1;
                     foreach ($coloads as $key => $value) {
                         $processedOrderColoadDataExistence = ProcessedOrders::where("CardCode",$key)->first();

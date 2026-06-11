@@ -174,12 +174,12 @@ $(document).ready(function(){
                     if (row.OrderStatus !== "") {
                         button = `<button type="button" class="btn btn-success btn-process"
                             data-cardcode="${row.BuyersCode}" data-sapserver="${$('#sap_server').val()}" data-cardname="${row.CardName}" data-docdate="${row.DocDate}" disabled>
-                            Processed
+                            <i class="bi bi-download"></i>
                         </button>`;
                     }else{
                         button = `<button type="button" class="btn btn-success btn-process"
                             data-cardcode="${row.BuyersCode}" data-sapserver="${$('#sap_server').val()}" data-cardname="${row.CardName}" data-docdate="${row.DocDate}">
-                            Process
+                            <i class="bi bi-download"></i>
                         </button>`;
                     }
                     return button;
@@ -206,7 +206,7 @@ $(document).ready(function(){
                         docDate : docDate
                     }),
                     beforeSend: function(){
-                        button.prop('disabled',true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+                        button.prop('disabled',true).html('<span class="spinner-border spinner-border-sm" role="status"></span>');
                     },
                     success: function (response) {
                         // ReloadDataTable();
@@ -217,7 +217,7 @@ $(document).ready(function(){
                         Swal.fire('Error',xhr.responseJSON?.message || 'Error','error');
                     },
                     complete: function(){
-                        button.prop('disabled',false).text('Process');
+                        button.prop('disabled',false).html('<i class="bi bi-download"></i>');
                     }
                 });
             });

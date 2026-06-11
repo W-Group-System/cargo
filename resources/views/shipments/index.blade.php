@@ -86,76 +86,53 @@
                     </div>
                     <div class="row g-3 align-items-center">
                         <div class="col-auto">
-                            <form action="">
-                                <div class="row g-2 align-items-center">
-                                    <div class="col-auto">
-                                        <input type="hidden" name="start_date" id="start_date" value="">
-                                        <input type="hidden" name="end_date" id="end_date" value="">
+                            <form method="GET" id="shipmentListForm" class="form-inline mt-4">
+                            @csrf
+                            <div class="row g-3 align-items-center">
+                                <div class="col-auto">
+                                    <label class="col-form-label">Filter by date sync:</label>
+                                </div>
+                                <div class="col-auto">
+                                    <input type="hidden" name="start_date" id="start_date" value="{{ request('start_date') }}">
+                                    <input type="hidden" name="end_date" id="end_date" value="{{ request('end_date') }}">
 
-                                        <div id="reportrange" 
-                                            style="cursor: pointer; padding: 5px 10px; border: 1px solid #ccc;">
-                                            <i class="bi bi-calendar"></i>&nbsp;
-                                            <span>Select Date Range</span> 
-                                            <i class="bi bi-caret-down"></i>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-auto">
-                                        <button type="submit" class="btn btn-success">
-                                            <i class="bi bi-arrow-repeat"></i>&nbsp;Sync
-                                        </button>
+                                    <div id="reportrange" style="cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                        <i class="bi bi-calendar"></i>&nbsp;
+                                        <span>
+                                            @if(request('start_date') && request('end_date'))
+                                                {{ request('start_date') }} - {{ request('end_date') }}
+                                            @else
+                                                Select Date Range
+                                            @endif
+                                        </span> 
+                                        <i class="bi bi-caret-down"></i>
                                     </div>
                                 </div>
-                            </form>
-                        </div>
-                        <div class="col-auto ms-auto">
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateStatusModal">
-                                <i class="bi bi-pencil"></i>&nbsp;Update Status
-                            </button>
+
+                                <div class="col-auto">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="bi bi-search"></i>&nbsp;Search
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                         </div>
                     </div>
                     <div class="table-responsive mt-4">
                         <table class="table table-striped table-bordered table-hover" id="shipmentTable">
                             <thead>
                                 <tr>
-                                    <th><input type="checkbox" name="" id=""></th>
-                                    <th>STATUS</th>
-                                    <th>DATE CREATED</th>
-                                    <th>SO NO.</th>
-                                    <th>BUYERS CODE</th>
-                                    <th>BUYERS PO NO</th>
-                                    <th>LABEL</th>
-                                    <th>PACKAGING</th>
-                                </tr>
-                                <tr>
-                                    <th><input type="checkbox" name="" id=""></th>
-                                    @for ($i = 0; $i < 7; $i++)
-                                        <th>
-                                            <select class="form-control">
-                                                <option value="">All</option>
-                                            </select>
-                                        </th>
-                                    @endfor
+                                    <th>Status</th>
+                                    <th>Date Created</th>
+                                    <th>Buyers Code</th>
+                                    <th>Buyers Name</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @foreach ( $dummyList as $key => $value)
-                                    <tr>
-                                        <td><input type="checkbox" name="" id=""></td>
-                                        <td>{{$value["status"]}}</td>
-                                        <td>{{$value["dateCreated"]}}</td>
-                                        <td>{{$value["soNo"]}}</td>
-                                        <td>{{$value["buyerCode"]}}</td>
-                                        <td>{{$value["buyerPoNo"]}}</td>
-                                        <td>{{$value["label"]}}</td>
-                                        <td>{{$value["packaging"]}}</td>
-                                    </tr>
-                                @endforeach
+                             <tbody>
                             </tbody>
                         </table>
-                        <div class="mt-2 d-flex justify-content-between align-items-center">
-                        </div> 
-                    </div> 
+                    </div>
                 </div>
             </div>
         </div>
@@ -414,7 +391,71 @@
 
         cb(start, end);
 
-        let table = new DataTable('#shipmentTable');
+        $('#shipmentListForm').submit(function (e) { 
+            e.preventDefault();
+            ReloadDataTable();
+        });
+
+        let orderTable = $('#shipmentTable').DataTable({
+            processing: true,
+            serverSide: true,
+            responsive: true,
+            searching: false,
+            ordering: false,
+            paging: true,
+            autoWidth: false,
+            scrollY: '480px',
+            scrollCollapse: false,
+            lengthChange: false,
+            language: {
+                processing: '<div class="spinner-border"></div>',
+            },
+            ajax: function (data, callback) {
+                let page = (data.start / data.length) + 1;
+                let limit = data.length;
+
+                $.ajax({
+                    url: "{{ route('shipment.list') }}",
+                    type: 'GET',
+                    data: {
+                        page: page,
+                        limit: limit,
+                        start_date: $('#start_date').val(),
+                        end_date: $('#end_date').val()
+                    },
+                    success: function (resp) {
+                        callback({
+                            data: resp.data,            
+                            recordsTotal: resp.total,   
+                            recordsFiltered: resp.total 
+                        });
+                    }
+                });
+            },
+            columns: [
+                { data: 'shipment_status.description'},
+                { data: 'created_at' },
+                { data: 'CardCode' },
+                { data: 'CardName'},
+                {
+                    render: function (data, type, row) {
+                        return `<button type="button" class="btn btn-primary btn-update" id="btnCargoUpdate"
+                            data-cardcode="${row.CardCode}" data-sapserver="${row.SapServer}">
+                            <i class="bi bi-pencil"></i>
+                        </button>`
+                    }
+                }
+            ],
+            rowCallback : function(row,data,DisplayIndex){
+                $(row).find('.btn-update').unbind('click').on('click',function(){
+                    $('#updateStatusModal').modal('show');
+                });
+            }
+        });
+
+        function ReloadDataTable() {
+            orderTable.ajax.reload(null, true);
+        }
     });
 </script>
 @endsection

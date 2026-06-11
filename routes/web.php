@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RolesController;
+use App\Http\Controllers\ShipmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,6 +43,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Shipments
     Route::get('/shipments','ShipmentController@index');
+    Route::get('shipment/list',[ShipmentController::class,'ShipmentList'])->name('shipment.list');
 
     // Users
     Route::get('/users','UserController@index');

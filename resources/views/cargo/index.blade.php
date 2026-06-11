@@ -333,7 +333,7 @@
                     render: function (data, type, row) {
                         return `<button type="button" class="btn btn-primary btn-update" id="btnCargoUpdate"
                             data-cardcode="${row.CardCode}" data-sapserver="${row.SapServer}">
-                            Update
+                            <i class="bi bi-pencil"></i>
                         </button>`
                     }
                 }
@@ -355,7 +355,7 @@
                         sapServer : sapServer
                     },
                     beforeSend: function(){
-                        button.prop('disabled',true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+                        button.prop('disabled',true).html('<span class="spinner-border spinner-border-sm" role="status"></span>');
                     },
                     success: function (response) {
                         // console.log(response);
@@ -383,7 +383,7 @@
                         Swal.fire('Error',xhr.responseJSON?.message || 'Error','error');
                     },
                     complete: function(){
-                        button.prop('disabled',false).text('Update');
+                        button.prop('disabled',false).html('<i class="bi bi-pencil"></i>');
                     }
                 });
             });
