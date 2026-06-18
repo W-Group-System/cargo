@@ -25,7 +25,7 @@ class ProcessedOrders extends Model
 
     public function OrderData()
     {
-        return $this->hasOne(Order::class, 'process_order_id', 'id');
+        return $this->hasMany(Order::class, 'process_order_id', 'id');
     }
     public function CargoStatus()
     {

@@ -249,7 +249,7 @@
                 </div>
             </div>
             <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Cargo Readyness Date:</label>
+                <label class="col-sm-4 col-form-label">Cargo Readiness Date:</label>
                 <div class="col-sm-8">
                     <input type="text" class="form-control" name="cargoReadinessDate">
                 </div>
@@ -449,7 +449,7 @@
                 {
                     render: function (data, type, row) {
                         return `<button type="button" class="btn btn-primary btn-update" id="btnCargoUpdate"
-                            data-cardcode="${row.CardCode}" data-sapserver="${row.SapServer}">
+                            data-id="${row.id}" data-cardcode="${row.CardCode}" data-sapserver="${row.SapServer}">
                             <i class="bi bi-pencil"></i>
                         </button>`
                     }
@@ -457,6 +457,25 @@
             ],
             rowCallback : function(row,data,DisplayIndex){
                 $(row).find('.btn-update').unbind('click').on('click',function(){
+                    let shipmentId = $(this).data('id');
+                    let buyersCode = $(this).data('cardcode');
+                    let sapServer = $(this).data('sapserver');
+
+                    $.ajax({
+                        url: "{{ route('shipment.list') }}",
+                        type: 'GET',
+                        data: {
+                            page: 1,
+                            limit: 1,
+                            id: shipmentId,
+                            buyersCode: buyersCode,
+                            sapServer: sapServer
+                        },
+                        success: function (resp) {
+                            console.log(resp);
+                            
+                        }
+                    });
                     $('#updateStatusModal').modal('show');
                 });
             }
