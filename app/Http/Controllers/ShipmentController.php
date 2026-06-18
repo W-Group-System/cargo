@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\DeliveryStatus;
+use App\Order;
 use App\ProcessedOrders;
+use App\TrackingPoints;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -13,19 +16,8 @@ class ShipmentController extends Controller
     {
         $data = array();
         $data['ActiveModule'] = 'Shipments';
-        $dummyList = array();
-        for ($i=0; $i < 100; $i++) { 
-            $dummyList[] = [
-                "status" => "Pending",
-                "dateCreated" => "Oct 1, 2025",
-                "soNo" => "250010",
-                "buyerCode" => "250001",
-                "buyerPoNo" => "SWU-250001",
-                "label" => "Rico Kraft Bag",
-                "packaging" => "Rico Gel"
-            ];
-        }
-         $data['dummyList'] = $dummyList;
+        $data['trackingPoints'] = TrackingPoints::pluck('description','code');
+        $data['deliveryStatus'] = DeliveryStatus::pluck('description','code');
         
         return view('shipments.index',$data);
     }
@@ -36,16 +28,28 @@ class ShipmentController extends Controller
             "message"=>"Failed to retrieve information.",
             "total"=>0,
             "page"=>1,
-            "data"=>null
+            "data"=>null,
+            "coloads"=>[]
         ];
         try {
             $page = $request->page ?? 1;
             $limit = $request->limit ?? 10;
+            $coloadSoNumberArr = [];
 
             $ordersList = ProcessedOrders::with(['ShipmentStatus'])->select("*")->where("CargoStatus","<>","");
 
             if (isset($request->id) && !empty($request->id)) {
-                $ordersList = $ordersList->where("id",$request->id);
+                $ordersList = $ordersList->with(['ShipmentDetails.ShipmentTracking','ShipmentDetails.DeliveryStatus','OrderData.OrderItemList'])->where("id",$request->id);
+                $coloadList = Order::from('orders as o')->select('o.CardCode','o.DocNum')
+                    ->leftJoin('processed_orders as po','po.id','=','o.process_order_id')
+                    ->where('po.is_coload','1')
+                    ->where('po.coloaded_by',$request->id)
+                    ->orderBy('po.coload_order','asc')
+                    ->get()
+                    ->map(function($order) use(&$coloadSoNumberArr){
+                        $coloadSoNumberArr[$order->CardCode][] = $order->DocNum;
+                        return $coloadSoNumberArr;
+                    });
             }
 
             if (isset($request->search) && !empty(isset($request->search))) {
@@ -74,6 +78,7 @@ class ShipmentController extends Controller
             $response["message"] = "Successfully retrieved information.";
             $response["total"] = $totalCount;
             $response["data"] = $ordersList;
+            $response["coloads"] = $coloadSoNumberArr;
         } catch (\Throwable $th) {
             Log::error("ERROR IN GETTING SHIPMENT LIST: ".$th);
         }

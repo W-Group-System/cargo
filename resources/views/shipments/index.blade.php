@@ -1,5 +1,8 @@
 @extends('layouts.header')
 @section('content')
+{{-- @php
+    dd(get_defined_vars());
+@endphp --}}
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="col-lg-12 grid-margin stretch-card">
@@ -165,7 +168,10 @@
                 <label class="col-sm-4 col-form-label">Delivery status:</label>
                 <div class="col-sm-8">
                     <select name="deliveryStatus" id="deliveryStatus" class="form-control">
-                        <option value="">-Select Data-</option>
+                        <option value="">- Delivery Status -</option>
+                        @foreach ($deliveryStatus as $key => $value)
+                            <option value="{{ $key }}">{{ $value }}</option>
+                        @endforeach
                     </select>
                 </div>
             </div>
@@ -173,7 +179,10 @@
                 <label class="col-sm-4 col-form-label">Track points:</label>
                 <div class="col-sm-8">
                     <select name="trackPoints" id="trackPoints" class="form-control">
-                        <option value="">-Select Data-</option>
+                        <option value="">- Traking Points -</option>
+                        @foreach ($trackingPoints as $key => $value)
+                            <option value="{{ $key }}">{{ $value }}</option>
+                        @endforeach
                     </select>
                 </div>
             </div>
