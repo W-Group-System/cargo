@@ -33,8 +33,9 @@ class CreateShipmentDetailsTable extends Migration
             $table->string('courier_tracking',255)->nullable();
             $table->dateTime('etd_origin')->nullable();
             $table->dateTime('atd_origin')->nullable();
+            $table->dateTime('eta_destination')->nullable();
             $table->dateTime('ata_destination')->nullable();
-            $table->dateTime('delivery_date')->nullable();
+            $table->date('delivery_date')->nullable();
             $table->dateTime('date_docs_completed')->nullable();
             $table->text('remarks')->nullable();
             $table->foreign('process_order_id')->references('id')->on('processed_orders')->onDelete('cascade');

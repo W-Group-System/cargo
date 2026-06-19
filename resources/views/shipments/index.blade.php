@@ -146,225 +146,290 @@
         <div class="col-12 col-lg-6">
             <div class="d-flex mb-2 align-items-center">
                 <label class="fw-bold" style="width: 100px; margin-right: 5px;">Buyer's Code:</label>
-                <span>25001</span>
-            </div>
-            <div class="d-flex mb-2 align-items-center">
-                <label class="fw-bold" style="width: 120px; margin-right: 5px;">Selected SO #:</label>
-                <span><u>5</u></span>
+                <span id="headerBuyersCode"></span>
             </div>
         </div>
         <div class="col-12 col-lg-6">
             <div class="d-flex mb-2 align-items-center">
                 <label class="fw-bold" style="width: 180px; margin-right: 5px;">Overall shipping status:</label>
-                <span>Pending</span>
+                <span id="deliveryStatusDesc"></span>
             </div>
         </div>
     </div>
     <hr>
-    <div class="row g-4">
-        <div class="col-12 col-lg-6">
-            <label class="fw-bold" style="width: 100%; margin-right: 5px;">Shipment Tracking</label>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Delivery status:</label>
-                <div class="col-sm-8">
-                    <select name="deliveryStatus" id="deliveryStatus" class="form-control">
-                        <option value="">- Delivery Status -</option>
-                        @foreach ($deliveryStatus as $key => $value)
-                            <option value="{{ $key }}">{{ $value }}</option>
-                        @endforeach
-                    </select>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active"
+                    id="home-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#shipmentTab"
+                    type="button"
+                    role="tab">
+                Shipment
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link"
+                    id="profile-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#cargoTab"
+                    type="button"
+                    role="tab">
+                Cargo
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-3" id="myTabContent">
+        <div class="tab-pane fade show active" id="shipmentTab" role="tabpanel">
+            <form action="" id="shipmentInfoForm">
+                <div class="row g-4">
+                    <div class="col-12 col-lg-6">
+                        <label class="fw-bold" style="width: 100%; margin-right: 5px;">Shipment Tracking</label>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">Delivery status:</label>
+                            <div class="col-sm-8">
+                                <select name="deliveryStatus" id="deliveryStatus" class="form-control">
+                                    <option value="">- Delivery Status -</option>
+                                    @foreach ($deliveryStatus as $key => $value)
+                                        <option value="{{ $key }}">{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">Track points:</label>
+                            <div class="col-sm-8">
+                                <select name="trackPoints" id="trackPoints" class="form-control">
+                                    <option value="">- Traking Points -</option>
+                                    @foreach ($trackingPoints as $key => $value)
+                                        <option value="{{ $key }}">{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">Location</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="location" id="location">
+                            </div>
+                        </div>
+                        <label class="fw-bold" style="width: 100%; margin-right: 5px;">Shipment Overview</label>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">Client Reference #:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="clientRefNo" id="clientRefNo" readonly>
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">Invoice Number:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="invoiceNo" id="invoiceNo">
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">BDE/Account Holder</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="accHolder" id="accHolder">
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">Mode:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="mode" id="mode">
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">INCO Terms:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="incoTerms" id="incoTerms">
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">CBW Doc Status:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="cbwDocStatus" id="cbwDocStatus">
+                            </div>
+                        </div>
+                        <label class="fw-bold" style="width: 100%; margin-right: 5px;">Cargo details</label>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">Quantity:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="quantity" id="quantity">
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">Type of Pallets:</label>
+                            <div class="col-sm-8">
+                                <select name="palletType" id="palletType" class="form-control">
+                                    <option value="">-Select Data-</option>
+                                    <option value="Plastic">Plastic</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">Cargo Readiness Date:</label>
+                            <div class="col-sm-8">
+                                <input type="date" class="form-control" name="cargoReadinessDate" id="cargoReadinessDate">
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">Posting Date:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="postingDate" id="postingDate">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <label class="fw-bold" style="width: 100%; margin-right: 5px;">Shipping & Destination Information</label>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">Current Location:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="currentLocation" id="currentLocation">
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">Port of Destination:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="destinationPort">
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">Country of Destination:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="destinationCountry">
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">Regions:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="regions" id="regions">
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">Shipping Line / Forwarder:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="shippingLine" id="shippingLine">
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">ED Number / BL Number:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="blNumber" id="blNumber">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">Container Number:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="containerNumber" id="containerNumber">
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">Courier Tracking:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="courierTracking" id="courierTracking">
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">ETD Origin:</label>
+                            <div class="col-sm-8">
+                                <input type="datetime-local" class="form-control" name="etdOrigin" id="etdOrigin">
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">ATD Origin:</label>
+                            <div class="col-sm-8">
+                                <input type="datetime-local" class="form-control" name="atdOrigin" id="atdOrigin">
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">ETA Destination:</label>
+                            <div class="col-sm-8">
+                                <input type="datetime-local" class="form-control" name="etaDestination" id="etaDestination">
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">ATA Destination:</label>
+                            <div class="col-sm-8">
+                                <input type="datetime-local" class="form-control" name="ataDestination" id="ataDestination">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">Initial Transit Time:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="initialTransitTime" id="initialTransitTime">
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">Actual Transit Time:</label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" name="actualTransitTime" id="actualTransitTime">
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">Delivery Date:</label>
+                            <div class="col-sm-8">
+                                <input type="date" class="form-control" name="deliveryDate" id="deliveryDate">
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">Date Docs. Completed:</label>
+                            <div class="col-sm-8">
+                                <input type="datetime-local" class="form-control" name="dateDocsCompleted" id="dateDocsCompleted">
+                            </div>
+                        </div>
+                        <div class="row mb-3 align-items-center">
+                            <label class="col-sm-4 col-form-label">Remarks:</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control" name="remarks" id="remarks" cols="30" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Track points:</label>
-                <div class="col-sm-8">
-                    <select name="trackPoints" id="trackPoints" class="form-control">
-                        <option value="">- Traking Points -</option>
-                        @foreach ($trackingPoints as $key => $value)
-                            <option value="{{ $key }}">{{ $value }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Location</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="location">
-                </div>
-            </div>
-            <label class="fw-bold" style="width: 100%; margin-right: 5px;">Shipment Overview</label>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Client Reference #:</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="clientRefNo">
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Invoice Number:</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="invoiceNo">
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">BDE/Account Holder</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="accHolder">
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Mode:</label>
-                <div class="col-sm-8">
-                    <select name="mode" id="mode" class="form-control">
-                        <option value="">-Select Data-</option>
-                    </select>
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">INCO Terms:</label>
-                <div class="col-sm-8">
-                    <select name="incoTerms" id="incoTerms" class="form-control">
-                        <option value="">-Select Data-</option>
-                    </select>
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">CBW Doc Status:</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="cbwDocStatus">
-                </div>
-            </div>
-            <label class="fw-bold" style="width: 100%; margin-right: 5px;">Cargo details</label>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Quantity:</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="quantity" id="quantity">
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Type of Pallets:</label>
-                <div class="col-sm-8">
-                    <select name="palletType" id="palletType" class="form-control">
-                        <option value="">-Select Data-</option>
-                    </select>
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Cargo Readiness Date:</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="cargoReadinessDate">
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Posting Date:</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="postingDate">
-                </div>
-            </div>
+            </form>
         </div>
-        <div class="col-12 col-lg-6">
-            <label class="fw-bold" style="width: 100%; margin-right: 5px;">Shipping & Destination Information</label>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Current Location:</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="currentLocation">
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Port of Destination:</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="destinationPort">
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Country of Destination:</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="destinationCountry">
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Regions:</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="regions">
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Shipping Line / Forwarder:</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="forwarder">
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">ED Number / BL Number:</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="blNumber">
-                </div>
-            </div>
 
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Container Number:</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="containerNumber">
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Courier Tracking:</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="courierTracking">
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">ETD Origin:</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="etdOrigin">
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">ATD Origin:</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="atdOrigin">
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">ETA Destination:</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="etaDestination">
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">ATA Destination:</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="ataDestination">
-                </div>
-            </div>
+        <div class="tab-pane fade" id="cargoTab" role="tabpanel">
+            <div class="container-fluid">
+                <div class="row g-4">
+                    <!-- Left Panel -->
+                    <div class="col-12 col-lg-5">
+                        <div class="d-flex flex-column gap-3 h-100">
+                            <!-- Selected SO -->
+                            <div class="card border-dark rounded-0 flex-grow-1">
+                                <div class="card-header bg-secondary text-white rounded-0 py-1 px-3">
+                                    Selected SO #
+                                </div>
+                                <div class="card-body bg-light py-2 px-2">
+                                    <div class="p-4 overflow-auto" style="max-height: 440px;">
+                                        <ul id="selectedSOList">
+                                        </ul>
+                                        <h6 class="mb-2">
+                                            Co Loads
+                                        </h6>
+                                        <div>
+                                            <ul id="coLoadDetails">
 
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Initial Transit Time:</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="initialTransitTime">
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Actual Transit Time:</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="actualTransitTime">
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Delivery Date:</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="deliveryDate">
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Date Docs. Completed:</label>
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="dateDocsCompleted">
-                </div>
-            </div>
-            <div class="row mb-3 align-items-center">
-                <label class="col-sm-4 col-form-label">Remarks:</label>
-                <div class="col-sm-8">
-                    <textarea class="form-control" name="remarks" id="remarks" cols="30" rows="2"></textarea>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-7">
+                        <div class="card border-dark rounded-0">
+                            <div class="card-header bg-secondary text-white rounded-0 py-1 px-3">
+                                Sales Order Information
+                            </div>
+                            <div class="card-body bg-light py-2 px-2">
+                                <div class="soInfoContainer">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -399,6 +464,9 @@
         }, cb);
 
         cb(start, end);
+
+        let coLoadArray = {};
+        let sapServerDefault = '';
 
         $('#shipmentListForm').submit(function (e) { 
             e.preventDefault();
@@ -472,18 +540,195 @@
                             sapServer: sapServer
                         },
                         success: function (resp) {
-                            console.log(resp);
-                            
+                            $('#headerBuyersCode').text(resp.data[0].CardCode);
+                            $('#deliveryStatusDesc').text(resp.data[0].shipment_status?.description??"-");
+                            $('#deliveryStatus').val(resp.data[0].shipment_details?.delivery_status[0]?.code??"");
+                            $('#trackPoints').val(resp.data[0].shipment_details?.tracking_points??"");
+                            $('#location').val(resp.data[0].shipment_details?.location??"");
+                            $('#clientRefNo').val(resp.data[0].CardCode??"");
+                            $('#invoiceNo').val(resp.data[0].shipment_details?.invoice_number??"");
+                            $('#mode').val(resp.data[0].shipment_details?.mode??"");
+                            $('#cbwDocStatus').val(resp.data[0].shipment_details?.cbw_doc_status??"");
+                            $('#cargoReadinessDate').val(resp.data[0].shipment_details?.cargo_readiness_date??"");
+                            $('#palletType').val(resp.data[0].shipment_details?.pallet_type??"");
+                            $('#currentLocation').val(resp.data[0].shipment_details?.current_location??"");
+                            $('#regions').val(resp.data[0].shipment_details?.region??"");
+                            $('#shippingLine').val(resp.data[0].shipment_details?.shipping_line??"");
+                            $('#blNumber').val(resp.data[0].shipment_details?.ed_bl_number??"");
+                            $('#containerNumber').val(resp.data[0].shipment_details?.container_number??"");
+                            $('#courierTracking').val(resp.data[0].shipment_details?.courier_tracking??"");
+                            $('#etdOrigin').val(resp.data[0].shipment_details?.etd_origin??"");
+                            $('#atdOrigin').val(resp.data[0].shipment_details?.atd_origin??"");
+                            $('#etaDestination').val(resp.data[0].shipment_details?.eta_destination??"");
+                            $('#ataDestination').val(resp.data[0].shipment_details?.ata_destination??"");
+                            $('#initialTransitTime').val(ComputeTransitTime($('#etaDestination').val(),$('#etdOrigin').val()));
+                            $('#actualTransitTime').val(ComputeTransitTime($('#ataDestination').val(),$('#atdOrigin').val()));
+                            $('#deliveryDate').val(resp.data[0].shipment_details?.delivery_date??"");
+                            $('#dateDocsCompleted').val(resp.data[0].shipment_details?.date_docs_completed??"");
+                            $('#remarks').val(resp.data[0].shipment_details?.remarks??"");
+                            GetCargoTabContent(resp.data[0].CardCode,resp.data[0].SapServer);
+                            $('#updateStatusModal').modal('show');
                         }
                     });
-                    $('#updateStatusModal').modal('show');
                 });
             }
         });
 
+        $('#etaDestination,#etdOrigin').on('change', function () {
+            const dateOne = new Date($('#etaDestination').val());
+            const dateTwo = new Date($('#etdOrigin').val());
+            $('#initialTransitTime').val(ComputeTransitTime(dateOne,dateTwo));
+        });
+
+        $('#ataDestination,#atdOrigin').on('change', function () {
+            const dateOne = new Date($('#ataDestination').val());
+            const dateTwo = new Date($('#atdOrigin').val());
+            $('#actualTransitTime').val(ComputeTransitTime(dateOne,dateTwo));
+        });
+
+         $(this).on('click', '#selectedSOList .so-link, #coLoadDetails .so-link', function(e) {
+            e.preventDefault();
+            let soNo = $(this).data('so');
+            let buyersCode = $(this).data('buyerscode');
+            let sapServer = $(this).data('sapserver');
+            GetCargoDetails(soNo,buyersCode,sapServer);
+        });
+
+        function GetCargoTabContent(cardCode,sapServer){
+            $.ajax({
+                type: "GET",
+                url: "{{ route('cargo.details') }}",
+                data: {
+                    page : 1,
+                    limit : 100,
+                    buyersCode : cardCode,
+                    sapServer : sapServer
+                },
+                success: function (response) {
+                    sapServerDefault = response.data[0].sap_server;
+                    let firstSoNo = response.data[0].DocNum;
+                    response.data.forEach(element => {
+                        $('#selectedSOList').append(
+                            '<li><a href="#" class="so-link" data-sapServer="'+element.sap_server+'" data-so="'+element.DocNum+'" data-buyerscode="'+element.CardCode+'"><u>' + element.DocNum + '</u></a></li>'
+                        );
+                    });
+                    GetCargoDetails(firstSoNo,cardCode,sapServer);
+                    $('#availabilityDate').val(response.availabilityDate);
+                    $('#pickupDate').val(response.pickupDate);
+                    $('#status').val(response.status);
+                    $.each(Object.entries(response.coloads), function(index, item) {
+                        let key = item[0];
+                        let value = item[1];
+                        coLoadArray[key]=value;
+                    });
+                    LoadCoLoadList(coLoadArray);
+                    $('#updateCargoModal').modal('show');
+                },
+                error: function (xhr) {
+                    Swal.fire('Error',xhr.responseJSON?.message || 'Error','error');
+                }
+            });
+        };
+
         function ReloadDataTable() {
             orderTable.ajax.reload(null, true);
         }
+
+        function ComputeTransitTime(dateValOne,dateValTwo){
+            const dateOne = new Date(dateValOne);
+            const dateTwo = new Date(dateValTwo);
+
+            if (!isNaN(dateOne) && !isNaN(dateTwo)) {
+                const diffMs = dateOne - dateTwo;
+
+                const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+                return `${days}d ${hours}h ${minutes}m`;
+            } else {
+                return "";
+            }
+        }
+
+        function GetCargoDetails(soNo,cardCode,sapServer){
+            $.ajax({
+                type: "GET",
+                url: "{{ route('cargo.details.soNo') }}",
+                data: {
+                    page: 1,
+                    limit: 1,
+                    buyersCode : cardCode,
+                    soNo: soNo,
+                    sapServer: sapServer
+                },
+                dataType: "JSON",
+                success: function (response) {
+                    let soNo = response.data[0].DocNum;
+                    let packaging = response.data[0].U_Packaging;
+                    let label = response.data[0].U_Label;
+                    let dateCreated = response.data[0].DocDate;
+
+                    let orderItemList = response.data[0].items;
+                    let html = `
+                        <p style="margin-bottom: 0.25rem;">SO No.: <span style="font-weight: 700;" id="soNo">${soNo}</span></p>
+                        <p style="margin-bottom: 0.25rem;">Packing: <span style="font-weight: 700;" id="packaging">${packaging}</span></p>
+                        <p style="margin-bottom: 0.25rem;">Label: <span style="font-weight: 700;" id="label">${label}</span></p>
+                        <p style="margin-bottom: 0.25rem;">Date created: <span style="font-weight: 700;" id="dateCreated">${dateCreated}</span></p>
+                    `;
+                    html += `<div class="border rounded p-2 overflow-auto" style="max-height: 150px;">`;
+                    orderItemList.forEach(item => {
+                        let qty = '-';
+                        let itemCode = '-';
+                        let description = '-';
+                        
+                        qty = item.Quantity;
+                        itemCode = item.ItemCode;
+                        description = item.Dscription;
+                    
+                        html += `<br>
+                                    <p style="margin-bottom: 0.25rem;">Item Code: <span style="font-weight: 700;" id="itemCode">${itemCode}</span></p>
+                                    <p style="margin-bottom: 0.25rem;">Description: <span style="font-weight: 700;" id="description">${description}</span></p>
+                                    <p style="margin-bottom: 0.25rem;">Quantity: <span style="font-weight: 700;" id="qty">${qty}</span></p>
+                                    <p style="margin-bottom: 0.25rem;">Remarks: <span style="font-weight: 700;" id="remarks">-</span></p>`
+                                ;
+                    });
+                    html += '</div>';
+                    
+                    $('.soInfoContainer').html(html);
+                }
+            });
+        }
+
+        function LoadCoLoadList(coLoadArray){
+            let coLoadHtml = '';
+            $.each(coLoadArray, function(buyersCode, soList) {
+                coLoadHtml += 
+                    `<li>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="fw-bold">${buyersCode}</div>
+                    </div>
+                    <ul class="mb-2">`;
+                    $.each(soList, function(index, soNo) {
+                        coLoadHtml += `<li> <a href="#" class="so-link" data-so="${soNo}" data-buyerscode="${buyersCode}" data-sapserver="${sapServerDefault}">
+                                                <u>${soNo}</u>
+                                            </a>
+                                        </li>`;
+                    });
+                            
+                coLoadHtml += `</ul></li>`;
+            });
+            $('#coLoadDetails').html(coLoadHtml);
+        }
+
+        $('#updateStatusModal').on('hide.bs.modal', function () {
+            $('#selectedSOList').empty();
+            $('#coLoadDetails').empty();
+            $('.soInfoContainer').html("");
+            $('#shipmentInfoForm').trigger('reset');
+            sapServerDefault = '';
+            coLoadArray = {};
+        });
     });
 </script>
 @endsection

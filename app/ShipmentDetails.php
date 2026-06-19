@@ -27,6 +27,7 @@ class ShipmentDetails extends Model
         'courier_tracking',
         'etd_origin',
         'atd_origin',
+        'eta_destination',
         'ata_destination',
         'delivery_date',
         'date_docs_completed',
