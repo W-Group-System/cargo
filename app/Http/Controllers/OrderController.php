@@ -198,15 +198,18 @@ class OrderController extends Controller
                                 }
                             }
                         }
+                        DB::commit();
+                        $isSuccess = true;
+                        $response = [
+                            "isSuccess"=>$isSuccess,
+                            "message"=>"Order and items successfully saved."
+                        ];
+                    }else{
+                        DB::rollBack();
+                        Log::error('ERROR IN SAVING ORDER ITEMS - NO BUYERS CODE DATA');
                     }
                 }
             }
-            DB::commit();
-            $isSuccess = true;
-            $response = [
-                "isSuccess"=>$isSuccess,
-                "message"=>"Order and items successfully saved."
-            ];
         } catch(\Exception $e){
             DB::rollBack();
             Log::error('ERROR IN SAVING ORDER ITEMS: '.$e->getMessage());
