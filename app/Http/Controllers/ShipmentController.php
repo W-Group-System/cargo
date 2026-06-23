@@ -16,8 +16,8 @@ class ShipmentController extends Controller
     {
         $data = array();
         $data['ActiveModule'] = 'Shipments';
-        $data['trackingPoints'] = TrackingPoints::pluck('description','code');
-        $data['deliveryStatus'] = DeliveryStatus::pluck('description','code');
+        $data['trackingPoints'] = TrackingPoints::where('status','A')->pluck('description','code');
+        $data['deliveryStatus'] = DeliveryStatus::where('status','A')->pluck('description','code');
         
         return view('shipments.index',$data);
     }
@@ -36,7 +36,9 @@ class ShipmentController extends Controller
             $limit = $request->limit ?? 10;
             $coloadSoNumberArr = [];
 
-            $ordersList = ProcessedOrders::with(['ShipmentStatus'])->select("*")->where("CargoStatus","<>","");
+            $ordersList = ProcessedOrders::with(['ShipmentStatus'])->select("*")->where(function($q){
+                $q->where("AvailabilityDate","<>","")->where("PickupDate","<>","");
+            });
 
             if (isset($request->id) && !empty($request->id)) {
                 $ordersList = $ordersList->with(['ShipmentDetails.ShipmentTracking','ShipmentDetails.DeliveryStatus','OrderData.OrderItemList'])->where("id",$request->id);
@@ -70,7 +72,7 @@ class ShipmentController extends Controller
 
             $totalCount = (clone $ordersList)->count();
 
-            $ordersList = $ordersList->orderBy("id","desc") 
+            $ordersList = $ordersList->orderBy("cargo_posting_date","desc")
                 ->skip(($page - 1) * $limit)
                 ->take($limit)
                 ->get();

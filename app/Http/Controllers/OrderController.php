@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Helper;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Pagination\Paginator;
@@ -237,10 +238,15 @@ class OrderController extends Controller
             $limit = $request->limit??"1";
             $soNumberDetails = $this->SapOrderList($cardCode,$sapServer,$soNumber);
             if ($soNumberDetails["isSuccess"]) {
+                $incoTerms = $soNumberDetails["data"][0]->IncoTerms??"";
+                $PortOfOrigin = $soNumberDetails["data"][0]->LoadingPort??"";
+                $PortOfDestination = $soNumberDetails["data"][0]->PortOfDestination??"";
+                $trackingPoints = ["tracking_points" => Helper::LoadTrackingPointsPerIncoTerms($incoTerms,["PortOfOrigin"=>$PortOfOrigin,"PortOfDestination"=>$PortOfDestination])];
+
                 $response = [
                     "isSuccess"=>true,
                     "message"=>"Successfully retrieved information.",
-                    "data"=>$soNumberDetails["data"]
+                    "data"=> array_merge($soNumberDetails["data"],$trackingPoints)
                 ];
                 $isSuccess = true;
             }

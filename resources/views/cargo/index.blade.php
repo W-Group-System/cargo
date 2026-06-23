@@ -44,6 +44,7 @@
                                     <th>Buyers Code</th>
                                     <th>Buyers Name</th>
                                     <th>Status</th>
+                                    <th>Warehouse</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -174,7 +175,7 @@
                                         id="status"
                                         class="form-control">
                                         <option value="">-Select Data-</option>
-                                        @foreach (["FP"=>"For packing","POP"=>"Packing on process","RFP"=>"Ready for pickup"] as $key => $value)
+                                        @foreach (["FP"=>"For packing","POP"=>"Packing on process","RFP"=>"Ready for pickup","L"=>"Loaded"] as $key => $value)
                                             <option value="{{ $key }}">
                                                 {{ $value }}
                                             </option>
@@ -329,6 +330,7 @@
                 { data: 'CardCode' },
                 { data: 'CardName'},
                 { data: 'cargo_status.description'},
+                { data: 'SapServer'},
                 {
                     render: function (data, type, row) {
                         return `<button type="button" class="btn btn-primary btn-update" id="btnCargoUpdate"

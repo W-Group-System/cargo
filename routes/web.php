@@ -45,6 +45,7 @@ Route::group(['middleware' => 'auth'], function () {
     // Shipments
     Route::get('/shipments',[ShipmentController::class,'index']);
     Route::get('shipment/list',[ShipmentController::class,'ShipmentList'])->name('shipment.list');
+    Route::get('shipment/tracking_points',[ShipmentController::class,'LoadTrackingPointsPerIncoTerms'])->name('shipment.tracking.points');
 
     // Users
     Route::get('/users',[UserController::class,'index']);

@@ -21,6 +21,7 @@ class ProcessedOrders extends Model
         "is_coload",
         "coloaded_by",
         "coload_order",
+        "cargo_posting_date"
     ];
 
     public function OrderData()

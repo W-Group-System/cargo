@@ -129,6 +129,8 @@
                                     <th>Date Created</th>
                                     <th>Buyers Code</th>
                                     <th>Buyers Name</th>
+                                    <th>Warehouse</th>
+                                    <th>Posting Date</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -200,10 +202,7 @@
                         <label class="col-sm-4 col-form-label">Track points:</label>
                         <div class="col-sm-8">
                             <select name="trackPoints" id="trackPoints" class="form-control">
-                                <option value="">- Traking Points -</option>
-                                @foreach ($trackingPoints as $key => $value)
-                                    <option value="{{ $key }}">{{ $value }}</option>
-                                @endforeach
+                                
                             </select>
                         </div>
                     </div>
@@ -512,6 +511,8 @@
                 { data: 'created_at' },
                 { data: 'CardCode' },
                 { data: 'CardName'},
+                { data: 'SapServer'},
+                { data: 'cargo_posting_date'},
                 {
                     render: function (data, type, row) {
                         return `<button type="button" class="btn btn-primary btn-update" id="btnCargoUpdate"
@@ -541,7 +542,7 @@
                             $('#headerBuyersCode').text(resp.data[0].CardCode);
                             $('#deliveryStatusDesc').text(resp.data[0].shipment_status?.description??"-");
                             $('#deliveryStatus').val(resp.data[0].shipment_details?.delivery_status[0]?.code??"");
-                            $('#trackPoints').val(resp.data[0].shipment_details?.tracking_points??"");
+                            // $('#trackPoints').val(resp.data[0].shipment_details?.tracking_points??"");
                             $('#location').val(resp.data[0].shipment_details?.location??"");
                             $('#clientRefNo').val(resp.data[0].CardCode??"");
                             $('#invoiceNo').val(resp.data[0].shipment_details?.invoice_number??"");
@@ -610,7 +611,7 @@
                             '<li><a href="#" class="so-link" data-sapServer="'+element.sap_server+'" data-so="'+element.DocNum+'" data-buyerscode="'+element.CardCode+'"><u>' + element.DocNum + '</u></a></li>'
                         );
                     });
-                    GetCargoDetails(firstSoNo,cardCode,sapServer);
+                    GetCargoDetails(firstSoNo,cardCode,sapServer,true);
                     $('#availabilityDate').val(response.availabilityDate);
                     $('#pickupDate').val(response.pickupDate);
                     $('#status').val(response.status);
@@ -649,7 +650,7 @@
             }
         }
 
-        function GetCargoDetails(soNo,cardCode,sapServer){
+        function GetCargoDetails(soNo,cardCode,sapServer,loadTrackinPoints = false){
             $.ajax({
                 type: "GET",
                 url: "{{ route('cargo.details.soNo') }}",
@@ -694,6 +695,14 @@
                     html += '</div>';
                     
                     $('.soInfoContainer').html(html);
+                    
+                    if (loadTrackinPoints) {
+                        let trackingPointHtml = `<option value="">- Track Points -</option>`;
+                        $.each(Object.entries(response.data['tracking_points']), function(index, item) {
+                            trackingPointHtml += `<option value="${item[1]}">${item[1]}</option>`
+                        });
+                        $('#trackPoints').html(trackingPointHtml);
+                    }
                 }
             });
         }
