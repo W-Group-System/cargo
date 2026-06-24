@@ -36,15 +36,15 @@
                             </div>
                         </div>
                     </form>
-                    <div class="table-responsive mt-4">
-                        <table class="table table-striped table-bordered table-hover" id="cargoTable">
-                            <thead>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="cargoTable">
+                            <thead class="table-light">
                                 <tr>
-                                    <th>Date Created</th>
+                                    <th>Status</th>
                                     <th>Buyers Code</th>
                                     <th>Buyers Name</th>
-                                    <th>Status</th>
                                     <th>Warehouse</th>
+                                    <th>Date Created</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -296,7 +296,7 @@
             ordering: false,
             paging: true,
             autoWidth: false,
-            scrollY: '480px',
+            // scrollY: '480px',
             scrollCollapse: false,
             lengthChange: false,
             language: {
@@ -325,11 +325,11 @@
                 });
             },
             columns: [
-                { data: 'created_at' },
+                { data: 'cargo_status.description'},
                 { data: 'CardCode' },
                 { data: 'CardName'},
-                { data: 'cargo_status.description'},
                 { data: 'SapServer'},
+                { data: 'created_at' },
                 {
                     render: function (data, type, row) {
                         return `<button type="button" class="btn btn-primary btn-update" id="btnCargoUpdate"

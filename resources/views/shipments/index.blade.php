@@ -121,9 +121,9 @@
                         </form>
                         </div>
                     </div>
-                    <div class="table-responsive mt-4">
-                        <table class="table table-striped table-bordered table-hover" id="shipmentTable">
-                            <thead>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="shipmentTable">
+                            <thead class="table-light">
                                 <tr>
                                     <th>Status</th>
                                     <th>Date Created</th>
@@ -131,10 +131,10 @@
                                     <th>Buyers Name</th>
                                     <th>Warehouse</th>
                                     <th>Posting Date</th>
-                                    <th>Action</th>
+                                    <th class="text-center" width="120">Action</th>
                                 </tr>
                             </thead>
-                             <tbody>
+                            <tbody>
                             </tbody>
                         </table>
                     </div>
@@ -185,197 +185,214 @@
     <div class="tab-content mt-3" id="myTabContent">
         <div class="tab-pane fade show active" id="shipmentTab" role="tabpanel">
             <div class="row g-4">
-                <div class="col-12 col-lg-6">
-                    <label class="fw-bold" style="width: 100%; margin-right: 5px;">Shipment Tracking</label>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">Delivery status:</label>
-                        <div class="col-sm-8">
-                            <select name="deliveryStatus" id="deliveryStatus" class="form-control">
-                                <option value="">- Delivery Status -</option>
-                                @foreach ($deliveryStatus as $key => $value)
-                                    <option value="{{ $key }}">{{ $value }}</option>
-                                @endforeach
-                            </select>
+                <input type="hidden" name="id" id="id">
+
+                <!-- LEFT COLUMN -->
+                <div class="col-lg-6">
+
+                    <!-- Shipment Tracking -->
+                    <div class="border rounded p-3 mb-4">
+                        <h5 class="mb-3">Shipment Tracking</h5>
+
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-form-label">Delivery Status</label>
+                            <div class="col-md-9">
+                                <select name="deliveryStatus" id="deliveryStatus" class="form-select">
+                                    <option value="">- Delivery Status -</option>
+                                    @foreach ($deliveryStatus as $key => $value)
+                                        <option value="{{$key}}">{{$value}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">Track points:</label>
-                        <div class="col-sm-8">
-                            <select name="trackPoints" id="trackPoints" class="form-control">
-                                
-                            </select>
-                        </div>
-                    </div>
-                    <label class="fw-bold" style="width: 100%; margin-right: 5px;">Shipment Overview</label>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">Client Reference #:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" id="clientRefNo" readonly>
-                        </div>
-                    </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">Invoice Number:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" name="invoiceNo" id="invoiceNo">
-                        </div>
-                    </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">BDE/Account Holder</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" id="accHolder" readonly>
-                        </div>
-                    </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">Mode:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" id="mode" readonly>
-                        </div>
-                    </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">INCO Terms:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" id="incoTerms" readonly>
-                        </div>
-                    </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">CBW Doc Status:</label>
-                        <div class="col-sm-8">
-                            <select name="cbwDocStatus" id="cbwDocStatus" class="form-control">
-                                <option value="">- CBW Doc Status -</option>
-                                <option value="Ongoing">Ongoing</option>
-                                <option value="Approved">Approved</option>
-                                <option value="N/A">N/A</option>
-                            </select>
-                        </div>
-                    </div>
-                    <label class="fw-bold" style="width: 100%; margin-right: 5px;">Cargo details</label>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">Type of Pallets:</label>
-                        <div class="col-sm-8">
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control" id="palletType" readonly>
+
+                        <div class="row">
+                            <label class="col-md-3 col-form-label">Track Points</label>
+                            <div class="col-md-9">
+                                <select name="trackPoints" id="trackPoints" class="form-select"></select>
                             </div>
                         </div>
                     </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">Cargo Readiness Date:</label>
-                        <div class="col-sm-8">
-                            <input type="date" class="form-control" id="cargoReadinessDate" readonly>
+
+                    <!-- Shipment Overview -->
+                    <div class="border rounded p-3 mb-4">
+                        <h5 class="mb-3">Shipment Overview</h5>
+
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-form-label">Client Ref #</label>
+                            <div class="col-md-9">
+                                <input type="text" class="form-control" id="clientRefNo" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-form-label">Invoice No.</label>
+                            <div class="col-md-9">
+                                <input type="text" class="form-control" id="invoiceNo">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-form-label">BDE Holder</label>
+                            <div class="col-md-9">
+                                <input type="text" class="form-control" id="accHolder" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-form-label">Mode</label>
+                            <div class="col-md-9">
+                                <input type="text" class="form-control" id="mode" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <label class="col-md-3 col-form-label">INCO Terms</label>
+                            <div class="col-md-9">
+                                <input type="text" class="form-control" id="incoTerms" readonly>
+                            </div>
                         </div>
                     </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">Posting Date:</label>
-                        <div class="col-sm-8">
-                            <input type="date" class="form-control" id="postingDate" readonly>
+
+                    <!-- Cargo Details -->
+                    <div class="border rounded p-3">
+                        <h5 class="mb-3">Cargo Details</h5>
+
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-form-label">Pallet Type</label>
+                            <div class="col-md-9">
+                                <input type="text" class="form-control" id="palletType" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-md-3 col-form-label">Cargo Readiness</label>
+                            <div class="col-md-9">
+                                <input type="date" class="form-control" id="cargoReadinessDate" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <label class="col-md-3 col-form-label">Posting Date</label>
+                            <div class="col-md-9">
+                                <input type="date" class="form-control" id="postingDate" readonly>
+                            </div>
                         </div>
                     </div>
+
                 </div>
-                <div class="col-12 col-lg-6">
-                    <label class="fw-bold" style="width: 100%; margin-right: 5px;">Shipping & Destination Information</label>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">Current Location:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" id="currentLocation" readonly>
+
+                <!-- RIGHT COLUMN -->
+                <div class="col-lg-6">
+
+                    <div class="border rounded p-3">
+                        <h5 class="mb-3">Shipping & Destination Information</h5>
+
+                        <!-- Current Location -->
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">Current Location</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="currentLocation" readonly>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">Port of Destination:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" id="destinationPort" readonly>
+
+                        <!-- Destination -->
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">Port Destination</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="destinationPort" readonly>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">Country of Destination:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" id="destinationCountry" readonly>
+
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">Country</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="destinationCountry" readonly>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">Regions:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" name="regions" id="regions">
+
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">Shipping Line</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="shippingLine">
+                            </div>
                         </div>
-                    </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">Shipping Line / Forwarder:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" name="shippingLine" id="shippingLine">
+
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">BL Number</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="blNumber">
+                            </div>
                         </div>
-                    </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">ED Number / BL Number:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" name="blNumber" id="blNumber">
+
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">Container No.</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="containerNumber">
+                            </div>
                         </div>
+
+                        <hr>
+
+                        <!-- Dates -->
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">ETD Origin</label>
+                            <div class="col-md-8">
+                                <input type="datetime-local" class="form-control" id="etdOrigin">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">ATD Origin</label>
+                            <div class="col-md-8">
+                                <input type="datetime-local" class="form-control" id="atdOrigin">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">ETA Destination</label>
+                            <div class="col-md-8">
+                                <input type="datetime-local" class="form-control" id="etaDestination">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">ATA Destination</label>
+                            <div class="col-md-8">
+                                <input type="datetime-local" class="form-control" id="ataDestination">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">Initial Transit Time</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="initialTransitTime" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">Actual Transit Time</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="actualTransitTime" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">Delivery Date</label>
+                            <div class="col-md-8">
+                                <input type="date" class="form-control" id="deliveryDate">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <label class="col-md-4 col-form-label">Remarks</label>
+                            <div class="col-md-8">
+                                <textarea class="form-control" id="remarks" rows="3"></textarea>
+                            </div>
+                        </div>
+
                     </div>
 
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">Container Number:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" name="containerNumber" id="containerNumber">
-                        </div>
-                    </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">Courier Tracking:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" name="courierTracking" id="courierTracking">
-                        </div>
-                    </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">ETD Origin:</label>
-                        <div class="col-sm-8">
-                            <input type="datetime-local" class="form-control" name="etdOrigin" id="etdOrigin">
-                        </div>
-                    </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">ATD Origin:</label>
-                        <div class="col-sm-8">
-                            <input type="datetime-local" class="form-control" name="atdOrigin" id="atdOrigin">
-                        </div>
-                    </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">ETA Destination:</label>
-                        <div class="col-sm-8">
-                            <input type="datetime-local" class="form-control" name="etaDestination" id="etaDestination">
-                        </div>
-                    </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">ATA Destination:</label>
-                        <div class="col-sm-8">
-                            <input type="datetime-local" class="form-control" name="ataDestination" id="ataDestination">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">Initial Transit Time:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" id="initialTransitTime" readonly>
-                        </div>
-                    </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">Actual Transit Time:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" id="actualTransitTime" readonly>
-                        </div>
-                    </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">Delivery Date:</label>
-                        <div class="col-sm-8">
-                            <input type="date" class="form-control" name="deliveryDate" id="deliveryDate">
-                        </div>
-                    </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">Date Docs. Completed:</label>
-                        <div class="col-sm-8">
-                            <input type="datetime-local" class="form-control" name="dateDocsCompleted" id="dateDocsCompleted">
-                        </div>
-                    </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">Remarks:</label>
-                        <div class="col-sm-8">
-                            <textarea class="form-control" name="remarks" id="remarks" cols="30" rows="2"></textarea>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -456,6 +473,7 @@
 
         let coLoadArray = {};
         let sapServerDefault = '';
+        let currentTrackPoint = '';
 
         $('#shipmentListForm').submit(function (e) { 
             e.preventDefault();
@@ -499,7 +517,7 @@
                 });
             },
             columns: [
-                { data: 'shipment_status.description'},
+                { data: 'shipment_details.delivery_status[0].description'},
                 { data: 'formatted_created_at' },
                 { data: 'CardCode' },
                 { data: 'CardName'},
@@ -535,14 +553,17 @@
                             button.prop('disabled',true).html('<span class="spinner-border spinner-border-sm" role="status"></span>');
                         },
                         success: function (resp) {
+                            currentTrackPoint = resp.data[0].shipment_details?.tracking_points??""
+                            
                             $('#headerBuyersCode').text(resp.data[0].CardCode);
-                            $('#deliveryStatusDesc').text(resp.data[0].shipment_status?.description??"-");
+                            $('#deliveryStatusDesc').text(resp.data[0].shipment_details?.delivery_status[0]?.description??"-");
+                            $('#id').val(shipmentId);
                             $('#deliveryStatus').val(resp.data[0].shipment_details?.delivery_status[0]?.code??"");
                             $('#clientRefNo').val(resp.data[0].CardCode??"");
                             $('#invoiceNo').val(resp.data[0].shipment_details?.invoice_number??"");
                             $('#cbwDocStatus').val(resp.data[0].shipment_details?.cbw_doc_status??"");
                             $('#currentLocation').val(resp.data[0].SapServer??"");
-                            $('#regions').val(resp.data[0].shipment_details?.region??"");
+                            $('#region').val(resp.data[0].shipment_details?.region??"");
                             $('#shippingLine').val(resp.data[0].shipment_details?.shipping_line??"");
                             $('#blNumber').val(resp.data[0].shipment_details?.ed_bl_number??"");
                             $('#containerNumber').val(resp.data[0].shipment_details?.container_number??"");
@@ -557,6 +578,7 @@
                             $('#dateDocsCompleted').val(resp.data[0].shipment_details?.date_docs_completed??"");
                             $('#remarks').val(resp.data[0].shipment_details?.remarks??"");
                             $('#postingDate').val(resp.data[0].cargo_posting_date??"");
+                            $('#cargoReadinessDate').val(resp.data[0].AvailabilityDate??"");
                             
                             GetCargoTabContent(resp.data[0].CardCode,resp.data[0].SapServer, function(success){
                                 if (success) {
@@ -702,7 +724,11 @@
                     if (loadTrackinPoints) {
                         let trackingPointHtml = `<option value="">- Track Points -</option>`;
                         $.each(Object.entries(response.data['tracking_points']), function(index, item) {
-                            trackingPointHtml += `<option value="${item[1]}">${item[1]}</option>`
+                            let selectAttr = '';
+                            if (item[1] === currentTrackPoint) {
+                                selectAttr = 'selected';
+                            }
+                            trackingPointHtml += `<option value="${item[1]}" ${selectAttr}>${item[1]}</option>`
                         });
                         $('#trackPoints').html(trackingPointHtml);
                         
@@ -744,8 +770,37 @@
             $('.soInfoContainer').html("");
             $('#updateShipmentForm').trigger('reset');
             $('#trackPoints').html('');
+            $('#id').val('');
+            currentTrackPoint = '';
             sapServerDefault = '';
             coLoadArray = {};
+        });
+
+        $('#updateShipmentForm').submit(function (e) { 
+            e.preventDefault();
+            $.ajax({
+                type: "POST",
+                url: "{{ route('shipment.update') }}",
+                data: $(this).serializeArray(),
+                dataType: "JSON",
+                beforeSend: function () {
+                    $('.closeBtn').prop('disabled',true);
+                    $('.submitBtn').prop('disabled',true).html('<span class="spinner-border spinner-border-sm" role="status"></span>');
+                },
+                success: function (response) {
+                    Swal.fire('Success',response.message,'success');
+                    $('#updateStatusModal').modal('hide');
+                },
+                error: function (xhr) {
+                    Swal.fire('Error',xhr.responseJSON?.message || 'Error','error');
+                },
+                complete: function(){
+                    ReloadDataTable();
+                    $('.closeBtn').prop('disabled',false);
+                    $('.submitBtn').prop('disabled',false).html('Save');
+                }
+            });
+            
         });
     });
 </script>

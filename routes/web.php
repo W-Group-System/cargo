@@ -27,6 +27,7 @@ use App\Http\Controllers\UserController;
 Auth::routes();
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/home', [HomeController::class,'index'])->name('home');
+    Route::get('/home/trackpoints', [HomeController::class,'LoadTrackPoints'])->name('trackpoints');
 
     // Order
     Route::get('/orders',[OrderController::class,'index'])->name('orders.index');
@@ -46,6 +47,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/shipments',[ShipmentController::class,'index']);
     Route::get('shipment/list',[ShipmentController::class,'ShipmentList'])->name('shipment.list');
     Route::get('shipment/tracking_points',[ShipmentController::class,'LoadTrackingPointsPerIncoTerms'])->name('shipment.tracking.points');
+    Route::post('shipment/update',[ShipmentController::class,'SaveShipmentUpdate'])->name('shipment.update');
 
     // Users
     Route::get('/users',[UserController::class,'index']);

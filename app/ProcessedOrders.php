@@ -36,10 +36,6 @@ class ProcessedOrders extends Model
     {
         return $this->hasOne(ProcessedOrderStatus::class, 'code', 'OrderStatus');
     }
-    public function ShipmentStatus()
-    {
-        return $this->hasOne(ShipmentStatus::class, 'code', 'ShipmentStatus');
-    }
     public function ShipmentDetails()
     {
         return $this->hasOne(ShipmentDetails::class, 'process_order_id', 'id');

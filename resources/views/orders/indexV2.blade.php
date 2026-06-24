@@ -52,9 +52,9 @@
                         </div>
                     </form>
 
-                    <div class="table-responsive mt-4">
-                        <table class="table table-striped table-bordered table-hover" id="ordersTable">
-                            <thead>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="ordersTable">
+                            <thead class="table-light">
                                 <tr>
                                     <th>Date Created</th>
                                     <th>Buyers Code</th>
@@ -123,7 +123,7 @@ $(document).ready(function(){
         ordering: false,
         paging: true,
         autoWidth: false,
-        scrollY: '480px',
+        // scrollY: '480px',
         scrollCollapse: false,
         lengthChange: false,
         language: {

@@ -12,6 +12,7 @@ class ShipmentTracking extends Model
         'shipment_details_id',
         'tracking_point',
         'arrival_date',
+        'status',
         'remarks'
     ];
     protected $hidden = [
@@ -27,5 +28,9 @@ class ShipmentTracking extends Model
     public function TrackingPoint()
     {
         return $this->HasOne(TrackingPoints::class, 'code','tracking_point');
+    }
+    public function DeliveryStatus()
+    {
+        return $this->HasOne(DeliveryStatus::class, 'code','status');
     }
 }
