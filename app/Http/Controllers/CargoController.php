@@ -161,7 +161,13 @@ class CargoController extends Controller
 
             if (!empty($buyersCode)) {
                 $processedOrderData = ProcessedOrders::where("CardCode",$buyersCode)->first();
-                $processedOrderDataPostingDate = !empty($processedOrderData->cargo_posting_date)?$processedOrderData->cargo_posting_date:Carbon::now();
+                $processedOrderDataPostingDate = null;
+                if (!empty($processedOrderData->cargo_posting_date)) {
+                    $processedOrderDataPostingDate = $processedOrderData->cargo_posting_date;
+                }elseif ($availabilityDate != null && $pickupDate != null) {
+                    $processedOrderDataPostingDate = Carbon::now();
+                }
+
                 if (!empty($processedOrderData)) {
                     $sapServer = $processedOrderData->SapServer;
                     $processedOrderId = $processedOrderData->id;

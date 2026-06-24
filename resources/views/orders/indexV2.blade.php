@@ -209,7 +209,6 @@ $(document).ready(function(){
                         button.prop('disabled',true).html('<span class="spinner-border spinner-border-sm" role="status"></span>');
                     },
                     success: function (response) {
-                        // ReloadDataTable();
                         $('#ordersTable').DataTable().ajax.reload(null, false);
                         Swal.fire('Success',response.message,'success');
                     },

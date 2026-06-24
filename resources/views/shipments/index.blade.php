@@ -206,17 +206,11 @@
                             </select>
                         </div>
                     </div>
-                    <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">Location</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" name="location" id="location">
-                        </div>
-                    </div>
                     <label class="fw-bold" style="width: 100%; margin-right: 5px;">Shipment Overview</label>
                     <div class="row mb-3 align-items-center">
                         <label class="col-sm-4 col-form-label">Client Reference #:</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" name="clientRefNo" id="clientRefNo" readonly>
+                            <input type="text" class="form-control" id="clientRefNo" readonly>
                         </div>
                     </div>
                     <div class="row mb-3 align-items-center">
@@ -228,53 +222,51 @@
                     <div class="row mb-3 align-items-center">
                         <label class="col-sm-4 col-form-label">BDE/Account Holder</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" name="accHolder" id="accHolder">
+                            <input type="text" class="form-control" id="accHolder" readonly>
                         </div>
                     </div>
                     <div class="row mb-3 align-items-center">
                         <label class="col-sm-4 col-form-label">Mode:</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" name="mode" id="mode">
+                            <input type="text" class="form-control" id="mode" readonly>
                         </div>
                     </div>
                     <div class="row mb-3 align-items-center">
                         <label class="col-sm-4 col-form-label">INCO Terms:</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" name="incoTerms" id="incoTerms">
+                            <input type="text" class="form-control" id="incoTerms" readonly>
                         </div>
                     </div>
                     <div class="row mb-3 align-items-center">
                         <label class="col-sm-4 col-form-label">CBW Doc Status:</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" name="cbwDocStatus" id="cbwDocStatus">
+                            <select name="cbwDocStatus" id="cbwDocStatus" class="form-control">
+                                <option value="">- CBW Doc Status -</option>
+                                <option value="Ongoing">Ongoing</option>
+                                <option value="Approved">Approved</option>
+                                <option value="N/A">N/A</option>
+                            </select>
                         </div>
                     </div>
                     <label class="fw-bold" style="width: 100%; margin-right: 5px;">Cargo details</label>
                     <div class="row mb-3 align-items-center">
-                        <label class="col-sm-4 col-form-label">Quantity:</label>
-                        <div class="col-sm-8">
-                            <input type="text" class="form-control" name="quantity" id="quantity">
-                        </div>
-                    </div>
-                    <div class="row mb-3 align-items-center">
                         <label class="col-sm-4 col-form-label">Type of Pallets:</label>
                         <div class="col-sm-8">
-                            <select name="palletType" id="palletType" class="form-control">
-                                <option value="">-Select Data-</option>
-                                <option value="Plastic">Plastic</option>
-                            </select>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="palletType" readonly>
+                            </div>
                         </div>
                     </div>
                     <div class="row mb-3 align-items-center">
                         <label class="col-sm-4 col-form-label">Cargo Readiness Date:</label>
                         <div class="col-sm-8">
-                            <input type="date" class="form-control" name="cargoReadinessDate" id="cargoReadinessDate">
+                            <input type="date" class="form-control" id="cargoReadinessDate" readonly>
                         </div>
                     </div>
                     <div class="row mb-3 align-items-center">
                         <label class="col-sm-4 col-form-label">Posting Date:</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" name="postingDate" id="postingDate">
+                            <input type="date" class="form-control" id="postingDate" readonly>
                         </div>
                     </div>
                 </div>
@@ -283,19 +275,19 @@
                     <div class="row mb-3 align-items-center">
                         <label class="col-sm-4 col-form-label">Current Location:</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" name="currentLocation" id="currentLocation">
+                            <input type="text" class="form-control" id="currentLocation" readonly>
                         </div>
                     </div>
                     <div class="row mb-3 align-items-center">
                         <label class="col-sm-4 col-form-label">Port of Destination:</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" name="destinationPort">
+                            <input type="text" class="form-control" id="destinationPort" readonly>
                         </div>
                     </div>
                     <div class="row mb-3 align-items-center">
                         <label class="col-sm-4 col-form-label">Country of Destination:</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" name="destinationCountry">
+                            <input type="text" class="form-control" id="destinationCountry" readonly>
                         </div>
                     </div>
                     <div class="row mb-3 align-items-center">
@@ -357,13 +349,13 @@
                     <div class="row mb-3 align-items-center">
                         <label class="col-sm-4 col-form-label">Initial Transit Time:</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" name="initialTransitTime" id="initialTransitTime">
+                            <input type="text" class="form-control" id="initialTransitTime" readonly>
                         </div>
                     </div>
                     <div class="row mb-3 align-items-center">
                         <label class="col-sm-4 col-form-label">Actual Transit Time:</label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" name="actualTransitTime" id="actualTransitTime">
+                            <input type="text" class="form-control" id="actualTransitTime" readonly>
                         </div>
                     </div>
                     <div class="row mb-3 align-items-center">
@@ -508,7 +500,7 @@
             },
             columns: [
                 { data: 'shipment_status.description'},
-                { data: 'created_at' },
+                { data: 'formatted_created_at' },
                 { data: 'CardCode' },
                 { data: 'CardName'},
                 { data: 'SapServer'},
@@ -524,6 +516,7 @@
             ],
             rowCallback : function(row,data,DisplayIndex){
                 $(row).find('.btn-update').unbind('click').on('click',function(){
+                    let button = $(this);
                     let shipmentId = $(this).data('id');
                     let buyersCode = $(this).data('cardcode');
                     let sapServer = $(this).data('sapserver');
@@ -538,19 +531,17 @@
                             buyersCode: buyersCode,
                             sapServer: sapServer
                         },
+                        beforeSend: function(){
+                            button.prop('disabled',true).html('<span class="spinner-border spinner-border-sm" role="status"></span>');
+                        },
                         success: function (resp) {
                             $('#headerBuyersCode').text(resp.data[0].CardCode);
                             $('#deliveryStatusDesc').text(resp.data[0].shipment_status?.description??"-");
                             $('#deliveryStatus').val(resp.data[0].shipment_details?.delivery_status[0]?.code??"");
-                            // $('#trackPoints').val(resp.data[0].shipment_details?.tracking_points??"");
-                            $('#location').val(resp.data[0].shipment_details?.location??"");
                             $('#clientRefNo').val(resp.data[0].CardCode??"");
                             $('#invoiceNo').val(resp.data[0].shipment_details?.invoice_number??"");
-                            $('#mode').val(resp.data[0].shipment_details?.mode??"");
                             $('#cbwDocStatus').val(resp.data[0].shipment_details?.cbw_doc_status??"");
-                            $('#cargoReadinessDate').val(resp.data[0].shipment_details?.cargo_readiness_date??"");
-                            $('#palletType').val(resp.data[0].shipment_details?.pallet_type??"");
-                            $('#currentLocation').val(resp.data[0].shipment_details?.current_location??"");
+                            $('#currentLocation').val(resp.data[0].SapServer??"");
                             $('#regions').val(resp.data[0].shipment_details?.region??"");
                             $('#shippingLine').val(resp.data[0].shipment_details?.shipping_line??"");
                             $('#blNumber').val(resp.data[0].shipment_details?.ed_bl_number??"");
@@ -565,8 +556,21 @@
                             $('#deliveryDate').val(resp.data[0].shipment_details?.delivery_date??"");
                             $('#dateDocsCompleted').val(resp.data[0].shipment_details?.date_docs_completed??"");
                             $('#remarks').val(resp.data[0].shipment_details?.remarks??"");
-                            GetCargoTabContent(resp.data[0].CardCode,resp.data[0].SapServer);
-                            $('#updateStatusModal').modal('show');
+                            $('#postingDate').val(resp.data[0].cargo_posting_date??"");
+                            
+                            GetCargoTabContent(resp.data[0].CardCode,resp.data[0].SapServer, function(success){
+                                if (success) {
+                                    $('#trackPoints').val(resp.data[0].shipment_details?.track_points??"");
+                                    $('#updateStatusModal').modal('show');
+                                }
+                            });
+                        },
+                        error: function (xhr) {
+                            Swal.fire('Error',xhr.responseJSON?.message || 'Error','error');
+                        }
+                        ,
+                        complete: function(){
+                            button.prop('disabled',false).html('<i class="bi bi-pencil"></i>');
                         }
                     });
                 });
@@ -593,7 +597,7 @@
             GetCargoDetails(soNo,buyersCode,sapServer);
         });
 
-        function GetCargoTabContent(cardCode,sapServer){
+        function GetCargoTabContent(cardCode,sapServer, callback){
             $.ajax({
                 type: "GET",
                 url: "{{ route('cargo.details') }}",
@@ -612,8 +616,6 @@
                         );
                     });
                     GetCargoDetails(firstSoNo,cardCode,sapServer,true);
-                    $('#availabilityDate').val(response.availabilityDate);
-                    $('#pickupDate').val(response.pickupDate);
                     $('#status').val(response.status);
                     $.each(Object.entries(response.coloads), function(index, item) {
                         let key = item[0];
@@ -621,10 +623,11 @@
                         coLoadArray[key]=value;
                     });
                     LoadCoLoadList(coLoadArray);
-                    $('#updateCargoModal').modal('show');
+                    callback(true);
                 },
                 error: function (xhr) {
                     Swal.fire('Error',xhr.responseJSON?.message || 'Error','error');
+                    callback(false);
                 }
             });
         };
@@ -702,6 +705,13 @@
                             trackingPointHtml += `<option value="${item[1]}">${item[1]}</option>`
                         });
                         $('#trackPoints').html(trackingPointHtml);
+                        
+                        $('#accHolder').val(response.data[0].bde_name['SlpName']);
+                        $('#mode').val(response.data[0].U_Modeship);
+                        $('#incoTerms').val(response.data[0].IncoTerms);
+                        $('#palletType').val(response.data[0].U_Onpallet);
+                        $('#destinationPort').val(response.data[0].PortOfDestination);
+                        $('#destinationCountry').val(response.data[0].PortOfDestination);
                     }
                 }
             });
@@ -733,6 +743,7 @@
             $('#coLoadDetails').empty();
             $('.soInfoContainer').html("");
             $('#updateShipmentForm').trigger('reset');
+            $('#trackPoints').html('');
             sapServerDefault = '';
             coLoadArray = {};
         });

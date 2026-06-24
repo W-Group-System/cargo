@@ -149,8 +149,7 @@
                                         type="date"
                                         class="form-control"
                                         name="availabilityDate"
-                                        id="availabilityDate"
-                                        required>
+                                        id="availabilityDate">
                                 </div>
                                 <div class="mb-3">
                                     <label for="pickupDate" class="form-label">

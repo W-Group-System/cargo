@@ -8,6 +8,7 @@ use App\ProcessedOrders;
 use App\TrackingPoints;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ShipmentController extends Controller
@@ -36,7 +37,24 @@ class ShipmentController extends Controller
             $limit = $request->limit ?? 10;
             $coloadSoNumberArr = [];
 
-            $ordersList = ProcessedOrders::with(['ShipmentStatus'])->select("*")->where(function($q){
+            $ordersList = ProcessedOrders::with(['ShipmentStatus'])->select(
+                "id",
+                "SapServer",
+                "CardCode",
+                "CardName",
+                "MinDocDate",
+                "AvailabilityDate",
+                "PickupDate",
+                "CargoStatus",
+                "OrderStatus",
+                "ShipmentStatus",
+                "is_coload",
+                "coloaded_by",
+                "coload_order",
+                DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d') as formatted_created_at"),
+                DB::raw("DATE_FORMAT(cargo_posting_date, '%Y-%m-%d') as cargo_posting_date")
+            )
+            ->where(function($q){
                 $q->where("AvailabilityDate","<>","")->where("PickupDate","<>","");
             });
 
