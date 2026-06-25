@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DeliveryStatus;
+use App\Mail\ShipmentNotification;
 use App\Order;
 use App\ProcessedOrders;
 use App\Regions;
@@ -14,6 +15,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class ShipmentController extends Controller
 {
@@ -205,6 +207,31 @@ class ShipmentController extends Controller
                 "message" => "Shipment information updated successfully.",
                 "isSuccess" => $isSuccess
             ];
+
+            if ($request->deliveryStatus == "DLY") {
+                // dd($receivers);
+                if ($receivers != null) {
+                    Log::info($receivers);
+                    $explodeEmail = explode(",",$receivers);
+                    foreach ($explodeEmail as $email) {
+                        $mail = new Mail();
+                        $params = [
+                            "data"=>[
+                                "vesselName"=>$request->containerNumber??"",
+                                "delayReason"=>$request->remarks??"",
+                                "etd"=>$request->etdOrigin??"",
+                                "eta"=>$request->etaDestination??""
+                            ]
+                        ];
+
+                        $mailService = new ShipmentNotification($params);
+                        $mailService->templateCode = "DLYD";
+                        $mail::to($email)
+                        ->send($mailService);
+                    }
+                    Log::info("DONE SENDING EMAIL");
+                }   
+            }
             
         } catch (\Exception $th) {
             Log::error("FAILED IN UPDATING SHIPMENT DETAILS :".$th->getMessage());
