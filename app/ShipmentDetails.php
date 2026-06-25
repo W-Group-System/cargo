@@ -31,7 +31,9 @@ class ShipmentDetails extends Model
         'ata_destination',
         'delivery_date',
         'date_docs_completed',
-        'remarks'
+        'remarks',
+        'email_recipients',
+        'cc_recipients'
     ];
 
     public function ProcessedOrder()

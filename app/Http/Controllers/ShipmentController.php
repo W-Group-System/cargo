@@ -9,6 +9,7 @@ use App\Regions;
 use App\ShipmentDetails;
 use App\ShipmentTracking;
 use App\TrackingPoints;
+use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,8 +22,9 @@ class ShipmentController extends Controller
         $data = array();
         $data['ActiveModule'] = 'Shipments';
         $data['trackingPoints'] = TrackingPoints::where('status','A')->pluck('description','code');
-        $data['deliveryStatus'] = DeliveryStatus::where('status','A')->pluck('description','code');
+        $data['deliveryStatus'] = DeliveryStatus::select('description','code','disabled')->where('status','A')->get();
         $data['regions'] = Regions::pluck('region','id');
+        $data['users'] = User::pluck('email','email');
         
         return view('shipments.index',$data);
     }
@@ -116,9 +118,17 @@ class ShipmentController extends Controller
             "isSuccess" => false
         ];
         $isSuccess = false;
-        
+        // dd($request->all());
         try {
+            $receivers = $request->receiver??null;
+            $cc = $request->cc??null;
 
+            if ($receivers != null) {
+                $receivers = implode(",",$receivers);
+            }
+            if ($cc != null) {
+                $cc = implode(",",$cc);
+            }
             $shipmentDetailsData = ShipmentDetails::where(['process_order_id'=>$request->id])->first();
             
             if (!empty($shipmentDetailsData)) {
@@ -140,7 +150,9 @@ class ShipmentController extends Controller
                     'ata_destination' => $request->ataDestination,
                     'delivery_date' => $request->deliveryDate,
                     'date_docs_completed' => $request->dateDocsCompleted,
-                    'remarks' => $request->remarks
+                    'remarks' => $request->remarks,
+                    'email_recipients' => $receivers,
+                    'cc_recipients' => $cc
                 ]);
 
                 if ($save) {
@@ -171,7 +183,9 @@ class ShipmentController extends Controller
                     'ata_destination' => $request->ataDestination,
                     'delivery_date' => $request->deliveryDate,
                     'date_docs_completed' => $request->dateDocsCompleted,
-                    'remarks' => $request->remarks
+                    'remarks' => $request->remarks,
+                    'email_recipients' => $receivers,
+                    'cc_recipients' => $cc
                 ]);
 
                 if ($save) {

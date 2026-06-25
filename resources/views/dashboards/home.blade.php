@@ -175,7 +175,7 @@
                     <h4 class="card-title mb-3">Tracking Point</h4>
                 </div>
                 <div class="card-content pb-4 trackinPointDiv">
-                    
+                    <h3><center>Select Shipment</center></h3>
                 </div>
             </div>
         </div>
@@ -209,6 +209,11 @@
         }, cb);
 
         cb(start, end);
+
+        $('#dashboardFilterForm').submit(function (e) { 
+            e.preventDefault();
+            ReloadDataTable();
+        });
 
         let orderTable = $('#shipmentTable').DataTable({
             processing: true,
@@ -258,7 +263,7 @@
             },
             rowCallback : function(row,data,DisplayIndex){
                 $(row).on('click', function () {
-                    console.log(data);
+                    $('.trackinPointDiv').html('<center><span class="spinner-border spinner-border-lg" role="status"></span></center>');
                     $.ajax({
                         type: "GET",
                         url: "{{ route('trackpoints') }}",
@@ -272,6 +277,10 @@
                 });
             }
         });
+
+        function ReloadDataTable() {
+            orderTable.ajax.reload(null, true);
+        }
     });
 </script>
 @endsection

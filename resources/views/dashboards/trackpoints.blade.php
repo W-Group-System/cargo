@@ -86,16 +86,20 @@
     </style>
 </head>
 <body>
-    <div class="timeline">
-        @foreach ($trackingPoint as $item)
-            <div class="timeline-item">
-                <div class="timeline-dot"></div>
-                <div class="location-title">{{$item->tracking_point}}</div>
-                {{-- <div class="location">Cebu Philippines</div> --}}
-                <div class="datetime">{{$item->arrival_date}}</div>
-                <div class="status">Status: <span>{{$item->DeliveryStatus['description']}}</span></div>
-            </div>
-        @endforeach
-    </div>
+    @if (count($trackingPoint) > 0)
+        <div class="timeline">
+            @foreach ($trackingPoint as $item)
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="location-title">{{$item->tracking_point}}</div>
+                    {{-- <div class="location">Cebu Philippines</div> --}}
+                    <div class="datetime">{{$item->arrival_date}}</div>
+                    <div class="status">Status: <span>{{$item->DeliveryStatus['description']??""}}</span></div>
+                </div>
+            @endforeach
+        </div>
+    @else
+        <center><h3>No Shipment Tracking.</h3></center>
+    @endif
 </body>
 </html>

@@ -195,20 +195,20 @@
                         <h5 class="mb-3">Shipment Tracking</h5>
 
                         <div class="row mb-3">
-                            <label class="col-md-3 col-form-label">Delivery Status</label>
-                            <div class="col-md-9">
+                            <label class="col-md-4 col-form-label">Delivery Status</label>
+                            <div class="col-md-8">
                                 <select name="deliveryStatus" id="deliveryStatus" class="form-select">
                                     <option value="">- Delivery Status -</option>
-                                    @foreach ($deliveryStatus as $key => $value)
-                                        <option value="{{$key}}">{{$value}}</option>
+                                    @foreach ($deliveryStatus as $item)
+                                        <option value="{{$item->code}}" {{ $item->disabled == '1'?'disabled':'' }}>{{$item->description}}</option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
 
                         <div class="row">
-                            <label class="col-md-3 col-form-label">Track Points</label>
-                            <div class="col-md-9">
+                            <label class="col-md-4 col-form-label">Track Points</label>
+                            <div class="col-md-8">
                                 <select name="trackPoints" id="trackPoints" class="form-select"></select>
                             </div>
                         </div>
@@ -219,63 +219,102 @@
                         <h5 class="mb-3">Shipment Overview</h5>
 
                         <div class="row mb-3">
-                            <label class="col-md-3 col-form-label">Client Ref #</label>
-                            <div class="col-md-9">
+                            <label class="col-md-4 col-form-label">Client Ref #</label>
+                            <div class="col-md-8">
                                 <input type="text" class="form-control" id="clientRefNo" readonly>
                             </div>
                         </div>
 
                         <div class="row mb-3">
-                            <label class="col-md-3 col-form-label">Invoice No.</label>
-                            <div class="col-md-9">
-                                <input type="text" class="form-control" id="invoiceNo">
+                            <label class="col-md-4 col-form-label">Invoice No.</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="invoiceNo" name="invoiceNo">
                             </div>
                         </div>
 
                         <div class="row mb-3">
-                            <label class="col-md-3 col-form-label">BDE Holder</label>
-                            <div class="col-md-9">
+                            <label class="col-md-4 col-form-label">BDE Holder</label>
+                            <div class="col-md-8">
                                 <input type="text" class="form-control" id="accHolder" readonly>
                             </div>
                         </div>
 
                         <div class="row mb-3">
-                            <label class="col-md-3 col-form-label">Mode</label>
-                            <div class="col-md-9">
+                            <label class="col-md-4 col-form-label">Mode</label>
+                            <div class="col-md-8">
                                 <input type="text" class="form-control" id="mode" readonly>
                             </div>
                         </div>
 
-                        <div class="row">
-                            <label class="col-md-3 col-form-label">INCO Terms</label>
-                            <div class="col-md-9">
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">INCO Terms</label>
+                            <div class="col-md-8">
                                 <input type="text" class="form-control" id="incoTerms" readonly>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">CBW Doc Status</label>
+                            <div class="col-md-8">
+                                <select class="form-control" name="cbwDocStatus" id="cbwDocStatus">
+                                    <option value="">- Status -</option>
+                                    @foreach (["Ongoing","Approved","N/A"] as $item)
+                                        <option value="{{ $item }}">{{ $item }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                     </div>
 
                     <!-- Cargo Details -->
-                    <div class="border rounded p-3">
+                    <div class="border rounded p-3 mb-4">
                         <h5 class="mb-3">Cargo Details</h5>
 
                         <div class="row mb-3">
-                            <label class="col-md-3 col-form-label">Pallet Type</label>
-                            <div class="col-md-9">
+                            <label class="col-md-4 col-form-label">Pallet Type</label>
+                            <div class="col-md-8">
                                 <input type="text" class="form-control" id="palletType" readonly>
                             </div>
                         </div>
 
                         <div class="row mb-3">
-                            <label class="col-md-3 col-form-label">Cargo Readiness</label>
-                            <div class="col-md-9">
+                            <label class="col-md-4 col-form-label">Cargo Readiness</label>
+                            <div class="col-md-8">
                                 <input type="date" class="form-control" id="cargoReadinessDate" readonly>
                             </div>
                         </div>
 
                         <div class="row">
-                            <label class="col-md-3 col-form-label">Posting Date</label>
-                            <div class="col-md-9">
+                            <label class="col-md-4 col-form-label">Posting Date</label>
+                            <div class="col-md-8">
                                 <input type="date" class="form-control" id="postingDate" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Email Recipients -->
+                    <div class="border rounded p-3">
+                        <h5 class="mb-3">Email Recipients</h5>
+
+                        <div class="row mb-3">
+                            <label class="col-md-2 col-form-label">Receivers</label>
+                            <div class="col-md-10">
+                                <select id="receiver" name="receiver[]" class="form-control" multiple>
+                                    @foreach ($users as $key => $value)
+                                        <option value="{{ $key }}">{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-md-2 col-form-label">CC</label>
+                            <div class="col-md-10">
+                                <select id="cc" name="cc[]" class="form-control" multiple>
+                                    @foreach ($users as $key => $value)
+                                        <option value="{{ $key }}">{{ $value }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -312,23 +351,34 @@
                         </div>
 
                         <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">Region</label>
+                            <div class="col-md-8">
+                                <select class="form-control" name="region" id="region">
+                                    @foreach ($regions as $key => $value)
+                                        <option value="{{ $key }}">{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
                             <label class="col-md-4 col-form-label">Shipping Line</label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" id="shippingLine">
+                                <input type="text" class="form-control" name="shippingLine" id="shippingLine">
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">BL Number</label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" id="blNumber">
+                                <input type="text" class="form-control" name="blNumber" id="blNumber">
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">Container No.</label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" id="containerNumber">
+                                <input type="text" class="form-control" name="containerNumber" id="containerNumber">
                             </div>
                         </div>
 
@@ -338,28 +388,28 @@
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">ETD Origin</label>
                             <div class="col-md-8">
-                                <input type="datetime-local" class="form-control" id="etdOrigin">
+                                <input type="datetime-local" class="form-control" name="etdOrigin" id="etdOrigin">
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">ATD Origin</label>
                             <div class="col-md-8">
-                                <input type="datetime-local" class="form-control" id="atdOrigin">
+                                <input type="datetime-local" class="form-control" name="atdOrigin" id="atdOrigin">
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">ETA Destination</label>
                             <div class="col-md-8">
-                                <input type="datetime-local" class="form-control" id="etaDestination">
+                                <input type="datetime-local" class="form-control" name="etaDestination" id="etaDestination">
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">ATA Destination</label>
                             <div class="col-md-8">
-                                <input type="datetime-local" class="form-control" id="ataDestination">
+                                <input type="datetime-local" class="form-control" name="ataDestination" id="ataDestination">
                             </div>
                         </div>
 
@@ -380,14 +430,14 @@
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">Delivery Date</label>
                             <div class="col-md-8">
-                                <input type="date" class="form-control" id="deliveryDate">
+                                <input type="date" class="form-control" name="deliveryDate" id="deliveryDate">
                             </div>
                         </div>
 
                         <div class="row">
                             <label class="col-md-4 col-form-label">Remarks</label>
                             <div class="col-md-8">
-                                <textarea class="form-control" id="remarks" rows="3"></textarea>
+                                <textarea class="form-control" name="remarks" id="remarks" rows="3"></textarea>
                             </div>
                         </div>
 
@@ -554,7 +604,9 @@
                         },
                         success: function (resp) {
                             currentTrackPoint = resp.data[0].shipment_details?.tracking_points??""
-                            
+                            var receivers = resp.data[0].shipment_details?.email_recipients ? resp.data[0].shipment_details?.email_recipients.split(','):[];
+                            var cc = resp.data[0].shipment_details?.cc_recipients ? resp.data[0].shipment_details?.cc_recipients.split(','):[];
+
                             $('#headerBuyersCode').text(resp.data[0].CardCode);
                             $('#deliveryStatusDesc').text(resp.data[0].shipment_details?.delivery_status[0]?.description??"-");
                             $('#id').val(shipmentId);
@@ -579,6 +631,8 @@
                             $('#remarks').val(resp.data[0].shipment_details?.remarks??"");
                             $('#postingDate').val(resp.data[0].cargo_posting_date??"");
                             $('#cargoReadinessDate').val(resp.data[0].AvailabilityDate??"");
+                            $('#receiver').val(receivers).trigger('change');
+                            $('#cc').val(cc).trigger('change');
                             
                             GetCargoTabContent(resp.data[0].CardCode,resp.data[0].SapServer, function(success){
                                 if (success) {
@@ -801,6 +855,13 @@
                 }
             });
             
+        });
+
+        $('#receiver,#cc').select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            tags: true, // allows new values
+            tokenSeparators: [',']
         });
     });
 </script>
