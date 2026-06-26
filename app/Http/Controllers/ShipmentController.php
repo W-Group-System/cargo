@@ -9,11 +9,13 @@ use App\ProcessedOrders;
 use App\Regions;
 use App\Services\NotificationService;
 use App\ShipmentDetails;
+use App\ShipmentFiles;
 use App\ShipmentTracking;
 use App\TrackingPoints;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -246,5 +248,70 @@ class ShipmentController extends Controller
         }else{
             return response()->json($response,400);
         }
+    }
+
+    public function ShipmentFileList(Request $request){
+        $response = [
+            "isSuccess"=>false,
+            "message"=>"Failed to retrieve information.",
+            "total"=>0,
+            "page"=>1,
+            "data"=>null
+        ];
+        try {
+            $page = $request->page ?? 1;
+            $limit = $request->limit ?? 10;
+
+            $fileList = ShipmentFiles::where("processed_order_id",$request->shipmentId);
+
+            $totalCount = (clone $fileList)->count();
+
+            $fileList = $fileList->orderBy("id","desc")
+                ->skip(($page - 1) * $limit)
+                ->take($limit)
+                ->get();
+            $response["isSuccess"] = true;
+            $response["message"] = "Successfully retrieved information.";
+            $response["total"] = $totalCount;
+            $response["data"] = $fileList;
+        } catch (\Throwable $th) {
+            Log::error("ERROR IN GETTING SHIPMENT FILES: ".$th);
+        }
+        
+        return $response;
+    }
+
+    public function UploadFiles(Request $request)
+    {
+        $request->validate([
+            'attachments.*' => 'required|file|max:10240', // 10MB each
+        ]);
+        
+        if ($request->hasFile('attachments')) {
+
+            foreach ($request->file('attachments') as $file) {
+
+                $filename = time() . '_' . $file->getClientOriginalName();
+
+                $path = $file->storeAs(
+                    'shipment-files',
+                    $filename,
+                    'public'
+                );
+
+                ShipmentFiles::create([
+                    'processed_order_id' => $request->shipment_id,
+                    'file_name' => $filename,
+                    'original_name' => $file->getClientOriginalName(),
+                    'file_path' => $path,
+                    'user_id' => Auth::user()->id,
+                ]);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Files uploaded successfully.'
+        ]);
     }
 }

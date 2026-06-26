@@ -46,8 +46,11 @@ Route::group(['middleware' => 'auth'], function () {
     // Shipments
     Route::get('/shipments',[ShipmentController::class,'index']);
     Route::get('shipment/list',[ShipmentController::class,'ShipmentList'])->name('shipment.list');
+    Route::get('shipment/file/list',[ShipmentController::class,'ShipmentFileList'])->name('shipment.files');
     Route::get('shipment/tracking_points',[ShipmentController::class,'LoadTrackingPointsPerIncoTerms'])->name('shipment.tracking.points');
     Route::post('shipment/update',[ShipmentController::class,'SaveShipmentUpdate'])->name('shipment.update');
+
+    Route::post('/shipments/upload-files', [ShipmentController::class, 'UploadFiles'])->name('upload.files');
 
     // Users
     Route::get('/users',[UserController::class,'index']);

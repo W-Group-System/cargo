@@ -180,6 +180,16 @@
                 Cargo
             </button>
         </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link"
+                    id="profile-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#shipmentFiles"
+                    type="button"
+                    role="tab">
+                Shipment Files
+            </button>
+        </li>
     </ul>
 
     <div class="tab-content mt-3" id="myTabContent">
@@ -496,6 +506,45 @@
                 </div>
             </div>
         </div>
+
+        <div class="tab-pane fade show active" id="shipmentFiles" role="tabpanel">
+            <!-- Upload Section -->
+                <div class="row align-items-end mb-4">
+                    <div class="col-md-9">
+                        <label for="attachment" class="form-label">Select File</label>
+                        <input
+                            type="file"
+                            class="form-control"
+                            id="attachments"
+                            name="attachments[]"
+                            multiple>
+                    </div>
+
+                    <div class="col-md-3 d-grid">
+                        <button type="button" class="btn btn-primary" id="btnUpload">
+                            Upload
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Uploaded Files Table -->
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle" id="uploadedFilesTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>File Name</th>
+                                <th>Shipment Status</th>
+                                <th>Uploaded By</th>
+                                <th>Date Uploaded</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                        </tbody>
+                    </table>
+                </div>
+        </div>
     </div>
 @endcomponent
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -716,8 +765,109 @@
             });
         };
 
+        let filesTable = $('#uploadedFilesTable').DataTable({
+            processing: true,
+            serverSide: true,
+            responsive: true,
+            searching: false,
+            ordering: false,
+            paging: true,
+            autoWidth: false,
+            scrollY: '480px',
+            scrollCollapse: false,
+            lengthChange: false,
+            language: {
+                processing: '<div class="spinner-border"></div>',
+            },
+            ajax: function (data, callback) {
+                let page = (data.start / data.length) + 1;
+                let limit = data.length;
+
+                $.ajax({
+                    url: "{{ route('shipment.files') }}",
+                    type: 'GET',
+                    data: {
+                        page: page,
+                        limit: limit,
+                        shipmentId:$('#id').val()
+                    },
+                    success: function (resp) {
+                        callback({
+                            data: resp.data,            
+                            recordsTotal: resp.total,   
+                            recordsFiltered: resp.total 
+                        });
+                    }
+                });
+            },
+            columns: [
+                { data: 'file_name'},
+                { data: 'shipment_status' },
+                { data: 'user_id'},
+                { data: 'created_at'},
+                {
+                    className:'text-center',
+                    render: function (data, type, row) {
+                        return `<button class="btn btn-sm btn-info">View</button>
+                                <button class="btn btn-sm btn-danger">Delete</button>`
+                    }
+                }
+            ],
+            rowCallback : function(row,data,DisplayIndex){
+                
+            }
+        });
+
+        $('#updateStatusModal').on('shown.bs.modal', function () {
+            ReloadFilesDataTable();
+            $('#uploadedFilesTable').DataTable().columns.adjust().responsive.recalc();
+        });
+
+        $('#btnUpload').click(function () {
+            let files = $('#attachments')[0].files;
+
+            if (files.length === 0) {
+                alert('Please select at least one file.');
+                return;
+            }
+
+            let formData = new FormData();
+
+            // Other data
+            formData.append('shipment_id', $('#id').val());
+
+            // Append each file
+            $.each(files, function (index, file) {
+                formData.append('attachments[]', file);
+            });
+
+            $.ajax({
+                url: "{{ route('upload.files') }}",
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (response) {
+                    alert(response.message);
+                    $('#attachments').val('');
+                    ReloadFilesDataTable();
+                },
+                error: function (xhr) {
+                    console.log(xhr.responseJSON);
+                }
+            });
+
+        });
+
         function ReloadDataTable() {
             orderTable.ajax.reload(null, true);
+        }
+
+        function ReloadFilesDataTable() {
+            filesTable.ajax.reload(null, true);
         }
 
         function ComputeTransitTime(dateValOne,dateValTwo){
