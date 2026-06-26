@@ -172,6 +172,7 @@ class OrderController extends Controller
                         foreach ($data as $key => $value) {
                             $collectedData = collect($value);
                             $cardCode = $collectedData["BuyersCode"];
+                            $contactData = collect($collectedData["contact_name"]);
                             $order = Order::create([
                                 'process_order_id' => $processOrderId,
                                 'sap_server' => $sapServer,
@@ -179,9 +180,9 @@ class OrderController extends Controller
                                 'CardCode'   => $collectedData["BuyersCode"],
                                 'CardName'   => $collectedData["CardName"],
                                 'Label'      => $collectedData["U_Label"],
-                                'BuyersPO'  => $collectedData["U_BuyersPO"]
-                                // ,
-                                // 'ContactName'  => $collectedData["ContactName"]
+                                'Packaging'  => $collectedData["U_Packaging"],
+                                'BuyersPO'  => $collectedData["U_BuyersPO"],
+                                'ContactName'  => $contactData["Name"]??""
                             ]);
 
                             if (isset($order->id)) {

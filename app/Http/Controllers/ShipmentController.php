@@ -164,7 +164,8 @@ class ShipmentController extends Controller
                     'date_docs_completed' => $request->dateDocsCompleted,
                     'remarks' => $request->remarks,
                     'email_recipients' => $receiversToSave,
-                    'cc_recipients' => $ccRecipientsToSave
+                    'cc_recipients' => $ccRecipientsToSave,
+                    'vessel_name' => $request->vesselName
                 ]);
 
                 if ($save) {
@@ -197,7 +198,8 @@ class ShipmentController extends Controller
                     'date_docs_completed' => $request->dateDocsCompleted,
                     'remarks' => $request->remarks,
                     'email_recipients' => $receiversToSave,
-                    'cc_recipients' => $ccRecipientsToSave
+                    'cc_recipients' => $ccRecipientsToSave,
+                    'vessel_name' => $request->vesselName
                 ]);
 
                 if ($save) {

@@ -33,7 +33,8 @@ class ShipmentDetails extends Model
         'date_docs_completed',
         'remarks',
         'email_recipients',
-        'cc_recipients'
+        'cc_recipients',
+        'vessel_name'
     ];
 
     public function ProcessedOrder()

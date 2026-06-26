@@ -382,6 +382,13 @@
                             </div>
                         </div>
 
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">Vessel/Voyage Name.</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="vesselName" id="vesselName">
+                            </div>
+                        </div>
+
                         <hr>
 
                         <!-- Dates -->
@@ -633,6 +640,7 @@
                             $('#cargoReadinessDate').val(resp.data[0].AvailabilityDate??"");
                             $('#receiver').val(receivers).trigger('change');
                             $('#cc').val(cc).trigger('change');
+                            $('#vesselName').val(resp.data[0].shipment_details?.vessel_name??"");
                             
                             GetCargoTabContent(resp.data[0].CardCode,resp.data[0].SapServer, function(success){
                                 if (success) {
