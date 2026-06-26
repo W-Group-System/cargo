@@ -16,6 +16,8 @@ class Order extends Model
         'CardName',
         'Label',
         'Packaging',
+        'BuyersPO',
+        'ContactName'
     ];
 
     public function ProcessedOrders()

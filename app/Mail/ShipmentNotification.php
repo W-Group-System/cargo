@@ -7,6 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Log;
 
 class ShipmentNotification extends Mailable
 {
@@ -18,11 +19,10 @@ class ShipmentNotification extends Mailable
      * @return void
      */
     public $subject = "";
-    public $templateCode = "";
-    public $data = [];
-    public function __construct($param)
+    public $htmlContent = "";
+    public function __construct($html)
     {
-        $this->data = $param;
+        $this->htmlContent = $html;
     }
 
     /**
@@ -32,23 +32,8 @@ class ShipmentNotification extends Mailable
      */
     public function build()
     {
-
-    $templateContent = "";
-        $html = ["templateContent" => $templateContent];
-        $templateData = EmailTemplate::where("code",$this->templateCode)->first();
-        if(!empty($templateData)){
-            $this->subject = $templateData->subject;
-            foreach ($this->data["data"] as $key => $value) {
-                if (empty($templateContent)) {
-                    $templateContent = str_replace("{".$key."}",$value,$templateData->content);
-                }else{
-                    $templateContent = str_replace("{".$key."}",$value,$templateContent);
-                }
-            }
-            $html["templateContent"] = $templateContent;
-        }
-
-        return $this->view('email.email_notification',$html)
+        $data = ["templateContent" => $this->htmlContent];
+        return $this->view('email.email_notification',$data)
         ->subject($this->subject);
     }
 }

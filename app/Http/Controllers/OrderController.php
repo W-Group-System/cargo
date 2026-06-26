@@ -179,7 +179,9 @@ class OrderController extends Controller
                                 'CardCode'   => $collectedData["BuyersCode"],
                                 'CardName'   => $collectedData["CardName"],
                                 'Label'      => $collectedData["U_Label"],
-                                'Packaging'  => $collectedData["U_Packaging"]
+                                'BuyersPO'  => $collectedData["U_BuyersPO"]
+                                // ,
+                                // 'ContactName'  => $collectedData["ContactName"]
                             ]);
 
                             if (isset($order->id)) {

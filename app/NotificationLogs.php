@@ -15,6 +15,7 @@ class NotificationLogs extends Model
         'subject',
         'content',
         'is_sent',
-        'shipment_details_id'
+        'receiver',
+        'cc',
     ];
 }

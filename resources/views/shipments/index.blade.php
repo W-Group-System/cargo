@@ -605,7 +605,7 @@
                         success: function (resp) {
                             currentTrackPoint = resp.data[0].shipment_details?.tracking_points??""
                             var receivers = resp.data[0].shipment_details?.email_recipients ? resp.data[0].shipment_details?.email_recipients.split(','):[];
-                            var cc = resp.data[0].shipment_details?.cc_recipients ? resp.data[0].shipment_details?.cc_recipients.split(','):[];
+                            var cc = resp.data[0].shipment_details?.cc_recipients ? resp.data[0].shipment_details?.cc_recipients.split(','):[];                            
 
                             $('#headerBuyersCode').text(resp.data[0].CardCode);
                             $('#deliveryStatusDesc').text(resp.data[0].shipment_details?.delivery_status[0]?.description??"-");

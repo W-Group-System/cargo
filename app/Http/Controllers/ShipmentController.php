@@ -7,6 +7,7 @@ use App\Mail\ShipmentNotification;
 use App\Order;
 use App\ProcessedOrders;
 use App\Regions;
+use App\Services\NotificationService;
 use App\ShipmentDetails;
 use App\ShipmentTracking;
 use App\TrackingPoints;
@@ -19,6 +20,12 @@ use Illuminate\Support\Facades\Mail;
 
 class ShipmentController extends Controller
 {
+    protected NotificationService $notification;
+    public function __construct(NotificationService $notif)
+    {
+        $this->middleware('auth');
+        $this->notification = $notif;
+    }
     public function index(Request $request)
     {
         $data = array();
@@ -63,7 +70,7 @@ class ShipmentController extends Controller
                 DB::raw("DATE_FORMAT(cargo_posting_date, '%Y-%m-%d') as cargo_posting_date")
             )
             ->where(function($q){
-                $q->where("AvailabilityDate","<>","")->where("PickupDate","<>","");
+                $q->where("AvailabilityDate","<>","")->where("PickupDate","<>","")->where("CargoStatus","L");
             });
 
             if (isset($request->id) && !empty($request->id)) {
@@ -122,20 +129,23 @@ class ShipmentController extends Controller
         $isSuccess = false;
         // dd($request->all());
         try {
-            $receivers = $request->receiver??null;
-            $cc = $request->cc??null;
+            $receivers = $request->receiver??[];
+            $ccRecipients = $request->cc??[];
+            $receiversToSave = "";
+            $ccRecipientsToSave = "";
+            $savedId = "";
 
-            if ($receivers != null) {
-                $receivers = implode(",",$receivers);
+            if (count($receivers) > 0) {
+                $receiversToSave = implode(",",$receivers);
             }
-            if ($cc != null) {
-                $cc = implode(",",$cc);
+            if (count($ccRecipients) > 0) {
+                $ccRecipientsToSave = implode(",",$ccRecipients);
             }
             $shipmentDetailsData = ShipmentDetails::where(['process_order_id'=>$request->id])->first();
             
             if (!empty($shipmentDetailsData)) {
                 $currentTrackingPoint = $shipmentDetailsData->tracking_points;
-                $currentId = $shipmentDetailsData->id;
+                $savedId = $shipmentDetailsData->id;
                 $save = $shipmentDetailsData->update([
                     'delivery_status' => $request->deliveryStatus,
                     'tracking_points' => $request->trackPoints,
@@ -153,14 +163,14 @@ class ShipmentController extends Controller
                     'delivery_date' => $request->deliveryDate,
                     'date_docs_completed' => $request->dateDocsCompleted,
                     'remarks' => $request->remarks,
-                    'email_recipients' => $receivers,
-                    'cc_recipients' => $cc
+                    'email_recipients' => $receiversToSave,
+                    'cc_recipients' => $ccRecipientsToSave
                 ]);
 
                 if ($save) {
                     if (!empty($request->trackPoints) && $currentTrackingPoint !== $request->trackPoints) {
                         ShipmentTracking::create([
-                            'shipment_details_id' => $currentId,
+                            'shipment_details_id' => $savedId,
                             'tracking_point' => $request->trackPoints,
                             'arrival_date' => Carbon::now(),
                             'status' => $request->deliveryStatus
@@ -186,14 +196,15 @@ class ShipmentController extends Controller
                     'delivery_date' => $request->deliveryDate,
                     'date_docs_completed' => $request->dateDocsCompleted,
                     'remarks' => $request->remarks,
-                    'email_recipients' => $receivers,
-                    'cc_recipients' => $cc
+                    'email_recipients' => $receiversToSave,
+                    'cc_recipients' => $ccRecipientsToSave
                 ]);
 
                 if ($save) {
+                    $savedId = $save->id;
                     if (!empty($request->trackPoints)) {
                         ShipmentTracking::create([
-                            'shipment_details_id' => $save->id,
+                            'shipment_details_id' => $savedId,
                             'tracking_point' => $request->trackPoints,
                             'arrival_date' => Carbon::now(),
                             'status' => $request->deliveryStatus
@@ -208,33 +219,24 @@ class ShipmentController extends Controller
                 "isSuccess" => $isSuccess
             ];
 
-            if ($request->deliveryStatus == "DLY") {
-                // dd($receivers);
-                if ($receivers != null) {
-                    Log::info($receivers);
-                    $explodeEmail = explode(",",$receivers);
-                    foreach ($explodeEmail as $email) {
-                        $mail = new Mail();
-                        $params = [
-                            "data"=>[
-                                "vesselName"=>$request->containerNumber??"",
-                                "delayReason"=>$request->remarks??"",
-                                "etd"=>$request->etdOrigin??"",
-                                "eta"=>$request->etaDestination??""
-                            ]
-                        ];
-
-                        $mailService = new ShipmentNotification($params);
-                        $mailService->templateCode = "DLYD";
-                        $mail::to($email)
-                        ->send($mailService);
-                    }
+            // dd($receivers);
+            if (count($receivers)>0 && !empty($savedId)) {
+                if ($request->deliveryStatus == "DLY") {
+                    Log::info("SENDING EMAIL");
+                    $params = [
+                        "shipmentDetailsId"=>$savedId,
+                        "vesselName"=>$request->containerNumber??"",
+                        "delayReason"=>$request->remarks??"",
+                        "etd"=>$request->etdOrigin??"",
+                        "eta"=>$request->etaDestination??""
+                    ];
+                    $this->notification->SendEmail("DLYD",$params,$receivers,$ccRecipients);
                     Log::info("DONE SENDING EMAIL");
-                }   
+                }
             }
             
         } catch (\Exception $th) {
-            Log::error("FAILED IN UPDATING SHIPMENT DETAILS :".$th->getMessage());
+            Log::error("FAILED IN UPDATING SHIPMENT DETAILS :".$th);
         }
 
         if ($isSuccess) {
