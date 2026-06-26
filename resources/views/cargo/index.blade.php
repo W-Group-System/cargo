@@ -6,7 +6,8 @@
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title">Cargo Management</h4>
-                    <form method="GET" action="{{ route('cargoes.index') }}" class="form-inline mt-4">
+                    <form method="GET" id="cargoListForm" class="form-inline mt-4">
+                        @csrf
                         <div class="row g-3 align-items-center">
                             <div class="col-auto">
                                 <label class="col-form-label">Filter by date sync:</label>
@@ -33,76 +34,185 @@
                                     <i class="bi bi-search"></i>&nbsp;Search
                                 </button>
                             </div>
-                            <div class="col-auto">
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editCargoModal">
-                                    <i class="bi bi-pen"></i>&nbsp;Update
-                                </button>
-                                @include('cargo.edit')
-                            </div>
                         </div>
                     </form>
-                    <div class="table-responsive mt-4">
-                        <table class="table table-striped table-bordered table-hover">
-                            <thead>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="cargoTable">
+                            <thead class="table-light">
                                 <tr>
+                                    <th>Status</th>
+                                    <th>Buyers Code</th>
+                                    <th>Buyers Name</th>
+                                    <th>Warehouse</th>
                                     <th>Date Created</th>
-                                    <th>SO No.</th>
-                                    <th>Buyer Code</th>
-                                    <th>Buyer PO No.</th>
-                                    <th>Label</th>
-                                    <th>Packaging</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @forelse ($cargoes as $item)
-                                    <tr>
-                                        <td>{{ $item->created_at->format('Y-m-d') }}</td>
-                                        <td>{{ $item->DocNum }}</td>
-                                        <td>{{ $item->CardCode }}</td>
-                                        <td>{{ $item->BuyerPONo ?? '-' }}</td>
-                                        <td>{{ $item->U_Label ?? $item->Label ?? '-' }}</td>
-                                        <td>{{ $item->U_Packaging ?? $item->Packaging ?? '-' }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center text-muted">
-                                            No records found.
-                                        </td>
-                                    </tr>
-                                @endforelse
+                             <tbody>
                             </tbody>
                         </table>
-
-
-                        <div class="mt-2 d-flex justify-content-between align-items-center">
-                            <div>
-                                {!! $cargoes->appends(request()->except('page'))->links() !!}
-                            </div>
-                            @php
-                                $total = $cargoes->total();
-                                $currentPage = $cargoes->currentPage();
-                                $perPage = $cargoes->perPage();
-                                $from = ($currentPage - 1) * $perPage + 1;
-                                $to = min($currentPage * $perPage, $total);
-                            @endphp
-                            <div>
-                                Showing {{ $from }} to {{ $to }} of {{ $total }} entries
-                            </div>
-                        </div> 
                     </div> 
                 </div>
             </div>
         </div>
     </div>
 </div>
+@component('components.modalv2', [
+    'modal_id' => 'updateCargoModal',
+    'title' => 'Cargo Management',
+    'form_id' => 'updateCargoForm',
+    'size' => 'modal-xl'
+])
+<div class="container-fluid">
+    <div class="row g-4">
+        <!-- Header -->
+        <div class="col-12">
+            <div class="d-flex align-items-center">
+                <label class="fw-bold me-2 mb-0">
+                    Buyer Code #:
+                </label>
+                <span id="soNoHeader">-</span>
+            </div>
+        </div>
+        <!-- Left Panel -->
+        <div class="col-12 col-lg-5">
+            <div class="d-flex flex-column gap-3 h-100">
+                <!-- Selected SO -->
+                <div class="card border-dark rounded-0 flex-grow-1">
+                    <div class="card-header bg-secondary text-white rounded-0 py-1 px-3">
+                        Selected SO #
+                    </div>
+                    <div class="card-body bg-light py-2 px-2">
+                        <form id="addCoLoadForm" method="GET">
+                            @csrf
+                            <div class="row g-2">
+                                <div class="col-12 col-md-10">
+                                    <select
+                                        class="form-control select2"
+                                        id="coLoadBuyersCode"
+                                        name="coLoadBuyersCode" required>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-2">
+                                    <button
+                                        type="submit"
+                                        id="btnAddCoLoad"
+                                        class="btn btn-secondary w-100">
+                                        +
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        <hr>
+                        <div class="p-4 overflow-auto" style="max-height: 440px;">
+                            <ul id="selectedSOList">
+                            </ul>
+                            <h6 class="mb-2">
+                                Co Loads
+                            </h6>
+                            <div>
+                                <ul id="coLoadDetails">
+
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-7">
+            <div class="card border-dark rounded-0">
+                <div class="card-header bg-secondary text-white rounded-0 py-1 px-3">
+                    Sales Order Information
+                </div>
+                <div class="card-body bg-light py-2 px-2">
+                    <div class="soInfoContainer">
+                    </div>
+                    <div class="mt-3">
+                        <p class="mb-2">To be filled out by the Plant</p>
+                        <hr>
+                    </div>
+                    <form id="updateCargoDetailsForm">
+                        @csrf
+                        <input
+                            type="hidden"
+                            name="buyersCode"
+                            id="buyersCode">
+                        <div class="row g-3">
+                            <!-- Left Column -->
+                            <div class="col-12 col-md-6">
+                                <div class="mb-3">
+                                    <label for="availabilityDate" class="form-label">
+                                        Availability Date
+                                    </label>
+                                    <input
+                                        type="date"
+                                        class="form-control"
+                                        name="availabilityDate"
+                                        id="availabilityDate">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="pickupDate" class="form-label">
+                                        Date Pickup
+                                    </label>
+                                    <input
+                                        type="date"
+                                        class="form-control"
+                                        name="pickupDate"
+                                        id="pickupDate"
+                                        required>
+                                </div>
+                            </div>
+                            <!-- Right Column -->
+                            <div class="col-12 col-md-6">
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">
+                                        Status
+                                    </label>
+                                    <select
+                                        name="status"
+                                        id="status"
+                                        class="form-control">
+                                        <option value="">-Select Data-</option>
+                                        @foreach (["FP"=>"For packing","POP"=>"Packing on process","RFP"=>"Ready for pickup","L"=>"Loaded"] as $key => $value)
+                                            <option value="{{ $key }}">
+                                                {{ $value }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button
+                                    type="submit"
+                                    id="btnProcessCargo"
+                                    class="btn btn-secondary w-100">
+                                    Process
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+@endcomponent
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Select2 JS -->
+{{-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> --}}
 <script type="text/javascript">
-    $(function () {
+    $(document).ready(function () {
+        let sapServerDefault = "";
         var start = moment().subtract(29, 'days');
         var end = moment();
+        let coLoadArray = {};
+        let modalBuyersCode = '';
+        let removedColoadsArr = [];
 
         function cb(start, end) {
             $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
@@ -124,6 +234,324 @@
         }, cb);
 
         cb(start, end);
+
+        let cargoIds = [];
+        $('#cargoListForm').submit(function (e) { 
+            e.preventDefault();
+            ReloadDataTable();
+        });
+
+        $(this).on('click', '#selectedSOList .so-link, #coLoadDetails .so-link', function(e) {
+            e.preventDefault();
+            let soNo = $(this).data('so');
+            let buyersCode = $(this).data('buyerscode');
+            let sapServer = $(this).data('sapserver');
+            GetCargoDetails(soNo,buyersCode,sapServer);
+        });
+
+        $('#updateCargoDetailsForm').submit(function (e) { 
+            e.preventDefault();
+            
+            var form_data = $(this).serializeArray();
+            form_data.push({
+                name:'coloads',
+                value:JSON.stringify(coLoadArray)
+            });
+            form_data.push({
+                name:'removedColoads',
+                value:JSON.stringify(removedColoadsArr)
+            });
+            
+            $.ajax({
+                type: "POST",
+                url: "{{ route('cargo.update') }}",
+                data:  form_data,
+                // contentType: "application/json",
+                beforeSend: function(){
+                    $('#btnProcessCargo').prop('disabled',true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+                },
+                success: function (response) {
+                    $('#updateCargoModal').modal('hide');
+                    Swal.fire('Success',response.message,'success');
+                },
+                error: function (xhr) {
+                    Swal.fire('Error',xhr.responseJSON?.message || 'Error','error');
+                },
+                complete: function(){
+                    $('#btnProcessCargo').prop('disabled',false).text('Process');
+                    ReloadDataTable();
+                }
+            });
+        });
+
+        function ReloadDataTable() {
+            $('#cargoTable').DataTable().ajax.reload(null, true);
+        }
+
+        let orderTable = $('#cargoTable').DataTable({
+            processing: true,
+            serverSide: true,
+            responsive: true,
+            searching: false,
+            ordering: false,
+            paging: true,
+            autoWidth: false,
+            // scrollY: '480px',
+            scrollCollapse: false,
+            lengthChange: false,
+            language: {
+                processing: '<div class="spinner-border"></div>',
+            },
+            ajax: function (data, callback) {
+                let page = (data.start / data.length) + 1;
+                let limit = data.length;
+
+                $.ajax({
+                    url: "{{ route('cargoes.list') }}",
+                    type: 'GET',
+                    data: {
+                        page: page,
+                        limit: limit,                          
+                        start_date:  $('#start_date').val(),
+                        end_date:  $('#end_date').val()
+                    },
+                    success: function (resp) {
+                        callback({
+                            data: resp.data,            
+                            recordsTotal: resp.total,   
+                            recordsFiltered: resp.total 
+                        });
+                    }
+                });
+            },
+            columns: [
+                { data: 'cargo_status.description'},
+                { data: 'CardCode' },
+                { data: 'CardName'},
+                { data: 'SapServer'},
+                { data: 'created_at' },
+                {
+                    render: function (data, type, row) {
+                        return `<button type="button" class="btn btn-primary btn-update" id="btnCargoUpdate"
+                            data-cardcode="${row.CardCode}" data-sapserver="${row.SapServer}">
+                            <i class="bi bi-pencil"></i>
+                        </button>`
+                    }
+                }
+            ],
+            rowCallback : function(row,data,DisplayIndex){
+                $(row).find('.btn-update').unbind('click').on('click',function(){
+                let button = $(this);
+                let cardCode = $(this).attr('data-cardcode');
+                let sapServer = $(this).attr('data-sapserver');
+                modalBuyersCode = cardCode;
+                $('#buyersCode').val(cardCode);
+                $.ajax({
+                    type: "GET",
+                    url: "{{ route('cargo.details') }}",
+                    data: {
+                        page : 1,
+                        limit : 100,
+                        buyersCode : cardCode,
+                        sapServer : sapServer
+                    },
+                    beforeSend: function(){
+                        button.prop('disabled',true).html('<span class="spinner-border spinner-border-sm" role="status"></span>');
+                    },
+                    success: function (response) {
+                        // console.log(response);
+                        sapServerDefault = response.data[0].sap_server;
+                        let firstSoNo = response.data[0].DocNum;
+                        $('#soNoHeader').text(cardCode);
+                        response.data.forEach(element => {
+                            $('#selectedSOList').append(
+                                '<li><a href="#" class="so-link" data-sapServer="'+element.sap_server+'" data-so="'+element.DocNum+'" data-buyerscode="'+element.CardCode+'"><u>' + element.DocNum + '</u></a></li>'
+                            );
+                        });
+                        GetCargoDetails(firstSoNo,cardCode,sapServer);
+                        $('#availabilityDate').val(response.availabilityDate);
+                        $('#pickupDate').val(response.pickupDate);
+                        $('#status').val(response.status);
+                        $.each(Object.entries(response.coloads), function(index, item) {
+                            let key = item[0];
+                            let value = item[1];
+                            coLoadArray[key]=value;
+                        });
+                        LoadCoLoadList(coLoadArray);
+                        $('#updateCargoModal').modal('show');
+                    },
+                    error: function (xhr) {
+                        Swal.fire('Error',xhr.responseJSON?.message || 'Error','error');
+                    },
+                    complete: function(){
+                        button.prop('disabled',false).html('<i class="bi bi-pencil"></i>');
+                    }
+                });
+            });
+            }
+        });
+
+        orderTable.on('draw', function() {
+            //
+        });
+
+        $('#updateCargoModal').on('hide.bs.modal', function () {
+            $('#soNoHeader').text('');
+            $('#qty').text('');
+            $('#selectedSOList').empty();
+            $('#coLoadDetails').empty();
+            $('#soNo').text("");
+            $('.soInfoContainer').html("");
+            $('#dateCreated').text("");
+            $('#updateCargoDetailsForm').trigger('reset');
+            $('#coLoadBuyersCode').empty();
+            sapServerDefault = '';
+            coLoadArray = {};
+            modalBuyersCode = '';
+            removedColoadsArr = [];
+        });
+
+        $('#coLoadBuyersCode').select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            placeholder: 'Search buyers code',
+            dropdownParent: $('#updateCargoModal'),
+            allowClear: true,
+            ajax: {
+                url: "{{ route('orders.list') }}",
+                // dataType: 'JSON',
+                type: 'GET',
+                delay: 250,
+                data: function (params) {
+                    // console.log(params); 
+                    return {
+                        buyersCode: params.term, // user typing
+                        sap_server: sapServerDefault,
+                        // position: $('#searchPosition').val(),
+                        page: params.page || 1,
+                        limit: 5
+                    };
+                },
+                processResults: function (data, params) {
+                    // console.log(data);
+                    return {
+                        results: data.data.map(emp => ({
+                            id: emp.BuyersCode,
+                            text: emp.BuyersCode + ' - ' + emp.Count + ' - ' + (emp.OrderStatus !== ''?emp.OrderStatus:'Open'),
+                            disabled: emp.BuyersCode == modalBuyersCode || emp.OrderStatus == 'Base Load'
+                        })),
+                        pagination: {
+                            more: data.length === 10 // enables infinite scroll
+                        }
+                    };
+                }
+            }
+        });
+
+        $('#addCoLoadForm').submit(function (e) { 
+            e.preventDefault();
+            let buyersCode = $('#coLoadBuyersCode').val();
+            $.ajax({
+                type: "GET",
+                url: "{{ route('cargo.details.buyersCode') }}",
+                data: {
+                    buyersCode: buyersCode,
+                    sapServer: sapServerDefault
+                },
+                success: function (response) {
+                    $('#coLoadBuyersCode').empty();
+                    $.each(Object.entries(response.data), function(index, item) {
+                        let key = item[0];
+                        let value = item[1];
+
+                        let indexRemoved = removedColoadsArr.indexOf(key);
+                        if (index > -1) {
+                            removedColoadsArr.splice(indexRemoved, 1);
+                        }
+                        coLoadArray[key]=value;
+                    });
+                    LoadCoLoadList(coLoadArray);
+                }
+            });
+        });
+
+        $(this).on('click','.remove-coload', function () {
+            var buyersCode = $(this).data('buyerscode');
+            removedColoadsArr.push(buyersCode);
+            delete coLoadArray[buyersCode];
+            LoadCoLoadList(coLoadArray);
+        });
+
+        function LoadCoLoadList(coLoadArray){
+            let coLoadHtml = '';
+            $.each(coLoadArray, function(buyersCode, soList) {
+                coLoadHtml += 
+                    `<li>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="fw-bold">${buyersCode}</div>
+                        <button type="button" class="btn btn-sm btn-danger remove-coload" data-buyerscode="${buyersCode}">×</button>
+                    </div>
+                    <ul class="mb-2">`;
+                    $.each(soList, function(index, soNo) {
+                        coLoadHtml += `<li> <a href="#" class="so-link" data-so="${soNo}" data-buyerscode="${buyersCode}" data-sapserver="${sapServerDefault}">
+                                                <u>${soNo}</u>
+                                            </a>
+                                        </li>`;
+                    });
+                            
+                coLoadHtml += `</ul></li>`;
+            });
+            $('#coLoadDetails').html(coLoadHtml);
+        }
+
+        function GetCargoDetails(soNo,cardCode,sapServer){
+            $.ajax({
+                type: "GET",
+                url: "{{ route('cargo.details.soNo') }}",
+                data: {
+                    page: 1,
+                    limit: 1,
+                    buyersCode : cardCode,
+                    soNo: soNo,
+                    sapServer: sapServer
+                },
+                dataType: "JSON",
+                success: function (response) {
+                    let soNo = response.data[0].DocNum;
+                    let packaging = response.data[0].U_Packaging;
+                    let label = response.data[0].U_Label;
+                    let dateCreated = response.data[0].DocDate;
+
+                    let orderItemList = response.data[0].items;
+                    let html = `
+                        <p style="margin-bottom: 0.25rem;">SO No.: <span style="font-weight: 700;" id="soNo">${soNo}</span></p>
+                        <p style="margin-bottom: 0.25rem;">Packing: <span style="font-weight: 700;" id="packaging">${packaging}</span></p>
+                        <p style="margin-bottom: 0.25rem;">Label: <span style="font-weight: 700;" id="label">${label}</span></p>
+                        <p style="margin-bottom: 0.25rem;">Date created: <span style="font-weight: 700;" id="dateCreated">${dateCreated}</span></p>
+                    `;
+                    html += `<div class="border rounded p-2 overflow-auto" style="max-height: 150px;">`;
+                    orderItemList.forEach(item => {
+                        let qty = '-';
+                        let itemCode = '-';
+                        let description = '-';
+                        
+                        qty = item.Quantity;
+                        itemCode = item.ItemCode;
+                        description = item.Dscription;
+                    
+                        html += `<br>
+                                    <p style="margin-bottom: 0.25rem;">Item Code: <span style="font-weight: 700;" id="itemCode">${itemCode}</span></p>
+                                    <p style="margin-bottom: 0.25rem;">Description: <span style="font-weight: 700;" id="description">${description}</span></p>
+                                    <p style="margin-bottom: 0.25rem;">Quantity: <span style="font-weight: 700;" id="qty">${qty}</span></p>
+                                    <p style="margin-bottom: 0.25rem;">Remarks: <span style="font-weight: 700;" id="remarks">-</span></p>`
+                                ;
+                    });
+                    html += '</div>';
+                    
+                    $('.soInfoContainer').html(html);
+                }
+            });
+        }
     });
 </script>
 @endsection

@@ -15,15 +15,16 @@ class CreateOrdersTable extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->increments('id');
+            $table->unsignedInteger('process_order_id');
             $table->string('sap_server'); // whi, pbi, or ccc
             $table->string('DocNum');     // SO Number
             $table->string('CardCode');
             $table->string('CardName');
-            $table->string('U_Label')->nullable();
-            $table->string('U_Packaging')->nullable();
+            $table->string('Label')->nullable();
+            $table->string('Packaging')->nullable();
+            $table->foreign('process_order_id')->references('id')->on('processed_orders')->onDelete('cascade');
             $table->timestamps();
 
-            $table->unique(['sap_server', 'DocNum']); // prevent duplicates
         });
     }
 

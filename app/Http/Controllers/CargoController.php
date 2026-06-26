@@ -2,31 +2,246 @@
 
 namespace App\Http\Controllers;
 use App\Cargo;
+use App\Classes\OrderClass;
+use App\Order;
+use App\ProcessedOrders;
+use App\ShipmentStatus;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CargoController extends Controller
 {
+    protected OrderClass $order;
+    public function __construct(OrderClass $orderClass)
+    {
+        $this->order = $orderClass;
+    }
     public function index(Request $request)
     {
-        $query = Cargo::query();
+        $data = array();
+        $data['ActiveModule'] = 'Cargo Management';
+        $data['shipmentStatusArr'] = ShipmentStatus::ShipmentStatusArray();
 
-        // Entries per page
-        $entries = $request->input('number_of_entries', 10);
+        return view('cargo.index',$data);
+    }
 
-        // Date filter (created_at)
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $start = Carbon::parse($request->start_date)->startOfDay();
-            $end   = Carbon::parse($request->end_date)->endOfDay();
+    public function CargoList(Request $request){
+        $response = [
+            "isSuccess"=>false,
+            "message"=>"Failed to retrieve information.",
+            "total"=>0,
+            "page"=>1,
+            "data"=>null
+        ];
+        try {
+            $page = $request->page ?? 1;
+            $limit = $request->limit ?? 10;
 
-            $query->whereBetween('created_at', [$start, $end]);
+            $ordersList = ProcessedOrders::with(['CargoStatus'])->select("*");
+
+            if (isset($request->id) && !empty($request->id)) {
+                $ordersList = $ordersList->where("id",$request->id);
+            }
+
+            if (isset($request->search) && !empty(isset($request->search))) {
+                $search = $request->search;
+                $ordersList = $ordersList->where(function ($query) use ($search) {
+                    $query->where('CardCode', 'LIKE', "%{$search}%")
+                        ->orWhere('CardName', 'LIKE', "%{$search}%");
+                });
+            }
+
+            if ($request->filled('start_date') && $request->filled('end_date')) {
+                $start = Carbon::parse($request->start_date)->startOfDay();
+                $end   = Carbon::parse($request->end_date)->endOfDay();
+
+                $ordersList->whereBetween('created_at', [$start, $end]);
+            }
+            $ordersList = $ordersList->where("is_coload",null);
+
+            $totalCount = (clone $ordersList)->count();
+
+            $ordersList = $ordersList->orderBy("id","desc") 
+                ->skip(($page - 1) * $limit)
+                ->take($limit)
+                ->get();
+            $response["isSuccess"] = true;
+            $response["message"] = "Successfully retrieved information.";
+            $response["total"] = $totalCount;
+            $response["data"] = $ordersList;
+        } catch (\Throwable $th) {
+            Log::error("ERROR IN GETTING CARGO LIST: ".$th);
+        }
+        
+        return $response;
+    }
+
+    public function GetProcessedOrderDetails(Request $request){
+        $response = [
+            "isSuccess"=>false,
+            "message"=>"Failed to retrieve information.",
+            "availabilityDate" => null,
+            "pickupDate" => null,
+            "status" => null,
+            "total"=>0,
+            "page"=>1,
+            "data"=>null
+        ];
+        $isSuccess = false;
+
+        try {
+            $page = $request->page ?? 1;
+            $limit = $request->limit ?? 10;
+            $buyersCode = $request->buyersCode??"";
+            $soNo = $request->soNo??"";
+            if (!empty($buyersCode)) {
+                $ordersList = Order::with(['OrderItemList'])->where("CardCode",$buyersCode);
+                if (!empty($soNo)) {
+                    $ordersList = $ordersList->where("DocNum",$soNo);
+                }
+                $totalCount = (clone $ordersList)->count();
+                $ordersList = $ordersList->orderBy("id","desc")
+                    ->skip(($page - 1) * $limit)
+                    ->take($limit)
+                    ->get();
+
+                $processedOrderData = ProcessedOrders::where("CardCode",$buyersCode)->first();
+                if (!empty($processedOrderData)) {
+                    $response["availabilityDate"] = $processedOrderData->AvailabilityDate;
+                    $response["pickupDate"] = $processedOrderData->PickupDate;
+                    $response["status"] = $processedOrderData->CargoStatus;
+                    $coloadSoNumberArr = [];
+                    $coloadList = Order::from('orders as o')->select('o.CardCode','o.DocNum')
+                                ->leftJoin('processed_orders as po','po.id','=','o.process_order_id')
+                                ->where('po.is_coload','1')
+                                ->where('po.coloaded_by',$processedOrderData->id)
+                                ->orderBy('po.coload_order','asc')
+                                ->get()
+                                ->map(function($order) use(&$coloadSoNumberArr){
+                                    $coloadSoNumberArr[$order->CardCode][] = $order->DocNum;
+                                    return $coloadSoNumberArr;
+                                });
+                    $response["coloads"] = $coloadSoNumberArr;
+                }
+
+                $isSuccess = true;
+                $response["isSuccess"] = $isSuccess;
+                $response["message"] = "Successfully retrieved information.";
+                $response["total"] = $totalCount;
+                $response["data"] = $ordersList;
+            }
+        } catch (\Throwable $th) {
+            Log::error("ERROR IN GETTING ORDER DETAILS: ".$th->getMessage());
         }
 
-        $cargoes = $query
-            ->orderBy('created_at', 'desc')
-            ->paginate($entries)
-            ->appends($request->all());
+        if ($isSuccess) {
+            return response()->json($response,200);
+        }else{
+            return response()->json($response,400);
+        }
+    }
 
-        return view('cargo.index', compact('cargoes'));
+    public function UpdateProcessedOrderDetails(Request $request){
+
+        $response = [
+            "isSuccess"=>false,
+            "message"=>"Failed to update information."
+        ];
+        $isSuccess = false;
+
+        try {
+            $buyersCode = $request->buyersCode??"";
+            $availabilityDate = $request->availabilityDate??null;
+            $pickupDate = $request->pickupDate??null;
+            $status = $request->status??null;
+            $coloads = json_decode($request->coloads, true);
+            $removedColoadsArr = json_decode($request->removedColoads);
+
+            if (!empty($buyersCode)) {
+                $processedOrderData = ProcessedOrders::where("CardCode",$buyersCode)->first();
+                $processedOrderDataPostingDate = null;
+                if (!empty($processedOrderData->cargo_posting_date)) {
+                    $processedOrderDataPostingDate = $processedOrderData->cargo_posting_date;
+                }elseif ($availabilityDate != null && $pickupDate != null) {
+                    $processedOrderDataPostingDate = Carbon::now();
+                }
+
+                if (!empty($processedOrderData)) {
+                    $sapServer = $processedOrderData->SapServer;
+                    $processedOrderId = $processedOrderData->id;
+                    $orderStatus = (!empty($coloads) && count(array_keys($coloads)) > 0?'BL':'S');
+                    $processedOrderData = $processedOrderData->update(["AvailabilityDate"=>$availabilityDate,"PickupDate"=>$pickupDate,"CargoStatus"=>$status,"OrderStatus"=>$orderStatus,"cargo_posting_date"=>$processedOrderDataPostingDate]);
+                    $order = 1;
+                    foreach ($coloads as $key => $value) {
+                        $processedOrderColoadDataExistence = ProcessedOrders::where("CardCode",$key)->first();
+                        if (!empty($processedOrderColoadDataExistence)) {
+                            $updateProcessedOrderColoadDataExistence = $processedOrderColoadDataExistence->where("CardCode",$key)->update(["is_coload"=>1,"coloaded_by"=>$processedOrderId,"coload_order"=>$order,"OrderStatus"=>"CL"]);
+                        }else{
+                            $saveCoLoad = $this->order->SaveCoload($key,$sapServer,$processedOrderId,$order);
+                        }
+                        $order++;
+                    }
+
+                    if (count($removedColoadsArr) > 0) {
+                        $deleteCoLoads = ProcessedOrders::whereIn("CardCode",$removedColoadsArr)->where("is_coload","1")->where("coloaded_by",$processedOrderId)->delete();
+                    }
+                }
+
+                $isSuccess = true;
+                $response = [
+                    "isSuccess"=>true,
+                    "message"=>"Information updated successfully."
+                ];
+            }
+        } catch (\Exception $th) {
+            Log::error("ERROR IN UPDATING CARGO DETAILS: ".$th->getMessage());
+            dd("CONTROLLER: ".$th->getMessage());
+        }
+
+        if ($isSuccess) {
+            return response()->json($response,200);
+        }else{
+            return response()->json($response,400);
+        }
+    }
+
+    public function GetBuyersCodeDetails(Request $request){
+        $response = [
+            "isSuccess"=>false,
+            "message"=>"Failed to retrieve information.",
+            "data"=>[]
+        ];
+        $isSuccess = false;
+        $data = [];
+
+        $cardCode = $request->buyersCode??"";
+        $sapServer = $request->sapServer??"";
+
+        try {
+            $data = [$cardCode=>[]];
+            $orderController = new OrderController();
+            $buyersCodeDetails = $orderController->SapOrderList($cardCode,$sapServer,"");
+            if($buyersCodeDetails["isSuccess"]){
+                $details = $buyersCodeDetails["data"];                
+                foreach ($details as $key => $value) {
+                    $data[$cardCode][] = $value->DocNum;
+                }
+                $isSuccess = true;
+                $response["isSuccess"] = $isSuccess;
+                $response["message"] = "Successfully retrieved information.";
+                $response["data"] = $data;
+            }
+
+        } catch (\Throwable $th) {
+            Log::error("ERROR IN GETTING BUYERS CODE DETAILS: ".$th->getMessage());
+        }
+
+        if ($isSuccess) {
+            return response()->json($response,200);
+        }else{
+            return response()->json($response,400);
+        }
     }
 }

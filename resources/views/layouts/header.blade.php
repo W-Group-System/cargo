@@ -1,3 +1,9 @@
+@php
+    use \App\Classes\RolesAccessClass;
+    $modules = RolesAccessClass::GetUserAccessPerRole(auth()->user()->role);
+    // dd($modules);
+@endphp
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
@@ -21,6 +27,13 @@
     <link href="{{ asset('vendors/perfect-scrollbar/perfect-scrollbar.css') }}" rel="stylesheet">
     <link href="{{ asset('vendors/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <link rel="stylesheet" href="{{ asset('js/datatables/dataTables.bootstrap5.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/base.css') }}">
+     <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- Optional: Select2 Bootstrap5 Theme (looks better) -->
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
 
     <style>
         .loader {
@@ -53,54 +66,29 @@
                 </div>
                 <div class="sidebar-menu">
                     <ul class="menu">
-                        <li class="sidebar-title">Transactions</li>
-                        <li class="sidebar-item active ">
-                            <a href="{{ url('/home') }}" onclick='show()' class='sidebar-link'>
-                                <i class="bi bi-grid-fill"></i>
-                                <span>Dashboard</span>
-                            </a>
-                        </li>
+                        @if (count($modules) > 0)
+                            @foreach ($modules as $key => $value)
+                                <li class="sidebar-title">{{$key}}</li>
+                                @foreach ($value as $k => $v)
+                                    @if ($v['canRead'] == "1")
+                                        <li class="sidebar-item {{ $k == $ActiveModule ? 'active':'' }}">
+                                            <a href="{{ url($v['url']) }}" onclick='show()' class='sidebar-link'>
+                                                {!! $v['icon'] !!}
+                                                <span>{{$k}}</span>
+                                            </a>
+                                        </li>
+                                    @endif
+                                @endforeach
+                            @endforeach
+                        @endif
                         <li class="sidebar-item">
-                            <a href="{{ url('/orders') }}" onclick='show()' class='sidebar-link'>
-                                <i class="bi bi-cart-fill"></i>
-                                <span>Orders</span>
+                            <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class='sidebar-link'>
+                                <span>Sign out</span>
                             </a>
                         </li>
-                        <li class="sidebar-item">
-                            <a href="{{ url('/cargo') }}" onclick='show()' class='sidebar-link'>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box2-fill" viewBox="0 0 16 16">
-                                    <path d="M3.75 0a1 1 0 0 0-.8.4L.1 4.2a.5.5 0 0 0-.1.3V15a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V4.5a.5.5 0 0 0-.1-.3L13.05.4a1 1 0 0 0-.8-.4zM15 4.667V5H1v-.333L1.5 4h6V1h1v3h6z"/>
-                                </svg>
-                                <span>Cargo Management</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a href="{{ url('/shipments') }}" onclick='show()' class='sidebar-link'>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-truck-front-fill" viewBox="0 0 16 16">
-                                    <path d="M3.5 0A2.5 2.5 0 0 0 1 2.5v9c0 .818.393 1.544 1 2v2a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5V14h6v1.5a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-2c.607-.456 1-1.182 1-2v-9A2.5 2.5 0 0 0 12.5 0zM3 3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3.9c0 .625-.562 1.092-1.17.994C10.925 7.747 9.208 7.5 8 7.5s-2.925.247-3.83.394A1.008 1.008 0 0 1 3 6.9zm1 9a1 1 0 1 1 0-2 1 1 0 0 1 0 2m8 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2m-5-2h2a1 1 0 1 1 0 2H7a1 1 0 1 1 0-2"/>
-                                </svg>
-                                <span>Shipments</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a href="{{ url('/users') }}" onclick='show()' class='sidebar-link'>
-                                <i class="bi bi-people-fill"></i>
-                                <span>User Accounts</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-title">Reports</li>
-                        <li class="sidebar-item">
-                            <a href="" class='sidebar-link'>
-                                <i class="bi bi-bar-chart-fill"></i>
-                                <span>Orders</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a href="" class='sidebar-link'>
-                                <i class="bi bi-file-earmark-medical-fill"></i>
-                                <span>Shipments</span>
-                            </a>
-                        </li>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                            @csrf
+                        </form>
                     </ul>
                 </div>
                 <button class="sidebar-toggler btn x"><i data-feather="x"></i></button>
@@ -121,6 +109,10 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script src="{{ asset('js/datatables/datatables.min.js') }}"></script>
+    <script src="{{ asset('js/datatables/dataTables.bootstrap5.min.js') }}"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     @include('sweetalert::alert')
     
     @yield('footer')

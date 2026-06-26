@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Helper;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Pagination\Paginator;
@@ -9,6 +10,8 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Order;
 use App\OrderItem;
+use App\ProcessedOrders;
+use App\ThirdrdPartyEndpoint;
 use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Client;
 
@@ -17,141 +20,303 @@ class OrderController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->input('search');
-        $entries = $request->input('number_of_entries', 10); // Default 10 per page
-        $data = collect();  
+        $data['ActiveModule'] = 'Orders';
+        return view('orders.indexV2', $data);
+    }
 
-        if ($request->has('sap_server')) {
-            $sapServer = $request->sap_server;
+    public function SapOrderListDictinct(Request $request){
+        $response = [
+            "isSuccess"=>false,
+            "message"=>"Failed to retrieve information.",
+            "total"=>0,
+            "page"=>1,
+            "data"=>null
+        ];
 
-            $client = new Client();
+        $isSuccess = false;
 
-            try {
+        try {
+            $page = $request->page ?? 1;
+            $limit = $request->limit ?? 10;
+            $search = $request->search;
+            $start = $request->start_date??"";
+            $end = $request->end_date??"";
+            $buyersCode = $request->buyersCode??"";
+            $buyersName = $request->buyersName??"";
+            $dateCreated = $request->dateCreated??"";
+
+            $endpoint = null;
+
+            $data = collect();  
+            if ($request->has('sap_server')) {
+                $sapServer = $request->sap_server;
+
+                $client = new Client();
                 switch ($sapServer) {
                     case 'whi':
-                        $response = $client->request('GET', 'https://sap-database.wgroup.space/api/salesorder');
+                        $endpointData = ThirdrdPartyEndpoint::where("Code","WHI-DIST")->first();
                         break;
                     case 'pbi':
-                        $response = $client->request('GET', 'https://sap-database.wgroup.space/api/pbi_salesorder');
+                        $endpointData = ThirdrdPartyEndpoint::where("Code","PBI-DIST")->first();
                         break;
                     case 'ccc':
-                        $response = $client->request('GET', 'https://sap-database.wgroup.space/api/ccc_salesorder');
+                        $endpointData = ThirdrdPartyEndpoint::where("Code","CCC-DIST")->first();
                         break;
                     default:
-                        $response = null;
+                        $endpointData = null;
                 }
+                
+                if (!empty($endpointData) > 0) {
 
-                if ($response && $response->getStatusCode() === 200) {
-                    $body = $response->getBody()->getContents();
-                    $allData = collect(json_decode($body));
+                    $endpoint = $endpointData->Endpoint."?page={$page}&limit={$limit}";
 
-                    // Date filter
-                    $start = $request->start_date;
-                    $end = $request->end_date;
-                    if ($start && $end) {
-                        $allData = $allData->filter(function ($item) use ($start, $end) {
-                            $docDate = Carbon::parse($item->DocDate)->format('Y-m-d');
-                            return $docDate >= $start && $docDate <= $end;
-                        })->values();
+                    if (!empty($start)) {
+                        if(empty($end)){
+                            $end = $start;
+                        }
+                        $endpoint = $endpoint."&startDate={$start}&endDate={$end}";
                     }
 
-                    // Search filter
-                    if ($search) {
-                        $allData = $allData->filter(function ($item) use ($search) {
-                            $term = strtolower($search);
-                            return str_contains(strtolower($item->DocNum), $term) ||
-                                str_contains(strtolower($item->CardCode), $term) ||
-                                str_contains(strtolower($item->CardName), $term);
-                        })->values();
+                    if (!empty($buyersCode)) {
+                        $endpoint = $endpoint."&buyersCode={$buyersCode}";
                     }
 
-                    $data = $allData;
+                    if (!empty($buyersName)) {
+                        $endpoint = $endpoint."&buyersName={$buyersName}";
+                    }
+
+                    if (!empty($dateCreated)) {
+                        $endpoint = $endpoint."&dateCreated={$dateCreated}";
+                    }
+
+                    $sapResponse = $client->request('GET', $endpoint, [
+                        'headers' => [
+                            'Accept' => 'application/json', 
+                            'apiKey' => $endpointData->ApiKey
+                        ]
+                    ]);
+
+                    if ($sapResponse && $sapResponse->getStatusCode() === 200) {
+                        $processedList = ProcessedOrders::with(['ProcessedOrderStatus'])->select('OrderStatus','CardCode')->where('SapServer', $sapServer)->get()->pluck("ProcessedOrderStatus.description","CardCode");
+                        // dd($processedList);
+                        $body = $sapResponse->getBody()->getContents();
+                        $allData = collect(json_decode($body));
+                        $dataList = array();
+                        $response["isSuccess"] = true;
+                        $response["message"] = "Successfully retrieved information.";
+                        $response["total"] = $allData["total"];
+                        
+                        foreach ($allData["data"] as $key => $value) {
+                            $dataList[] = [
+                                "DocDate"=> Carbon::parse($value->DocDate)->format('Y-m-d'),
+                                "BuyersCode"=>$value->BuyersCode,
+                                "CardName"=>$value->CardName,
+                                "Count"=>$value->Count,
+                                "OrderStatus"=>(isset($processedList[$value->BuyersCode])?$processedList[$value->BuyersCode]:''),
+                                "Remarks"=> (isset($processedList[$value->BuyersCode])?$processedList[$value->BuyersCode]:'')
+                            ];
+                        }
+                        $response["data"] = $dataList;
+                    }
+                    $isSuccess = true;
                 }
-            } catch (\Exception $e) {
-                Log::error('SAP API error: ' . $e->getMessage());
             }
+            
+        } catch (\Throwable $th) {
+            Log::error("ERROR IN GETTING SAP ORDER LIST: ".$th);
+            dd("ERROR IN GETTING SAP ORDER LIST: ".$th);
         }
-
-        // Manual pagination
-        $page = $request->input('page', 1);
-        $offset = ($page * $entries) - $entries;
-
-        $pagedData = new LengthAwarePaginator(
-            $data->slice($offset, $entries)->values(),
-            $data->count(),
-            $entries,
-            $page,
-            [
-                'path' => Paginator::resolveCurrentPath(),
-                'query' => $request->query(),
-            ]
-        );
-
-        if ($request->ajax()) {
-            return view('orders._table', compact('pagedData'))->render();
+        
+        if ($isSuccess) {
+            return response()->json($response, 200);
+        }else{
+            return response()->json($response, 400);
         }
-
-        return view('orders.index', [
-            'data' => $pagedData,
-            'entries' => $entries,
-            'search' => $search
-        ]);
     }
 
     public function store(Request $request)
     {
-        $this->validate($request, [
-            'sap_server' => 'required|string',
-            'docnum'     => 'required',
-            'cardcode'   => 'nullable|string',
-            'cardname'   => 'nullable|string',
-            'label'      => 'nullable|string',
-            'packaging'  => 'nullable|string',
-            'items'      => 'required|array|min:1'
-        ]);
-
+        $response = [
+            "isSuccess"=>false,
+            "message"=>"Failed to save order."
+        ];
+        $isSuccess = false;
         DB::beginTransaction();
         try {
-            $sapServer  = $request->input('sap_server');
-            $docnum     = $request->input('docnum');
-            $cardcode   = $request->input('cardcode');
-            $cardname   = $request->input('cardname');
-            $label      = $request->input('label');
-            $packaging  = $request->input('packaging');
-            
-            $items     = $request->input('items');
+            $sapServer  = $request->input('sapServer');
+            $cardCode   = $request->input('cardCode');
+            $cardName   = $request->input('cardName');
+            $docDate   = $request->input('docDate');
 
-            if(Order::where('docnum',$docnum)->exists()){
-                return response()->json(['message'=>'Order already exists.'],409);
+            if(ProcessedOrders::where('CardCode',$cardCode)->exists()){
+                $response = [
+                    "isSuccess"=>false,
+                    "message"=>"Order already exists."
+                ];
+                return response()->json($response,400);
             }
 
-            $order = Order::create([
-                'sap_server' => $sapServer,
-                'DocNum'     => $docnum,
-                'CardCode'   => $cardcode,
-                'CardName'   => $cardname,
-                'Label'      => $label,
-                'Packaging'  => $packaging,
+            $processOrder = ProcessedOrders::create([
+                'SapServer' => $sapServer,
+                'CardCode'   => $cardCode,
+                'CardName'   => $cardName,
+                'MinDocDate' => $docDate
             ]);
+            
+            if (isset($processOrder->id)) {
+                $processOrderId = $processOrder->id;
+                $getOrderListByCode = $this->SapOrderList($cardCode,$sapServer,"");
+                if ($getOrderListByCode["isSuccess"]) {
+                    $data = $getOrderListByCode["data"];
+                    if (count($data) > 0) {
+                        foreach ($data as $key => $value) {
+                            $collectedData = collect($value);
+                            $cardCode = $collectedData["BuyersCode"];
+                            $order = Order::create([
+                                'process_order_id' => $processOrderId,
+                                'sap_server' => $sapServer,
+                                'DocNum'     => $collectedData["DocNum"],
+                                'CardCode'   => $collectedData["BuyersCode"],
+                                'CardName'   => $collectedData["CardName"],
+                                'Label'      => $collectedData["U_Label"],
+                                'BuyersPO'  => $collectedData["U_BuyersPO"]
+                                // ,
+                                // 'ContactName'  => $collectedData["ContactName"]
+                            ]);
 
-            foreach($items as $item){
-                OrderItem::create([
-                    'order_id'   => $order->id,
-                    'CardCode'   => $cardcode,
-                    'ItemCode'   => $item['ItemCode'] ?? null,
-                    'Dscription' => $item['Dscription'] ?? null,
-                    'Quantity'   => isset($item['Quantity']) ? (int)$item['Quantity'] : 0,
-                ]);
+                            if (isset($order->id)) {
+                                $orderId = $order->id;
+                                $itemsList = collect($collectedData["items"]);
+                                if (count($itemsList)) {
+                                    foreach($itemsList as $key => $value){
+                                        $itemData = collect($value);
+                                        OrderItem::create([
+                                            'order_id'   => $orderId,
+                                            'CardCode'   => $cardCode,
+                                            'ItemCode'   => $itemData['ItemCode'] ?? null,
+                                            'Dscription' => $itemData['Dscription'] ?? null,
+                                            'Quantity'   => isset($itemData['Quantity']) ? (int)$itemData['Quantity'] : 0
+                                        ]);
+                                    }
+                                }
+                            }
+                        }
+                        DB::commit();
+                        $isSuccess = true;
+                        $response = [
+                            "isSuccess"=>$isSuccess,
+                            "message"=>"Order and items successfully saved."
+                        ];
+                    }else{
+                        DB::rollBack();
+                        Log::error('ERROR IN SAVING ORDER ITEMS - NO BUYERS CODE DATA');
+                    }
+                }
             }
-
-            DB::commit();
-            return response()->json(['message'=>'Order and items successfully saved.']);
         } catch(\Exception $e){
             DB::rollBack();
-            return response()->json([
-                'message'=>'Failed to save order.',
-                'error' => $e->getMessage()
-            ],500);
+            Log::error('ERROR IN SAVING ORDER ITEMS: '.$e->getMessage());
         }
+
+        if ($isSuccess) {
+            return response()->json($response,200);
+        }else{
+            return response()->json($response,400);
+        }
+    }
+
+    public function SoNumberDetails(Request $request){
+        $response = [
+            "isSuccess"=>false,
+            "message"=>"Failed to retrieve information.",
+            "data"=>[]
+        ];
+        $isSuccess = false;
+        try {
+            $cardCode = $request->buyersCpde??"";
+            $sapServer = $request->sapServer??"";
+            $soNumber = $request->soNo??"";
+            $page = $request->page??"1";
+            $limit = $request->limit??"1";
+            $soNumberDetails = $this->SapOrderList($cardCode,$sapServer,$soNumber);
+            if ($soNumberDetails["isSuccess"]) {
+                $incoTerms = $soNumberDetails["data"][0]->IncoTerms??"";
+                $PortOfOrigin = $soNumberDetails["data"][0]->LoadingPort??"";
+                $PortOfDestination = $soNumberDetails["data"][0]->PortOfDestination??"";
+                $trackingPoints = ["tracking_points" => Helper::LoadTrackingPointsPerIncoTerms($incoTerms,["PortOfOrigin"=>$PortOfOrigin,"PortOfDestination"=>$PortOfDestination])];
+
+                $response = [
+                    "isSuccess"=>true,
+                    "message"=>"Successfully retrieved information.",
+                    "data"=> array_merge($soNumberDetails["data"],$trackingPoints)
+                ];
+                $isSuccess = true;
+            }
+        } catch (\Throwable $th) {
+            Log::error("ERROR IN GETTING SO NUMBER DETAILS: ".$th->getMessage());
+        }
+
+        if ($isSuccess) {
+            return response()->json($response,200);
+        }else{
+            return response()->json($response,400);
+        }
+    }
+    public function SapOrderList($cardCode,$sapServer,$soNumber){
+        
+        $response = [
+            "isSuccess"=>false,
+            "message"=>"Failed to retrieve information.",
+            "data"=>[]
+        ];
+
+        try {
+            $page = $request->page ?? 1;
+            $limit = $request->limit ?? 100;
+
+            $endpoint = null;
+
+            $data = collect();  
+            if (!empty($sapServer)) {
+
+                $client = new Client();
+                switch ($sapServer) {
+                    case 'whi':
+                        $endpointData = ThirdrdPartyEndpoint::where("Code","WHI")->first();
+                        break;
+                    case 'pbi':
+                        $endpointData = ThirdrdPartyEndpoint::where("Code","PBI")->first();
+                        break;
+                    case 'ccc':
+                        $endpointData = ThirdrdPartyEndpoint::where("Code","CCC")->first();
+                        break;
+                    default:
+                        $endpointData = null;
+                }
+                
+                if (!empty($endpointData) > 0) {
+
+                    $endpoint = $endpointData->Endpoint."?buyersCode={$cardCode}&page={$page}&soNumber={$soNumber}&limit={$limit}";
+                    $sapResponse = $client->request('GET', $endpoint, [
+                        'headers' => [
+                            'Accept' => 'application/json', 
+                            'apiKey' => $endpointData->ApiKey
+                        ]
+                    ]);
+
+                    if ($sapResponse && $sapResponse->getStatusCode() === 200) {
+                        $body = $sapResponse->getBody()->getContents();
+                        $allData = collect(json_decode($body));
+                        $response["isSuccess"] = true;
+                        $response["message"] = "Successfully retrieved information.";
+                        $response["data"] = $allData["data"];
+                    }
+                }
+            }
+        } catch (\Throwable $th) {
+            Log::error("ERROR IN GETTING SAP ORDER LIST BY CODE - {$cardCode}: ".$th);
+        }
+        
+        return $response;
     }
 }

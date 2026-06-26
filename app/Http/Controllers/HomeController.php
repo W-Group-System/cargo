@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\ShipmentTracking;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -23,6 +24,17 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('dashboards.home');
+        $data = array();
+        $data['ActiveModule'] = 'Dashboard';
+
+        return view('dashboards.home',$data);
+    }
+
+    public function LoadTrackPoints(Request $request){
+        $data=[];
+
+        $data['trackingPoint'] = ShipmentTracking::with(['DeliveryStatus'])->where('shipment_details_id',$request->id)->orderBy('id','desc')->get();
+
+        return view('dashboards.trackpoints',$data);
     }
 }
