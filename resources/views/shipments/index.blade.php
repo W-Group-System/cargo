@@ -172,7 +172,7 @@
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link"
-                    id="profile-tab"
+                    id="cargo-tab"
                     data-bs-toggle="tab"
                     data-bs-target="#cargoTab"
                     type="button"
@@ -182,7 +182,7 @@
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link"
-                    id="profile-tab"
+                    id="files-tab"
                     data-bs-toggle="tab"
                     data-bs-target="#shipmentFiles"
                     type="button"
@@ -507,7 +507,7 @@
             </div>
         </div>
 
-        <div class="tab-pane fade show active" id="shipmentFiles" role="tabpanel">
+        <div class="tab-pane fade show" id="shipmentFiles" role="tabpanel">
             <!-- Upload Section -->
                 <div class="row align-items-end mb-4">
                     <div class="col-md-9">
@@ -533,8 +533,6 @@
                         <thead class="table-light">
                             <tr>
                                 <th>File Name</th>
-                                <th>Shipment Status</th>
-                                <th>Uploaded By</th>
                                 <th>Date Uploaded</th>
                                 <th class="text-center">Action</th>
                             </tr>
@@ -694,6 +692,7 @@
                             GetCargoTabContent(resp.data[0].CardCode,resp.data[0].SapServer, function(success){
                                 if (success) {
                                     $('#trackPoints').val(resp.data[0].shipment_details?.track_points??"");
+                                    $('#home-tab').trigger('click');
                                     $('#updateStatusModal').modal('show');
                                 }
                             });
@@ -801,26 +800,41 @@
                 });
             },
             columns: [
-                { data: 'file_name'},
-                { data: 'shipment_status' },
-                { data: 'user_id'},
-                { data: 'created_at'},
+                {
+                    render: function (data, type, row) {
+                        return `<a href="storage/${row.file_path}" target="_blank">${row.file_name}</a>`
+                    }
+                },
+                { data: 'formatted_created_at'},
                 {
                     className:'text-center',
                     render: function (data, type, row) {
-                        return `<button class="btn btn-sm btn-info">View</button>
-                                <button class="btn btn-sm btn-danger">Delete</button>`
+                        return `<button class="btn btn-sm btn-danger deleteFile" data-id="${row.id}"><i class="bi bi-trash"></i></button>`
                     }
                 }
             ],
             rowCallback : function(row,data,DisplayIndex){
-                
+                $(row).find('.deleteFile').unbind('click').on('click',function(e){
+                    e.preventDefault();
+                    let fileId = $(this).data('id');
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ route('delete.files')}}",
+                        data: {id:fileId},
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function (response) {
+                            ReloadFilesDataTable();
+                        }
+                    });
+                });
             }
         });
 
-        $('#updateStatusModal').on('shown.bs.modal', function () {
+        $('#files-tab').on('click', function () {
             ReloadFilesDataTable();
-            $('#uploadedFilesTable').DataTable().columns.adjust().responsive.recalc();
+            // $('#uploadedFilesTable').DataTable().columns.adjust().responsive.recalc();
         });
 
         $('#btnUpload').click(function () {
@@ -986,6 +1000,7 @@
             currentTrackPoint = '';
             sapServerDefault = '';
             coLoadArray = {};
+            $('#files-tab,#cargo-tab').removeClass('active');
         });
 
         $('#updateShipmentForm').submit(function (e) { 

@@ -51,6 +51,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('shipment/update',[ShipmentController::class,'SaveShipmentUpdate'])->name('shipment.update');
 
     Route::post('/shipments/upload-files', [ShipmentController::class, 'UploadFiles'])->name('upload.files');
+    Route::post('/delete/files', [ShipmentController::class, 'DeleteFile'])->name('delete.files');
 
     // Users
     Route::get('/users',[UserController::class,'index']);

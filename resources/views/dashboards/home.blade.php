@@ -268,7 +268,7 @@
                         type: "GET",
                         url: "{{ route('trackpoints') }}",
                         data: {
-                            id:data.shipment_details.id
+                            id:data.shipment_details?.id??""
                         },
                         success: function (response) {
                             $('.trackinPointDiv').html(response);

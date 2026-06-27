@@ -28,7 +28,7 @@ class NotificationService{
                 $mailService = new ShipmentNotification($html);
                 $mailService->subject = $templateData->subject;
                 $mail = Mail::to($to);
-                if (!empty($cc)) {
+                if (count($cc)>0) {
                     $mail->cc($cc);
                 }
                 $mail->send($mailService);
@@ -39,10 +39,10 @@ class NotificationService{
                         'template_code' => $templateCode,
                         'user_id' => Auth::user()->id,
                         'subject' => $templateData->subject,
-                        'content' => $html
-                        // ,
-                        // 'receiver' => implode()
-                    ]);   
+                        'content' => $html,
+                        'receiver' => count($to)>0?implode(",",$to):null,
+                        'cc' => count($cc)>0?implode(",",$cc):null
+                    ]);
                 }
             }
         } catch (\Throwable $th) {

@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 class ShipmentController extends Controller
 {
@@ -262,7 +263,13 @@ class ShipmentController extends Controller
             $page = $request->page ?? 1;
             $limit = $request->limit ?? 10;
 
-            $fileList = ShipmentFiles::where("processed_order_id",$request->shipmentId);
+            $fileList = ShipmentFiles::select(
+                'id',
+                'file_name',
+                'file_path',
+                DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d') as formatted_created_at")
+            )
+            ->where("processed_order_id",$request->shipmentId);
 
             $totalCount = (clone $fileList)->count();
 
@@ -313,5 +320,34 @@ class ShipmentController extends Controller
             'success' => true,
             'message' => 'Files uploaded successfully.'
         ]);
+    }
+
+    public function DeleteFile(Request $request){
+        
+        $response = [
+            "message"=>"Failed to delete file.",
+            "isSuccess"=>false
+        ];
+        try {
+            $fileData = ShipmentFiles::where("id",$request->id)->first();
+            if ($fileData && Storage::disk('public')->exists($fileData->file_path)) {
+                Storage::disk('public')->delete($fileData->file_path);
+            }
+
+            $fileData->delete(); // Delete the database record
+
+            $response = [
+                "message"=>"File deleted successfully.",
+                "isSuccess"=>true
+            ];
+        } catch (\Throwable $th) {
+            Log::error("FAILED TO DELETE FILE: ".$th->getMessage());
+        }
+
+        if($response["isSuccess"]){
+            return response()->json($response,200);
+        }else{
+            return response()->json($response,400);
+        }
     }
 }
