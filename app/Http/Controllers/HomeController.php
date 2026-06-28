@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\ShipmentTracking;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -36,5 +38,60 @@ class HomeController extends Controller
         $data['trackingPoint'] = ShipmentTracking::with(['DeliveryStatus'])->where('shipment_details_id',$request->id)->orderBy('id','desc')->get();
 
         return view('dashboards.trackpoints',$data);
+    }
+
+    public function LoadShipmentCountsPerStatus(Request $request){
+
+        $pending = DB::table('processed_orders as po')
+            ->leftJoin('shipment_details as sd', 'sd.process_order_id', '=', 'po.id')
+            ->whereNotNull('po.AvailabilityDate')
+            ->where('po.AvailabilityDate', '<>', '')
+            ->whereNotNull('po.PickupDate')
+            ->where('po.PickupDate', '<>', '')
+            ->where('po.CargoStatus', 'L')
+            ->whereNull('sd.process_order_id');
+
+        $inTransit = DB::table('shipment_details as sd')
+            // ->whereNotNull('sd.eta_destination')
+            // ->whereNull('sd.ata_destination')
+            ->where('sd.delivery_status',"IT");
+
+        $shipped = DB::table('shipment_details as sd')
+            ->whereNotNull('sd.tracking_points');
+
+        $irregularities = DB::table('shipment_details as sd')
+            // ->whereNull('sd.ata_destination')
+            // ->whereRaw('DATE_ADD(sd.eta_destination, INTERVAL 7 DAY) <= NOW()')
+            ->where('sd.delivery_status',"DLY");
+
+        $delivered = DB::table('shipment_details as sd')
+            // ->whereNotNull('sd.ata_destination')
+            ->where('sd.delivery_status',"DLV");
+
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $start = Carbon::parse($request->start_date)->startOfDay();
+            $end   = Carbon::parse($request->end_date)->endOfDay();
+
+            $pending = $pending->whereBetween('po.created_at',[$start, $end]);
+            $inTransit = $inTransit->whereBetween('sd.created_at',[$start, $end]);
+            $shipped = $shipped->whereBetween('sd.created_at',[$start, $end]);
+            $irregularities = $irregularities->whereBetween('sd.created_at',[$start, $end]);
+            $delivered = $delivered->whereBetween('sd.created_at',[$start, $end]);
+        }
+
+        $pending = $pending->count();
+        $inTransit = $inTransit->count();
+        $shipped = $shipped->count();
+        $irregularities = $irregularities->count();
+        $delivered = $delivered->count();
+
+        return [
+            'pending'        => $pending,
+            'in_transit'     => $inTransit,
+            'shipped'        => $shipped,
+            'delivered'      => $delivered,   
+            'irregularities' => $irregularities                                                    
+        ];
     }
 }

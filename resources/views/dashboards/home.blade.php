@@ -70,7 +70,7 @@
                         <div class="row">
                             <div class="col-md-8">
                                 <h6 class="text-muted font-semibold">PENDING</h6>
-                                <h6 class="font-extrabold mb-0">0</h6>
+                                <h6 class="font-extrabold mb-0" id="pending">0</h6>
                             </div>
                             <div class="col-md-4">
                                 <div class="stats-icon purple">
@@ -89,7 +89,7 @@
                         <div class="row">
                             <div class="col-md-8">
                                 <h6 class="text-muted font-semibold">IN-TRANSIT</h6>
-                                <h6 class="font-extrabold mb-0">0</h6>
+                                <h6 class="font-extrabold mb-0" id="inTransit">0</h6>
                             </div>
                             <div class="col-md-4">
                                 <div class="stats-icon purple">
@@ -108,7 +108,7 @@
                         <div class="row">
                             <div class="col-md-8">
                                 <h6 class="text-muted font-semibold">DELIVERED</h6>
-                                <h6 class="font-extrabold mb-0">0</h6>
+                                <h6 class="font-extrabold mb-0" id="delivered">0</h6>
                             </div>
                             <div class="col-md-4">
                                 <div class="stats-icon purple">
@@ -127,7 +127,7 @@
                         <div class="row">
                             <div class="col-md-8">
                                 <h6 class="text-muted font-semibold">IRREGULARITIES</h6>
-                                <h6 class="font-extrabold mb-0">0</h6>
+                                <h6 class="font-extrabold mb-0" id="irregularities">0</h6>
                             </div>
                             <div class="col-md-4">
                                 <div class="stats-icon purple">
@@ -210,6 +210,8 @@
 
         cb(start, end);
 
+        LoadShipmentCounts();
+        
         $('#dashboardFilterForm').submit(function (e) { 
             e.preventDefault();
             ReloadDataTable();
@@ -280,6 +282,24 @@
 
         function ReloadDataTable() {
             orderTable.ajax.reload(null, true);
+            LoadShipmentCounts();
+        }
+
+        function LoadShipmentCounts(){
+            $.ajax({
+                type: "GET",
+                url: "{{ route('shipment.counts') }}",
+                data: {
+                    start_date: $('#start_date').val(),
+                    end_date: $('#end_date').val()
+                },
+                success: function (response) {
+                    $('#pending').text(response.pending);
+                    $('#inTransit').text(response.in_transit);
+                    $('#delivered').text(response.delivered);
+                    $('#irregularities').text(response.irregularities);
+                }
+            });
         }
     });
 </script>

@@ -28,6 +28,7 @@ Auth::routes();
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/home', [HomeController::class,'index'])->name('home');
     Route::get('/home/trackpoints', [HomeController::class,'LoadTrackPoints'])->name('trackpoints');
+    Route::get('/home/schipment/counts', [HomeController::class,'LoadShipmentCountsPerStatus'])->name('shipment.counts');
 
     // Order
     Route::get('/orders',[OrderController::class,'index'])->name('orders.index');

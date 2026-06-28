@@ -16,7 +16,7 @@
                                     <div class="row">
                                         <div class="col-md-8">
                                             <h6 class="text-muted font-semibold">Pending Shipments</h6>
-                                            <h6 class="font-extrabold mb-0">0</h6>
+                                            <h6 class="font-extrabold mb-0" id="pending">0</h6>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="stats-icon purple">
@@ -35,7 +35,7 @@
                                     <div class="row">
                                         <div class="col-md-8">
                                             <h6 class="text-muted font-semibold">In Transit</h6>
-                                            <h6 class="font-extrabold mb-0">0</h6>
+                                            <h6 class="font-extrabold mb-0" id="inTransit">0</h6>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="stats-icon blue">
@@ -54,7 +54,7 @@
                                     <div class="row">
                                         <div class="col-md-8">
                                             <h6 class="text-muted font-semibold">Shipped</h6>
-                                            <h6 class="font-extrabold mb-0">0</h6>
+                                            <h6 class="font-extrabold mb-0" id="shipped">0</h6>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="stats-icon green">
@@ -73,7 +73,7 @@
                                     <div class="row">
                                         <div class="col-md-8">
                                             <h6 class="text-muted font-semibold">Irregularities</h6>
-                                            <h6 class="font-extrabold mb-0">0</h6>
+                                            <h6 class="font-extrabold mb-0" id="irregularities">0</h6>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="stats-icon red">
@@ -207,7 +207,7 @@
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">Delivery Status</label>
                             <div class="col-md-8">
-                                <select name="deliveryStatus" id="deliveryStatus" class="form-select">
+                                <select name="deliveryStatus" id="deliveryStatus" class="form-select" required>
                                     <option value="">- Delivery Status -</option>
                                     @foreach ($deliveryStatus as $item)
                                         <option value="{{$item->code}}" {{ $item->disabled == '1'?'disabled':'' }}>{{$item->description}}</option>
@@ -575,12 +575,15 @@
 
         cb(start, end);
 
+        LoadShipmentCounts();
+
         let coLoadArray = {};
         let sapServerDefault = '';
         let currentTrackPoint = '';
 
         $('#shipmentListForm').submit(function (e) { 
             e.preventDefault();
+            LoadShipmentCounts();
             ReloadDataTable();
         });
 
@@ -878,6 +881,7 @@
 
         function ReloadDataTable() {
             orderTable.ajax.reload(null, true);
+            LoadShipmentCounts();
         }
 
         function ReloadFilesDataTable() {
@@ -1036,6 +1040,23 @@
             tags: true, // allows new values
             tokenSeparators: [',']
         });
+
+        function LoadShipmentCounts(){
+            $.ajax({
+                type: "GET",
+                url: "{{ route('shipment.counts') }}",
+                data: {
+                    start_date: $('#start_date').val(),
+                    end_date: $('#end_date').val()
+                },
+                success: function (response) {
+                    $('#pending').text(response.pending);
+                    $('#inTransit').text(response.in_transit);
+                    $('#shipped').text(response.shipped);
+                    $('#irregularities').text(response.irregularities);
+                }
+            });
+        }
     });
 </script>
 @endsection
