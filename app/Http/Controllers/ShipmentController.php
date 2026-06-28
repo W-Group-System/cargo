@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DelayedShipmentUpdate;
 use App\DeliveryStatus;
 use App\Mail\ShipmentNotification;
 use App\Order;
@@ -137,6 +138,7 @@ class ShipmentController extends Controller
             $receiversToSave = "";
             $ccRecipientsToSave = "";
             $savedId = "";
+            $currentEta = null;
 
             if (count($receivers) > 0) {
                 $receiversToSave = implode(",",$receivers);
@@ -149,6 +151,7 @@ class ShipmentController extends Controller
             if (!empty($shipmentDetailsData)) {
                 $currentTrackingPoint = $shipmentDetailsData->tracking_points;
                 $savedId = $shipmentDetailsData->id;
+                $currentEta = $shipmentDetailsData->eta_destination;
                 $save = $shipmentDetailsData->update([
                     'delivery_status' => $request->deliveryStatus,
                     'tracking_points' => $request->trackPoints,
@@ -224,20 +227,33 @@ class ShipmentController extends Controller
                 "isSuccess" => $isSuccess
             ];
 
-            // dd($receivers);
-            if (count($receivers)>0 && !empty($savedId)) {
-                if ($request->deliveryStatus == "DLY") {
-                    Log::info("SENDING EMAIL");
-                    $params = [
-                        "shipmentDetailsId"=>$savedId,
-                        "vesselName"=>$request->containerNumber??"",
-                        "delayReason"=>$request->remarks??"",
-                        "etd"=>$request->etdOrigin??"",
-                        "eta"=>$request->etaDestination??""
-                    ];
-                    $this->notification->SendEmail("DLYD",$params,$receivers,$ccRecipients);
-                    Log::info("DONE SENDING EMAIL");
+            if ($request->deliveryStatus == "DLY") {
+                if (!empty($savedId)) {
+                    if ($shipmentDetailsData->eta_destination !== "") {
+                        DelayedShipmentUpdate::updateOrCreate(
+                            [
+                                'shipment_details_id' => $savedId
+                            ],
+                            [
+                                'shipment_details_id' => $savedId,
+                                'prev_eta' => $currentEta,
+                                'updated_eta' => $request->etaDestination??"",
+                                'is_notif_sent' => 0
+                            ]
+                        );    
+                    }
                 }
+                // Log::info("SENDING EMAIL");
+                // $params = [
+                //     "shipmentDetailsId"=>$savedId,
+                //     "vesselName"=>$request->containerNumber??"",
+                //     "delayReason"=>$request->remarks??"",
+                //     "etd"=>$request->etdOrigin??"",
+                //     "eta"=>$request->etaDestination??""
+                // ];
+                // $this->notification->SendEmail("DLYD",$params,$receivers,$ccRecipients);
+                // Log::info("DONE SENDING EMAIL");
+                
             }
             
         } catch (\Exception $th) {
