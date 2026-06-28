@@ -57,7 +57,8 @@ class HomeController extends Controller
             ->where('sd.delivery_status',"IT");
 
         $shipped = DB::table('shipment_details as sd')
-            ->whereNotNull('sd.tracking_points');
+            // ->whereNotNull('sd.tracking_points')
+            ->whereNotNull('sd.shipping_line');
 
         $irregularities = DB::table('shipment_details as sd')
             // ->whereNull('sd.ata_destination')
