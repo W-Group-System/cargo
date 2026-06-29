@@ -868,7 +868,7 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function (response) {
-                    alert(response.message);
+                    // alert(response.message);
                     $('#attachments').val('');
                     ReloadFilesDataTable();
                 },

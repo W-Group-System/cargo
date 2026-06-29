@@ -17,7 +17,9 @@ class Order extends Model
         'Label',
         'Packaging',
         'BuyersPO',
-        'ContactName'
+        'ContactName',
+        'LoadingPort',
+        'PortOfDestination'
     ];
 
     public function ProcessedOrders()

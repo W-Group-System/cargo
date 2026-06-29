@@ -8,10 +8,11 @@ use App\NotificationLogs;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 class NotificationService{
     
-    public function SendEmail($templateCode,$params,$to=[],$cc=[]){
+    public function SendEmail($templateCode,$params,$to=[],$cc=[],$attachments = []){
 
         try {
             $templateData = EmailTemplate::where("code",$templateCode)->first();
@@ -24,13 +25,14 @@ class NotificationService{
                 }
 
                 $html = $templateContent;
-
-                $mailService = new ShipmentNotification($html);
+                // dd($attachments);
+                $mailService = new ShipmentNotification($html,$attachments);
                 $mailService->subject = $templateData->subject;
                 $mail = Mail::to($to);
                 if (count($cc)>0) {
                     $mail->cc($cc);
                 }
+
                 $mail->send($mailService);
 
                 if (isset($params["shipmentDetailsId"])) {
@@ -46,7 +48,7 @@ class NotificationService{
                 }
             }
         } catch (\Throwable $th) {
-            Log::error("FAILED IN SENDING EMAIL: ".$th->getMessage());
+            Log::error("FAILED IN SENDING EMAIL: ".$th);
         }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\ShipmentClass;
 use App\DelayedShipmentUpdate;
 use App\DeliveryStatus;
 use App\Mail\ShipmentNotification;
@@ -25,10 +26,12 @@ use Illuminate\Support\Facades\Storage;
 class ShipmentController extends Controller
 {
     protected NotificationService $notification;
-    public function __construct(NotificationService $notif)
+    protected ShipmentClass $shipment;
+    public function __construct(NotificationService $notif, ShipmentClass $shipment)
     {
         $this->middleware('auth');
         $this->notification = $notif;
+        $this->shipment = $shipment;
     }
     public function index(Request $request)
     {
@@ -183,6 +186,20 @@ class ShipmentController extends Controller
                             'status' => $request->deliveryStatus
                         ]);
                     }
+
+                    if ($request->deliveryStatus == "DLY") {
+                        DelayedShipmentUpdate::updateOrCreate(['shipment_details_id' => $savedId],['shipment_details_id' => $savedId,'prev_eta' => $currentEta,'updated_eta' => $request->etaDestination??"",'is_notif_sent' => 0]);    
+                        $this->shipment->SendDelayedNotification($savedId);
+                    }
+                    if ($request->deliveryStatus == "DPT") {
+                        $this->shipment->SendCargoDepartedNotification($savedId);
+                    }
+                    if ($request->deliveryStatus == "ARVTP") {
+                        $this->shipment->SendCargoTranshipmentArrivalNotification($savedId);
+                    }
+                    if ($request->deliveryStatus == "LCV") {
+                        $this->shipment->SendCargoLoadedInConnectingVesselNotification($savedId);
+                    }
                 }
             }else{
                 $save = ShipmentDetails::create([
@@ -226,35 +243,6 @@ class ShipmentController extends Controller
                 "message" => "Shipment information updated successfully.",
                 "isSuccess" => $isSuccess
             ];
-
-            if ($request->deliveryStatus == "DLY") {
-                if (!empty($savedId)) {
-                    if ($shipmentDetailsData->eta_destination !== "") {
-                        DelayedShipmentUpdate::updateOrCreate(
-                            [
-                                'shipment_details_id' => $savedId
-                            ],
-                            [
-                                'shipment_details_id' => $savedId,
-                                'prev_eta' => $currentEta,
-                                'updated_eta' => $request->etaDestination??"",
-                                'is_notif_sent' => 0
-                            ]
-                        );    
-                    }
-                }
-                // Log::info("SENDING EMAIL");
-                // $params = [
-                //     "shipmentDetailsId"=>$savedId,
-                //     "vesselName"=>$request->containerNumber??"",
-                //     "delayReason"=>$request->remarks??"",
-                //     "etd"=>$request->etdOrigin??"",
-                //     "eta"=>$request->etaDestination??""
-                // ];
-                // $this->notification->SendEmail("DLYD",$params,$receivers,$ccRecipients);
-                // Log::info("DONE SENDING EMAIL");
-                
-            }
             
         } catch (\Exception $th) {
             Log::error("FAILED IN UPDATING SHIPMENT DETAILS :".$th);

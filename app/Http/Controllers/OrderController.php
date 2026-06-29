@@ -182,7 +182,9 @@ class OrderController extends Controller
                                 'Label'      => $collectedData["U_Label"],
                                 'Packaging'  => $collectedData["U_Packaging"],
                                 'BuyersPO'  => $collectedData["U_BuyersPO"],
-                                'ContactName'  => $contactData["Name"]??""
+                                'ContactName'  => $contactData["Name"]??"",
+                                'LoadingPort'  => $contactData["LoadingPort"]??"",
+                                'PortOfDestination'  => $contactData["PortOfDestination"]??""
                             ]);
 
                             if (isset($order->id)) {

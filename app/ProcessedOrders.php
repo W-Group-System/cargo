@@ -40,4 +40,8 @@ class ProcessedOrders extends Model
     {
         return $this->hasOne(ShipmentDetails::class, 'process_order_id', 'id');
     }
+    public function ShipmentFiles()
+    {
+        return $this->hasMany(ShipmentFiles::class, 'processed_order_id', 'id');
+    }
 }
