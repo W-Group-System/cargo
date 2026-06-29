@@ -24,11 +24,14 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
+    public function index(Request $request)
     {
         $data = array();
         $data['ActiveModule'] = 'Dashboard';
-
+        $data['canCreate'] = $request->create;
+        $data['canUpdate'] = $request->update;
+        $data['canDelete'] = $request->delete;
+        
         return view('dashboards.home',$data);
     }
 

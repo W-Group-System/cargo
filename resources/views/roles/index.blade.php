@@ -56,7 +56,7 @@
     </div>
 @endcomponent
 
-@component('components.modal',['modal_id' => 'saveRoleModal','title' => 'Save Role','form_id' => 'saveRoleForm', 'size' => 'modal-lg'])
+@component('components.modal',['modal_id' => 'saveRoleModal','title' => 'Save Role','form_id' => 'saveRoleForm', 'size' => 'modal-lg','canCreate'=>$canCreate])
     <div class="container-fluid">
         <div class="form-group">
             <label for="name">Role Name</label>
@@ -191,7 +191,10 @@
                     $.ajax({
                         type: "GET",
                         url: "{{ route('role.access.list') }}",
-                        data: {id:id},
+                        data: {
+                            id:id,
+                            canUpdate:"{{ $canUpdate }}"
+                        },
                         success: function (response) {
                             $('.accessTable').html(response);
                             $('#RoleAccessModal').modal('show');

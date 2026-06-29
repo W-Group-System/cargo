@@ -24,6 +24,9 @@ class RolesController extends Controller
         $data = array();
         $data['ActiveModule'] = 'Roles';
         $data['shipmentStatusArr'] = ShipmentStatus::ShipmentStatusArray();
+        $data['canCreate'] = $request->create;
+        $data['canUpdate'] = $request->update;
+        $data['canDelete'] = $request->delete;
 
         return view('roles.index',$data);
     }
@@ -126,6 +129,8 @@ class RolesController extends Controller
         $accessData = $this->role->GetUserAccessPerRoleV2($request->id);
         $data['roleId'] = $request->id;
         $data['access'] = $accessData;
+        $data['canUpdate'] = $request->canUpdate=="1"?true:false;
+        
         return view('roles.access',$data);
     }
 

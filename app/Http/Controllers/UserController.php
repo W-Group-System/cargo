@@ -14,6 +14,9 @@ class UserController extends Controller
     {
         $data = array();
         $data['ActiveModule'] = 'User Accounts';
+        $data['canCreate'] = $request->create;
+        $data['canUpdate'] = $request->update;
+        $data['canDelete'] = $request->delete;
 
         $search = $request->input('search');
         $entries = $request->input('number_of_entries', 10); // Default: 10 per page

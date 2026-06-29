@@ -26,26 +26,26 @@ use App\Http\Controllers\UserController;
 
 Auth::routes();
 Route::group(['middleware' => 'auth'], function () {
-    Route::get('/home', [HomeController::class,'index'])->name('home');
+    Route::get('/home', [HomeController::class,'index'])->name('home')->middleware('access');
     Route::get('/home/trackpoints', [HomeController::class,'LoadTrackPoints'])->name('trackpoints');
     Route::get('/home/schipment/counts', [HomeController::class,'LoadShipmentCountsPerStatus'])->name('shipment.counts');
 
     // Order
-    Route::get('/orders',[OrderController::class,'index'])->name('orders.index');
+    Route::get('/orders',[OrderController::class,'index'])->name('orders.index')->middleware('access');
     Route::get('/salesorder',[OrderController::class, 'salesOrder']);
     Route::post('/orders/store', [OrderController::class, 'store'])->name('orders.store');
     Route::get('/salesorder/list',[OrderController::class, 'SapOrderListDictinct'])->name('orders.list');
     Route::get('orders/soNumber/details',[OrderController::class, 'SoNumberDetails'])->name('cargo.details.soNo');
 
     // Cargo
-    Route::get('/cargo',[CargoController::class, 'index'])->name('cargoes.index');
+    Route::get('/cargo',[CargoController::class, 'index'])->name('cargoes.index')->middleware('access');
     Route::get('cargo/list',[CargoController::class, 'CargoList'])->name('cargoes.list');
     Route::get('cargo/details',[CargoController::class, 'GetProcessedOrderDetails'])->name('cargo.details');
     Route::post('cargo/update/details',[CargoController::class, 'UpdateProcessedOrderDetails'])->name('cargo.update');
     Route::get('cargo/buyersCode/details',[CargoController::class, 'GetBuyersCodeDetails'])->name('cargo.details.buyersCode');
 
     // Shipments
-    Route::get('/shipments',[ShipmentController::class,'index']);
+    Route::get('/shipments',[ShipmentController::class,'index'])->middleware('access');
     Route::get('shipment/list',[ShipmentController::class,'ShipmentList'])->name('shipment.list');
     Route::get('shipment/file/list',[ShipmentController::class,'ShipmentFileList'])->name('shipment.files');
     Route::get('shipment/tracking_points',[ShipmentController::class,'LoadTrackingPointsPerIncoTerms'])->name('shipment.tracking.points');
@@ -55,7 +55,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/delete/files', [ShipmentController::class, 'DeleteFile'])->name('delete.files');
 
     // Users
-    Route::get('/users',[UserController::class,'index']);
+    Route::get('/users',[UserController::class,'index'])->middleware('access');
     Route::post('/new_user', [UserController::class,'store']);
     Route::get('/edit_user/{id}', [UserController::class,'edit']);
     Route::post('update_user/{id}', [UserController::class,'update']);
@@ -63,7 +63,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     //Roles
     Route::get('/roles/list',[RolesController::class,'RoleList'])->name('role.list');
-    Route::get('/roles',[RolesController::class,'index']);
+    Route::get('/roles',[RolesController::class,'index'])->middleware('access');
     Route::post('/roles/save',[RolesController::class,'SaveRole'])->name('save.role');
     Route::get('/roles/access',[RolesController::class,'RoleAccessList'])->name('role.access.list');
     Route::post('/roles/acces/save',[RolesController::class,'SaveRoleAccess'])->name('save.role.access');

@@ -37,6 +37,10 @@ class ShipmentController extends Controller
     {
         $data = array();
         $data['ActiveModule'] = 'Shipments';
+        $data['canCreate'] = $request->create;
+        $data['canUpdate'] = $request->update;
+        $data['canDelete'] = $request->delete;
+        
         $data['trackingPoints'] = TrackingPoints::where('status','A')->pluck('description','code');
         $data['deliveryStatus'] = DeliveryStatus::select('description','code','disabled')->where('status','A')->get();
         $data['regions'] = Regions::pluck('region','id');

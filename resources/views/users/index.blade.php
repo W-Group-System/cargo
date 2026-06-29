@@ -7,11 +7,13 @@
                 <div class="card-body">
                     <h4 class="card-title">User Accounts</h4>
 
-                    <div class="offset-md-9 col-md-3" align="right">
-                        <button type="button" class="btn btn-md btn-success" id="addUserBtn" data-bs-toggle="modal" data-bs-target="#formUser">
-                            Add User
-                        </button>
-                    </div>
+                    @if ($canCreate)
+                        <div class="offset-md-9 col-md-3" align="right">
+                            <button type="button" class="btn btn-md btn-success" id="addUserBtn" data-bs-toggle="modal" data-bs-target="#formUser">
+                                Add User
+                            </button>
+                        </div>
+                    @endif
 
                     <div class="row mt-4">
                         <!-- Entries dropdown -->
@@ -68,10 +70,12 @@
                                         <td>{{ $roles[$user->role] }}</td>
                                         <td>{{ $user->status }}</td>
                                         <td>
-                                            <div class="d-grid gap-2 d-md-block">
-                                                <button class="btn btn-sm btn-warning" type="button" title="Edit Users" data-bs-toggle="modal" data-bs-target="#editUser-{{$user->id}}" title="Edit" data-id="{{$user->id}}"><i class="bi bi-pencil"></i></button>
-                                                <button class="btn btn-sm btn-info" type="button" data-bs-toggle="modal" data-bs-target="#changePassword-{{$user->id}}" title="Change Password"><i class="bi bi-key"></i></button>
-                                            </div>
+                                            @if ($canUpdate)
+                                                <div class="d-grid gap-2 d-md-block">
+                                                    <button class="btn btn-sm btn-warning" type="button" title="Edit Users" data-bs-toggle="modal" data-bs-target="#editUser-{{$user->id}}" title="Edit" data-id="{{$user->id}}"><i class="bi bi-pencil"></i></button>
+                                                    <button class="btn btn-sm btn-info" type="button" data-bs-toggle="modal" data-bs-target="#changePassword-{{$user->id}}" title="Change Password"><i class="bi bi-key"></i></button>
+                                                </div>
+                                            @endif
                                         </td>
                                     </tr>
                                     @include('users.edit')

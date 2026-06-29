@@ -94,12 +94,14 @@
                                     </select>
                                 </div>
                                 <div class="col-12 col-md-2">
-                                    <button
-                                        type="submit"
-                                        id="btnAddCoLoad"
-                                        class="btn btn-secondary w-100">
-                                        +
-                                    </button>
+                                    @if ($canUpdate)
+                                        <button
+                                            type="submit"
+                                            id="btnAddCoLoad"
+                                            class="btn btn-secondary w-100">
+                                            +
+                                        </button>
+                                    @endif
                                 </div>
                             </div>
                         </form>
@@ -183,12 +185,14 @@
                                 </div>
                             </div>
                             <div class="col-12">
-                                <button
-                                    type="submit"
-                                    id="btnProcessCargo"
-                                    class="btn btn-secondary w-100">
-                                    Process
-                                </button>
+                                @if ($canUpdate)
+                                    <button
+                                        type="submit"
+                                        id="btnProcessCargo"
+                                        class="btn btn-secondary w-100">
+                                        Process
+                                    </button>
+                                @endif
                             </div>
                         </div>
                     </form>
@@ -207,6 +211,10 @@
 {{-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> --}}
 <script type="text/javascript">
     $(document).ready(function () {
+        let canUpdate = "{{ $canUpdate }}";
+        let canCreate = "{{ $canCreate }}";
+        let canDelete = "{{ $canDelete }}";
+
         let sapServerDefault = "";
         var start = moment().subtract(29, 'days');
         var end = moment();

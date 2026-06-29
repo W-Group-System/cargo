@@ -21,6 +21,10 @@ class CargoController extends Controller
     public function index(Request $request)
     {
         $data = array();
+        $data['canCreate'] = $request->create;
+        $data['canUpdate'] = $request->update;
+        $data['canDelete'] = $request->delete;
+        
         $data['ActiveModule'] = 'Cargo Management';
         $data['shipmentStatusArr'] = ShipmentStatus::ShipmentStatusArray();
 

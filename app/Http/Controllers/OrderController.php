@@ -21,6 +21,9 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $data['ActiveModule'] = 'Orders';
+        $data['canCreate'] = $request->create;
+        $data['canUpdate'] = $request->update;
+        $data['canDelete'] = $request->delete;
         return view('orders.indexV2', $data);
     }
 

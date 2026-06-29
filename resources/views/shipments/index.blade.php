@@ -143,7 +143,7 @@
         </div>
     </div>
 </div>
-@component('components.modal',['modal_id' => 'updateStatusModal','title' => 'Update shipment information','form_id' => 'updateShipmentForm', 'size' => 'modal-xl'])
+@component('components.modal',['modal_id' => 'updateStatusModal','title' => 'Update shipment information','form_id' => 'updateShipmentForm', 'size' => 'modal-xl','canUpdate'=>$canUpdate])
     <div class="row g-4">
         <div class="col-12 col-lg-6">
             <div class="d-flex mb-2 align-items-center">
@@ -521,9 +521,12 @@
                     </div>
 
                     <div class="col-md-3 d-grid">
-                        <button type="button" class="btn btn-primary" id="btnUpload">
-                            Upload
-                        </button>
+                        @if ($canUpdate)
+                            <button type="button" class="btn btn-primary" id="btnUpload">
+                                Upload
+                            </button>
+                        @endif
+                        
                     </div>
                 </div>
 
@@ -551,6 +554,10 @@
 
 <script type="text/javascript">
     $(function () {
+        let canUpdate = "{{ $canUpdate }}";
+        let canCreate = "{{ $canCreate }}";
+        let canDelete = "{{ $canDelete }}";
+        
         var start = moment().subtract(29, 'days');
         var end = moment();
 
@@ -813,7 +820,10 @@
                 {
                     className:'text-center',
                     render: function (data, type, row) {
-                        return `<button class="btn btn-sm btn-danger deleteFile" data-id="${row.id}"><i class="bi bi-trash"></i></button>`
+                        if (canDelete) {
+                            return `<button class="btn btn-sm btn-danger deleteFile" data-id="${row.id}"><i class="bi bi-trash"></i></button>`;
+                        }
+                        return ``;
                     }
                 }
             ],
