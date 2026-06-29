@@ -159,6 +159,7 @@ class ShipmentController extends Controller
                 $currentTrackingPoint = $shipmentDetailsData->tracking_points;
                 $savedId = $shipmentDetailsData->id;
                 $currentEta = $shipmentDetailsData->eta_destination;
+                $currentDeliveryStatus = $shipmentDetailsData->delivery_status;
                 $save = $shipmentDetailsData->update([
                     'delivery_status' => $request->deliveryStatus,
                     'tracking_points' => $request->trackPoints,
@@ -191,18 +192,20 @@ class ShipmentController extends Controller
                         ]);
                     }
 
-                    if ($request->deliveryStatus == "DLY") {
-                        DelayedShipmentUpdate::updateOrCreate(['shipment_details_id' => $savedId],['shipment_details_id' => $savedId,'prev_eta' => $currentEta,'updated_eta' => $request->etaDestination??"",'is_notif_sent' => 0]);    
-                        $this->shipment->SendDelayedNotification($savedId);
-                    }
-                    if ($request->deliveryStatus == "DPT") {
-                        $this->shipment->SendCargoDepartedNotification($savedId);
-                    }
-                    if ($request->deliveryStatus == "ARVTP") {
-                        $this->shipment->SendCargoTranshipmentArrivalNotification($savedId);
-                    }
-                    if ($request->deliveryStatus == "LCV") {
-                        $this->shipment->SendCargoLoadedInConnectingVesselNotification($savedId);
+                    if ($currentDeliveryStatus !== $request->deliveryStatus) {
+                        if ($request->deliveryStatus == "DLY") {
+                            DelayedShipmentUpdate::updateOrCreate(['shipment_details_id' => $savedId],['shipment_details_id' => $savedId,'prev_eta' => $currentEta,'updated_eta' => $request->etaDestination??"",'is_notif_sent' => 0]);    
+                            $this->shipment->SendDelayedNotification($savedId);
+                        }
+                        if ($request->deliveryStatus == "DPT") {
+                            $this->shipment->SendCargoDepartedNotification($savedId);
+                        }
+                        if ($request->deliveryStatus == "ARVTP") {
+                            $this->shipment->SendCargoTranshipmentArrivalNotification($savedId);
+                        }
+                        if ($request->deliveryStatus == "LCV") {
+                            $this->shipment->SendCargoLoadedInConnectingVesselNotification($savedId);
+                        }
                     }
                 }
             }else{
