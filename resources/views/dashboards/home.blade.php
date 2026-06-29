@@ -221,7 +221,7 @@
             processing: true,
             serverSide: true,
             responsive: true,
-            searching: false,
+            searching: true,
             ordering: false,
             paging: true,
             autoWidth: false,
@@ -242,7 +242,8 @@
                         page: page,
                         limit: limit,
                         start_date: $('#start_date').val(),
-                        end_date: $('#end_date').val()
+                        end_date: $('#end_date').val(),
+                        search: $('#dt-search-0').val()
                     },
                     success: function (resp) {
                         callback({

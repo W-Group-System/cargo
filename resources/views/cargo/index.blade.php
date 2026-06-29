@@ -292,7 +292,7 @@
             processing: true,
             serverSide: true,
             responsive: true,
-            searching: false,
+            searching: true,
             ordering: false,
             paging: true,
             autoWidth: false,
@@ -313,7 +313,8 @@
                         page: page,
                         limit: limit,                          
                         start_date:  $('#start_date').val(),
-                        end_date:  $('#end_date').val()
+                        end_date:  $('#end_date').val(),
+                        search: $('#dt-search-0').val()
                     },
                     success: function (resp) {
                         callback({
@@ -329,7 +330,7 @@
                 { data: 'CardCode' },
                 { data: 'CardName'},
                 { data: 'SapServer'},
-                { data: 'created_at' },
+                { data: 'formatted_created_at' },
                 {
                     render: function (data, type, row) {
                         return `<button type="button" class="btn btn-primary btn-update" id="btnCargoUpdate"

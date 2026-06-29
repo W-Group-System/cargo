@@ -39,7 +39,23 @@ class CargoController extends Controller
             $page = $request->page ?? 1;
             $limit = $request->limit ?? 10;
 
-            $ordersList = ProcessedOrders::with(['CargoStatus'])->select("*");
+            $ordersList = ProcessedOrders::with(['CargoStatus'])
+            ->select(
+                "SapServer",
+                "CardCode",
+                "CardName",
+                "MinDocDate",
+                "AvailabilityDate",
+                "PickupDate",
+                "CargoStatus",
+                "OrderStatus",
+                "ShipmentStatus",
+                "is_coload",
+                "coloaded_by",
+                "coload_order",
+                "cargo_posting_date",
+                DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d') as formatted_created_at")
+            );
 
             if (isset($request->id) && !empty($request->id)) {
                 $ordersList = $ordersList->where("id",$request->id);
