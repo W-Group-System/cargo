@@ -51,17 +51,17 @@ class HomeController extends Controller
             ->where('po.AvailabilityDate', '<>', '')
             ->whereNotNull('po.PickupDate')
             ->where('po.PickupDate', '<>', '')
-            ->where('po.CargoStatus', 'L')
+            // ->where('po.CargoStatus', 'L')
             ->whereNull('sd.process_order_id');
 
         $inTransit = DB::table('shipment_details as sd')
-            // ->whereNotNull('sd.eta_destination')
-            // ->whereNull('sd.ata_destination')
-            ->where('sd.delivery_status',"IT");
+            ->whereNotNull('sd.eta_destination')
+            ->whereNull('sd.ata_destination');
+            // ->where('sd.delivery_status',"IT");
 
         $shipped = DB::table('shipment_details as sd')
-            // ->whereNotNull('sd.tracking_points')
-            ->whereNotNull('sd.shipping_line');
+            ->whereNotNull('sd.ata_destination');
+            // ->whereNotNull('sd.shipping_line');
 
         $irregularities = DB::table('shipment_details as sd')
             // ->whereNull('sd.ata_destination')
@@ -69,8 +69,8 @@ class HomeController extends Controller
             ->where('sd.delivery_status',"DLY");
 
         $delivered = DB::table('shipment_details as sd')
-            // ->whereNotNull('sd.ata_destination')
-            ->where('sd.delivery_status',"DLV");
+            ->whereNotNull('sd.ata_destination');
+            // ->where('sd.delivery_status',"DLV");
 
 
         if ($request->filled('start_date') && $request->filled('end_date')) {

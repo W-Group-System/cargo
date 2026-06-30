@@ -63,29 +63,31 @@ class ShipmentController extends Controller
             $limit = $request->limit ?? 10;
             $coloadSoNumberArr = [];
 
-            $ordersList = ProcessedOrders::with(['ShipmentDetails.DeliveryStatus'])->select(
-                "id",
-                "SapServer",
-                "CardCode",
-                "CardName",
-                "MinDocDate",
-                "AvailabilityDate",
-                "PickupDate",
-                "CargoStatus",
-                "OrderStatus",
-                "ShipmentStatus",
-                "is_coload",
-                "coloaded_by",
-                "coload_order",
-                DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d') as formatted_created_at"),
-                DB::raw("DATE_FORMAT(cargo_posting_date, '%Y-%m-%d') as cargo_posting_date")
+            $ordersList = ProcessedOrders::from("processed_orders as po")->with(['ShipmentDetails.DeliveryStatus'])->select(
+                "po.id",
+                "po.SapServer",
+                "po.CardCode",
+                "po.CardName",
+                "po.MinDocDate",
+                "po.AvailabilityDate",
+                "po.PickupDate",
+                "po.CargoStatus",
+                "po.OrderStatus",
+                "po.ShipmentStatus",
+                "po.is_coload",
+                "po.coloaded_by",
+                "po.coload_order",
+                DB::raw("DATE_FORMAT(po.created_at, '%Y-%m-%d') as formatted_created_at"),
+                DB::raw("DATE_FORMAT(po.cargo_posting_date, '%Y-%m-%d') as cargo_posting_date"),
+                DB::raw("CASE WHEN sd.id IS NULL THEN 'Pending' WHEN sd.eta_destination IS NOT NULL AND sd.ata_destination IS NULL THEN 'In Transit' WHEN sd.ata_destination IS NOT NULL THEN 'Shipped' ELSE '' END AS shipmentStatus")
             )
+            ->leftJoin("shipment_details as sd","sd.process_order_id","po.id")
             ->where(function($q){
                 $q->where("AvailabilityDate","<>","")->where("PickupDate","<>","")->where("CargoStatus","L");
             });
 
             if (isset($request->id) && !empty($request->id)) {
-                $ordersList = $ordersList->with(['ShipmentDetails.ShipmentTracking','OrderData.OrderItemList'])->where("id",$request->id);
+                $ordersList = $ordersList->with(['ShipmentDetails.ShipmentTracking','OrderData.OrderItemList'])->where("po.id",$request->id);
                 $coloadList = Order::from('orders as o')->select('o.CardCode','o.DocNum')
                     ->leftJoin('processed_orders as po','po.id','=','o.process_order_id')
                     ->where('po.is_coload','1')
@@ -101,8 +103,8 @@ class ShipmentController extends Controller
             if (isset($request->search) && !empty(isset($request->search))) {
                 $search = $request->search;
                 $ordersList = $ordersList->where(function ($query) use ($search) {
-                    $query->where('CardCode', 'LIKE', "%{$search}%")
-                        ->orWhere('CardName', 'LIKE', "%{$search}%");
+                    $query->where('po.CardCode', 'LIKE', "%{$search}%")
+                        ->orWhere('po.CardName', 'LIKE', "%{$search}%");
                 });
             }
 
@@ -110,13 +112,13 @@ class ShipmentController extends Controller
                 $start = Carbon::parse($request->start_date)->startOfDay();
                 $end   = Carbon::parse($request->end_date)->endOfDay();
 
-                $ordersList->whereBetween('created_at', [$start, $end]);
+                $ordersList->whereBetween('po.created_at', [$start, $end]);
             }
-            $ordersList = $ordersList->where("is_coload",null);
+            $ordersList = $ordersList->where("po.is_coload",null);
 
             $totalCount = (clone $ordersList)->count();
 
-            $ordersList = $ordersList->orderBy("cargo_posting_date","desc")
+            $ordersList = $ordersList->orderBy("po.cargo_posting_date","desc")
                 ->skip(($page - 1) * $limit)
                 ->take($limit)
                 ->get();

@@ -632,7 +632,7 @@
                 });
             },
             columns: [
-                { data: 'shipment_details.delivery_status[0].description'},
+                { data: 'shipmentStatus'},
                 { data: 'formatted_created_at' },
                 { data: 'CardCode' },
                 { data: 'CardName'},
@@ -673,7 +673,7 @@
                             var cc = resp.data[0].shipment_details?.cc_recipients ? resp.data[0].shipment_details?.cc_recipients.split(','):[];                            
 
                             $('#headerBuyersCode').text(resp.data[0].CardCode);
-                            $('#deliveryStatusDesc').text(resp.data[0].shipment_details?.delivery_status[0]?.description??"-");
+                            $('#deliveryStatusDesc').text(resp.data[0].shipmentStatus??"-");
                             $('#id').val(shipmentId);
                             $('#deliveryStatus').val(resp.data[0].shipment_details?.delivery_status[0]?.code??"");
                             $('#clientRefNo').val(resp.data[0].CardCode??"");
