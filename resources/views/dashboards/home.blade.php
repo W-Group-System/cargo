@@ -255,7 +255,7 @@
                 });
             },
             columns: [
-                { data: 'shipment_details.delivery_status[0].description'},
+                { data: 'shipmentStatus'},
                 { data: 'formatted_created_at' },
                 { data: 'CardCode' },
                 { data: 'CardName'},
