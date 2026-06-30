@@ -158,4 +158,36 @@ class ShipmentClass{
         return $isSuccess;
     }
 
+    public function SendCargoArrivedAtDestinationPortNotification($id){
+        
+        $isSuccess = false;
+        try {
+            $shipmentData = ShipmentDetails::with(['ProcessedOrder.OrderData'])->where('id',$id)->first();
+            
+            $params = [
+                'shipmentDetailsId'=>$id,
+                'customerName'=>isset($shipmentData->ProcessedOrder->OrderData[0]->ContactName)?$shipmentData->ProcessedOrder->OrderData[0]->ContactName:'',
+                'poNumber'=>isset($shipmentData->ProcessedOrder->OrderData[0]->BuyersPO)?$shipmentData->ProcessedOrder->OrderData[0]->BuyersPO:'',
+                'buyerInvoice'=>$shipmentData->invoice_number,
+                'containerNumber'=>$shipmentData->container_number,
+                'vesselVoyage'=>$shipmentData->vessel_name,
+                'destinationPort'=>isset($shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination)?$shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination:'',
+                'ata'=>!empty($shipmentData->ata_destination)?Carbon::parse($shipmentData->ata_destination)->format('M d, Y h:i A'):''
+            ];
+
+            $receivers = !empty($shipmentData->email_recipients) ? explode(",",$shipmentData->email_recipients):[];
+            $ccRecipients = !empty($shipmentData->cc_recipients) ? explode(",",$shipmentData->cc_recipients):[];
+
+            if (count($receivers) > 0) {
+                $this->notification->SendEmail("ARVDP",$params,$receivers,$ccRecipients);
+                $isSuccess = true;
+            }
+                
+        } catch (\Throwable $th) {
+            Log::error("ERROR IN SENDING CARGO DESTINATION PORT ARRIVAL NOTIFICATION: ".$th->getMessage());
+        }
+        
+        return $isSuccess;
+    }
+
 }

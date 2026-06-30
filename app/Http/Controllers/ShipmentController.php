@@ -160,7 +160,7 @@ class ShipmentController extends Controller
             if (!empty($shipmentDetailsData)) {
                 $currentTrackingPoint = $shipmentDetailsData->tracking_points;
                 $savedId = $shipmentDetailsData->id;
-                $currentEta = $shipmentDetailsData->eta_destination;
+                $currentEta = !empty($shipmentDetailsData->eta_destination)?Carbon::parse($shipmentDetailsData->eta_destination):null;
                 $currentDeliveryStatus = $shipmentDetailsData->delivery_status;
                 $save = $shipmentDetailsData->update([
                     'delivery_status' => $request->deliveryStatus,
@@ -196,7 +196,7 @@ class ShipmentController extends Controller
 
                     if ($currentDeliveryStatus !== $request->deliveryStatus) {
                         if ($request->deliveryStatus == "DLY") {
-                            DelayedShipmentUpdate::updateOrCreate(['shipment_details_id' => $savedId],['shipment_details_id' => $savedId,'prev_eta' => $currentEta,'updated_eta' => $request->etaDestination??"",'is_notif_sent' => 0]);    
+                            DelayedShipmentUpdate::updateOrCreate(['shipment_details_id' => $savedId],['shipment_details_id' => $savedId,'prev_eta' => $currentEta,'updated_eta' => $request->etaDestination??null,'is_notif_sent' => 0]);    
                             $this->shipment->SendDelayedNotification($savedId);
                         }
                         if ($request->deliveryStatus == "DPT") {
@@ -207,6 +207,9 @@ class ShipmentController extends Controller
                         }
                         if ($request->deliveryStatus == "LCV") {
                             $this->shipment->SendCargoLoadedInConnectingVesselNotification($savedId);
+                        }
+                        if ($request->deliveryStatus == "AD") {
+                            $this->shipment->SendCargoArrivedAtDestinationPortNotification($savedId);
                         }
                     }
                 }
