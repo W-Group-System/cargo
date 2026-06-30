@@ -51,7 +51,7 @@ class HomeController extends Controller
             ->where('po.AvailabilityDate', '<>', '')
             ->whereNotNull('po.PickupDate')
             ->where('po.PickupDate', '<>', '')
-            // ->where('po.CargoStatus', 'L')
+            ->where('po.CargoStatus', 'L')
             ->whereNull('sd.process_order_id');
 
         $inTransit = DB::table('shipment_details as sd')
