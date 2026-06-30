@@ -207,7 +207,7 @@
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">Delivery Status</label>
                             <div class="col-md-8">
-                                <select name="deliveryStatus" id="deliveryStatus" class="form-select" required>
+                                <select name="deliveryStatus" id="deliveryStatus" class="form-select">
                                     <option value="">- Delivery Status -</option>
                                     @foreach ($deliveryStatus as $item)
                                         <option value="{{$item->code}}" {{ $item->disabled == '1'?'disabled':'' }}>{{$item->description}}</option>
