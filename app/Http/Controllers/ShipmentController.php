@@ -79,7 +79,7 @@ class ShipmentController extends Controller
                 "po.coload_order",
                 DB::raw("DATE_FORMAT(po.created_at, '%Y-%m-%d') as formatted_created_at"),
                 DB::raw("DATE_FORMAT(po.cargo_posting_date, '%Y-%m-%d') as cargo_posting_date"),
-                DB::raw("CASE WHEN sd.id IS NULL THEN 'Pending' WHEN sd.eta_destination IS NOT NULL AND sd.ata_destination IS NULL THEN 'In Transit' WHEN sd.ata_destination IS NOT NULL THEN 'Shipped' ELSE '' END AS shipmentStatus")
+                DB::raw("CASE WHEN sd.id IS NULL THEN 'Pending' WHEN sd.eta_destination IS NOT NULL AND sd.ata_destination IS NULL THEN 'In Transit' WHEN sd.ata_destination IS NOT NULL THEN 'Shipped' ELSE 'Pending' END AS shipmentStatus")
             )
             ->leftJoin("shipment_details as sd","sd.process_order_id","po.id")
             ->where(function($q){
