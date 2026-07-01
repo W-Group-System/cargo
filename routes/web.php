@@ -21,11 +21,11 @@ use App\Http\Controllers\UserController;
 |
 */
 
-// Route::get('/', function () {
-//     return view('auth.login');
-// });
+Route::get('/', function () {
+    return view('auth.login');
+});
 
-Route::get('/', [LoginController::class,'login']);
+// Route::get('/', [LoginController::class,'login']);
 
 Auth::routes();
 Route::group(['middleware' => 'auth'], function () {
