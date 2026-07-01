@@ -83,7 +83,8 @@ class ShipmentController extends Controller
             )
             ->leftJoin("shipment_details as sd","sd.process_order_id","po.id")
             ->where(function($q){
-                $q->where("AvailabilityDate","<>","")->where("PickupDate","<>","")->where("CargoStatus","L");
+                $q->whereRaw("COALESCE(AvailabilityDate,'') <> ''")->whereRaw("COALESCE(PickupDate,'') <> ''")
+                ->where("CargoStatus","L");
             });
 
             if (isset($request->id) && !empty($request->id)) {
@@ -112,7 +113,7 @@ class ShipmentController extends Controller
                 $start = Carbon::parse($request->start_date)->startOfDay();
                 $end   = Carbon::parse($request->end_date)->endOfDay();
 
-                $ordersList->whereBetween('po.created_at', [$start, $end]);
+                $ordersList->whereBetween('po.cargo_posting_date', [$start, $end]);
             }
             $ordersList = $ordersList->where("po.is_coload",null);
 

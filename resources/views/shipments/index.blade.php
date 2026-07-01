@@ -126,7 +126,6 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Status</th>
-                                    <th>Date Created</th>
                                     <th>Buyers Code</th>
                                     <th>Buyers Name</th>
                                     <th>Warehouse</th>
@@ -633,7 +632,6 @@
             },
             columns: [
                 { data: 'shipmentStatus'},
-                { data: 'formatted_created_at' },
                 { data: 'CardCode' },
                 { data: 'CardName'},
                 {
