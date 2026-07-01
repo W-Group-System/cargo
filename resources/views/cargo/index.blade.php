@@ -337,7 +337,12 @@
                 { data: 'cargo_status.description'},
                 { data: 'CardCode' },
                 { data: 'CardName'},
-                { data: 'SapServer'},
+                {
+                    data: 'SapServer',
+                    render: function(data, type, row) {
+                        return data ? data.toUpperCase() : '';
+                    }
+                },
                 { data: 'formatted_created_at' },
                 {
                     render: function (data, type, row) {

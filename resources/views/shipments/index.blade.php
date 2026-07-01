@@ -636,7 +636,12 @@
                 { data: 'formatted_created_at' },
                 { data: 'CardCode' },
                 { data: 'CardName'},
-                { data: 'SapServer'},
+                {
+                    data: 'SapServer',
+                    render: function(data, type, row) {
+                        return data ? data.toUpperCase() : '';
+                    }
+                },
                 { data: 'cargo_posting_date'},
                 {
                     render: function (data, type, row) {
@@ -679,7 +684,7 @@
                             $('#clientRefNo').val(resp.data[0].CardCode??"");
                             $('#invoiceNo').val(resp.data[0].shipment_details?.invoice_number??"");
                             $('#cbwDocStatus').val(resp.data[0].shipment_details?.cbw_doc_status??"");
-                            $('#currentLocation').val(resp.data[0].SapServer??"");
+                            $('#currentLocation').val((resp.data[0].SapServer ?? "").toUpperCase());
                             $('#region').val(resp.data[0].shipment_details?.region??"");
                             $('#shippingLine').val(resp.data[0].shipment_details?.shipping_line??"");
                             $('#blNumber').val(resp.data[0].shipment_details?.ed_bl_number??"");
