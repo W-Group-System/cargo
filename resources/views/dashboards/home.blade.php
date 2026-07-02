@@ -277,17 +277,7 @@
             },
             rowCallback : function(row,data,DisplayIndex){
                 $(row).on('click', function () {
-                    $('.trackinPointDiv').html('<center><span class="spinner-border spinner-border-lg" role="status"></span></center>');
-                    $.ajax({
-                        type: "GET",
-                        url: "{{ route('trackpoints') }}",
-                        data: {
-                            id:data.shipment_details?.id??""
-                        },
-                        success: function (response) {
-                            $('.trackinPointDiv').html(response);
-                        }
-                    });
+                    LoadTrackingPoints(data.shipment_details?.id??"");
                 });
             }
         });
@@ -295,6 +285,7 @@
         function ReloadDataTable() {
             orderTable.ajax.reload(null, true);
             LoadShipmentCounts();
+            LoadTrackingPoints("",true);
         }
 
         function LoadShipmentCounts(){
@@ -310,6 +301,24 @@
                     $('#inTransit').text(response.in_transit);
                     $('#delivered').text(response.delivered);
                     $('#irregularities').text(response.irregularities);
+                }
+            });
+        }
+
+        function LoadTrackingPoints(shipmentId,reset=false){
+            $('.trackinPointDiv').html('<center><span class="spinner-border spinner-border-lg" role="status"></span></center>');
+            if(reset){
+                $('.trackinPointDiv').html('<h3><center>Select Shipment</center></h3>');
+                return;
+            }
+            $.ajax({
+                type: "GET",
+                url: "{{ route('trackpoints') }}",
+                data: {
+                    id:shipmentId
+                },
+                success: function (response) {
+                    $('.trackinPointDiv').html(response);
                 }
             });
         }
