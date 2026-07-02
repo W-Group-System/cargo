@@ -310,6 +310,12 @@
             language: {
                 processing: '<div class="spinner-border"></div>',
             },
+            columnDefs: [
+                {
+                    targets: '_all',
+                    className: 'text-center align-middle'
+                }
+            ],
             ajax: function (data, callback) {
                 let page = (data.start / data.length) + 1;
                 let limit = data.length;

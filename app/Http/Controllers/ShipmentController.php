@@ -70,7 +70,6 @@ class ShipmentController extends Controller
                 "po.CardCode",
                 "po.CardName",
                 "po.MinDocDate",
-                "po.AvailabilityDate",
                 "po.PickupDate",
                 "po.CargoStatus",
                 "po.OrderStatus",
@@ -80,6 +79,7 @@ class ShipmentController extends Controller
                 "po.coload_order",
                 DB::raw("DATE_FORMAT(po.created_at, '%Y-%m-%d') as formatted_created_at"),
                 DB::raw("DATE_FORMAT(po.cargo_posting_date, '%Y-%m-%d') as cargo_posting_date"),
+                DB::raw("DATE_FORMAT(po.AvailabilityDate, '%Y-%m-%d') as AvailabilityDate"),
                 DB::raw(
                     "CASE 
                         WHEN COALESCE(sd.eta_destination, '') = '' AND po.CargoStatus = 'L' 
@@ -93,8 +93,8 @@ class ShipmentController extends Controller
             )
             ->leftJoin("shipment_details as sd","sd.process_order_id","po.id")
             ->where(function($q){
-                $q->whereRaw("COALESCE(AvailabilityDate,'') <> ''")->whereRaw("COALESCE(PickupDate,'') <> ''")
-                ->where("CargoStatus","L");
+                $q->whereRaw("COALESCE(po.AvailabilityDate,'') <> ''")->whereRaw("COALESCE(po.PickupDate,'') <> ''")
+                ->where("po.CargoStatus","L");
             });
 
             if (isset($request->id) && !empty($request->id)) {
@@ -123,18 +123,18 @@ class ShipmentController extends Controller
                 $start = Carbon::parse($request->start_date)->startOfDay();
                 $end   = Carbon::parse($request->end_date)->endOfDay();
 
-                if ($module == "Shipment") {
-                    $ordersList->whereBetween('po.cargo_posting_date', [$start, $end]);
-                }else{
-                    $ordersList->whereBetween('po.created_at', [$start, $end]);
-                }
+                // if ($module == "Shipment") {
+                //     $ordersList->whereBetween('po.cargo_posting_date', [$start, $end]);
+                // }else{
+                    $ordersList->whereBetween('po.AvailabilityDate', [$start, $end]);
+                // }
                 
             }
             $ordersList = $ordersList->where("po.is_coload",null);
 
             $totalCount = (clone $ordersList)->count();
 
-            $ordersList = $ordersList->orderBy("po.cargo_posting_date","desc")
+            $ordersList = $ordersList->orderBy("po.AvailabilityDate","desc")
                 ->skip(($page - 1) * $limit)
                 ->take($limit)
                 ->get();

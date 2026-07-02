@@ -129,8 +129,9 @@
                                     <th>Buyers Code</th>
                                     <th>Buyers Name</th>
                                     <th>Warehouse</th>
+                                    <th>Availability Date</th>
                                     <th>Posting Date</th>
-                                    <th class="text-center" width="120">Action</th>
+                                    <th class="text-align-center" width="120">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -607,6 +608,12 @@
             language: {
                 processing: '<div class="spinner-border"></div>',
             },
+            columnDefs: [
+                {
+                    targets: '_all',
+                    className: 'text-center align-middle'
+                }
+            ],
             ajax: function (data, callback) {
                 let page = (data.start / data.length) + 1;
                 let limit = data.length;
@@ -640,6 +647,7 @@
                         return data ? data.toUpperCase() : '';
                     }
                 },
+                { data: 'AvailabilityDate'},
                 { data: 'cargo_posting_date'},
                 {
                     render: function (data, type, row) {

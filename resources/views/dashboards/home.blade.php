@@ -154,7 +154,7 @@
                                     <thead class="table-light">
                                         <tr>
                                             <th>Status</th>
-                                            <th>Date Created</th>
+                                            <th>Availability Date</th>
                                             <th>Buyers Code</th>
                                             <th>Buyers Name</th>
                                             <th>Warehouse</th>
@@ -231,6 +231,12 @@
             language: {
                 processing: '<div class="spinner-border"></div>',
             },
+            columnDefs: [
+                {
+                    targets: '_all',
+                    className: 'text-center align-middle'
+                }
+            ],
             ajax: function (data, callback) {
                 let page = (data.start / data.length) + 1;
                 let limit = data.length;
@@ -256,7 +262,7 @@
             },
             columns: [
                 { data: 'shipmentStatus'},
-                { data: 'formatted_created_at' },
+                { data: 'AvailabilityDate' },
                 { data: 'CardCode' },
                 { data: 'CardName'},
                 {

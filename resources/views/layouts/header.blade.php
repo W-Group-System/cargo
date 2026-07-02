@@ -47,6 +47,26 @@
             opacity: .8;
             background-size: 120px 120px;
         }
+
+        /* table {
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            overflow: hidden;
+        } */
+        thead tr:first-child th {
+            background-color: #2D589F !important;
+            color: #fff !important;
+        }
+
+        thead tr:first-child th:first-child {
+            border-top-left-radius: 10px !important;
+        }
+
+        thead tr:first-child th:last-child {
+            border-top-right-radius: 10px !important;
+        }
     </style>
 </head>
 <body>
