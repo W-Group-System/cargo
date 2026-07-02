@@ -35,10 +35,22 @@ class AccessMiddleware
                 ]);
                 return $next($request);
             }else{
-                return redirect()->back()->with('error', "You don't have permission to access this page.");
+                // return redirect()->back()->with('error', "You don't have permission to access this page.");
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return redirect()->route('login')
+                    ->with('error', 'Your access has been revoked. Please contact your administrator.');
             }
         }else{
-            return redirect()->back()->with('error', "You don't have permission to access this page.");
+            // return redirect()->back()->with('error', "You don't have permission to access this page.");
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')
+                ->with('error', 'Your account no longer has permission to access the system. Please contact the administrator.');
         }
     }
 }

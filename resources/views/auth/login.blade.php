@@ -243,6 +243,17 @@
         </div>
 
     </div>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        @if(session('error'))
+            Swal.fire({
+                title: 'Unauthorized!',
+                text: @json(session('error')),
+                icon: 'error'
+            });
+        @endif
+    </script>
 
 </body>
 
