@@ -84,6 +84,7 @@
                         <hr>
                         <li class="sidebar-item">
                             <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class='sidebar-link'>
+                                <i class="bi bi-box-arrow-right"></i>
                                 <span>Sign out</span>
                             </a>
                         </li>
