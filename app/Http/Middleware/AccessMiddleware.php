@@ -41,7 +41,7 @@ class AccessMiddleware
                 $request->session()->regenerateToken();
 
                 return redirect()->route('login')
-                    ->with('error', 'Your access has been revoked. Please contact your administrator.');
+                    ->with('error', 'Your access has been revoked for this page. Please contact your administrator.');
             }
         }else{
             // return redirect()->back()->with('error', "You don't have permission to access this page.");
@@ -50,7 +50,7 @@ class AccessMiddleware
             $request->session()->regenerateToken();
 
             return redirect()->route('login')
-                ->with('error', 'Your account no longer has permission to access the system. Please contact the administrator.');
+                ->with('error', 'Your account no longer has permission to access the this page. Please contact the administrator.');
         }
     }
 }
