@@ -62,6 +62,7 @@ class ShipmentController extends Controller
             $page = $request->page ?? 1;
             $limit = $request->limit ?? 10;
             $coloadSoNumberArr = [];
+            $module = $request->module ?? "";
 
             $ordersList = ProcessedOrders::from("processed_orders as po")->with(['ShipmentDetails.DeliveryStatus'])->select(
                 "po.id",
@@ -79,7 +80,16 @@ class ShipmentController extends Controller
                 "po.coload_order",
                 DB::raw("DATE_FORMAT(po.created_at, '%Y-%m-%d') as formatted_created_at"),
                 DB::raw("DATE_FORMAT(po.cargo_posting_date, '%Y-%m-%d') as cargo_posting_date"),
-                DB::raw("CASE WHEN sd.id IS NULL THEN 'Pending' WHEN sd.eta_destination IS NOT NULL AND sd.ata_destination IS NULL THEN 'In Transit' WHEN sd.ata_destination IS NOT NULL THEN 'Shipped' ELSE 'Pending' END AS shipmentStatus")
+                DB::raw(
+                    "CASE 
+                        WHEN COALESCE(sd.eta_destination, '') = '' AND po.CargoStatus = 'L' 
+                            THEN 'Pending' 
+                        WHEN COALESCE(sd.eta_destination, '') <> '' AND COALESCE(sd.ata_destination, '') = '' 
+                            THEN 'In Transit' 
+                        WHEN COALESCE(sd.ata_destination, '') <> '' 
+                            THEN 'Shipped' ELSE '' 
+                    END AS shipmentStatus"
+                )
             )
             ->leftJoin("shipment_details as sd","sd.process_order_id","po.id")
             ->where(function($q){
@@ -113,7 +123,12 @@ class ShipmentController extends Controller
                 $start = Carbon::parse($request->start_date)->startOfDay();
                 $end   = Carbon::parse($request->end_date)->endOfDay();
 
-                $ordersList->whereBetween('po.cargo_posting_date', [$start, $end]);
+                if ($module == "Shipment") {
+                    $ordersList->whereBetween('po.cargo_posting_date', [$start, $end]);
+                }else{
+                    $ordersList->whereBetween('po.created_at', [$start, $end]);
+                }
+                
             }
             $ordersList = $ordersList->where("po.is_coload",null);
 

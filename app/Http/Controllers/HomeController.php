@@ -45,22 +45,26 @@ class HomeController extends Controller
 
     public function LoadShipmentCountsPerStatus(Request $request){
 
+        $module = $request->module ?? "";
+
         $pending = DB::table('processed_orders as po')
             ->leftJoin('shipment_details as sd', 'sd.process_order_id', '=', 'po.id')
             ->whereNotNull('po.AvailabilityDate')
-            ->where('po.AvailabilityDate', '<>', '')
-            ->whereNotNull('po.PickupDate')
-            ->where('po.PickupDate', '<>', '')
+            ->whereRaw('COALESCE(po.AvailabilityDate, "") <> ""')
+            ->whereRaw('COALESCE(po.PickupDate, "") <> ""')
+            ->whereRaw('COALESCE(po.PickupDate, "") <> ""')
             ->where('po.CargoStatus', 'L')
-            ->whereNull('sd.process_order_id');
+            ->whereRaw('COALESCE(sd.eta_destination, "") = ""');
 
         $inTransit = DB::table('shipment_details as sd')
-            ->whereNotNull('sd.eta_destination')
-            ->whereNull('sd.ata_destination');
+            ->leftJoin('processed_orders as po', 'sd.process_order_id', '=', 'po.id')
+            ->whereRaw('COALESCE(sd.eta_destination, "") <> ""')
+            ->whereRaw('COALESCE(sd.ata_destination, "") = ""');
             // ->where('sd.delivery_status',"IT");
 
         $shipped = DB::table('shipment_details as sd')
-            ->whereNotNull('sd.ata_destination');
+            ->leftJoin('processed_orders as po', 'sd.process_order_id', '=', 'po.id')
+            ->whereRaw('COALESCE(sd.ata_destination, "") <> ""');
             // ->whereNotNull('sd.shipping_line');
 
         $irregularities = DB::table('shipment_details as sd')
@@ -69,7 +73,8 @@ class HomeController extends Controller
             ->where('sd.delivery_status',"DLY");
 
         $delivered = DB::table('shipment_details as sd')
-            ->whereNotNull('sd.ata_destination');
+            ->leftJoin('processed_orders as po', 'sd.process_order_id', '=', 'po.id')   
+            ->whereRaw('COALESCE(sd.ata_destination, "") <> ""');
             // ->where('sd.delivery_status',"DLV");
 
 
@@ -77,11 +82,19 @@ class HomeController extends Controller
             $start = Carbon::parse($request->start_date)->startOfDay();
             $end   = Carbon::parse($request->end_date)->endOfDay();
 
-            $pending = $pending->whereBetween('po.created_at',[$start, $end]);
-            $inTransit = $inTransit->whereBetween('sd.created_at',[$start, $end]);
-            $shipped = $shipped->whereBetween('sd.created_at',[$start, $end]);
-            $irregularities = $irregularities->whereBetween('sd.created_at',[$start, $end]);
-            $delivered = $delivered->whereBetween('sd.created_at',[$start, $end]);
+            if ($module == "Shipment") {
+                $pending = $pending->whereBetween('po.cargo_posting_date',[$start, $end]);
+                $inTransit = $inTransit->whereBetween('po.cargo_posting_date',[$start, $end]);
+                $shipped = $shipped->whereBetween('po.cargo_posting_date',[$start, $end]);
+                $irregularities = $irregularities->whereBetween('po.cargo_posting_date',[$start, $end]);
+                $delivered = $delivered->whereBetween('po.cargo_posting_date',[$start, $end]);
+            }else{
+                $pending = $pending->whereBetween('po.created_at',[$start, $end]);
+                $inTransit = $inTransit->whereBetween('sd.created_at',[$start, $end]);
+                $shipped = $shipped->whereBetween('sd.created_at',[$start, $end]);
+                $irregularities = $irregularities->whereBetween('sd.created_at',[$start, $end]);
+                $delivered = $delivered->whereBetween('sd.created_at',[$start, $end]);
+            }
         }
 
         $pending = $pending->count();

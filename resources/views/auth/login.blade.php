@@ -1,141 +1,249 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="en">
 
-@section('content')
-<!-- <div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">{{ __('Login') }}</div>
+<head>
+    <meta charset="UTF-8">
+    <title>Cargo Monitoring System</title>
 
-                <div class="card-body">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+    <style>
+        * {
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: #f4f7fb;
+        }
+
+        .left-side {
+            height: 100vh;
+            background: url('{{ asset("images/cargo_login_bg.png") }}') center center no-repeat;
+            background-size: 100% 100%;
+            background-color: #ffffff; /* or your preferred background color */
+        }
+
+        .right-side {
+            height: 100vh;
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .login-box {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .logo {
+            width: 90px;
+        }
+
+        .system-title {
+            font-weight: 700;
+            color: #0B4F9C;
+        }
+
+        .system-subtitle {
+            color: #777;
+            margin-bottom: 35px;
+        }
+
+        .form-control {
+            height: 52px;
+            border-radius: 12px;
+            padding-left: 45px;
+            border: 1px solid #d6d6d6;
+        }
+
+        .form-control:focus {
+            box-shadow: none;
+            border-color: #0B4F9C;
+        }
+
+        .input-group-text {
+            position: absolute;
+            height: 52px;
+            width: 45px;
+            background: transparent;
+            border: none;
+            z-index: 10;
+            color: #888;
+        }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .btn-login {
+            height: 52px;
+            border-radius: 12px;
+            font-weight: 600;
+            background: #0B4F9C;
+            border: none;
+            transition: .3s;
+        }
+
+        .btn-login:hover {
+            background: #083d79;
+        }
+
+        .forgot-password {
+            text-decoration: none;
+            color: #0B4F9C;
+            font-size: .9rem;
+        }
+
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #999;
+            font-size: .85rem;
+        }
+
+        @media(max-width:991px) {
+
+            .left-side {
+                display: none;
+            }
+
+            .right-side {
+                width: 100%;
+            }
+
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container-fluid p-0">
+
+        <div class="row g-0">
+
+            <!-- LEFT IMAGE -->
+
+            <div class="col-lg-6 left-side"></div>
+
+            <!-- RIGHT LOGIN -->
+
+            <div class="col-lg-6 right-side">
+
+                <div class="login-box">
+
+                    <div class="text-center mb-4">
+
+                        <img src="{{ asset('images/logo-only.png') }}" class="logo mb-3">
+
+                        <h2 class="system-title">
+                            Cargo Monitoring
+                        </h2>
+
+                        <div class="system-subtitle">
+                            Sign in to continue
+                        </div>
+
+                    </div>
+
                     <form method="POST" action="{{ route('login') }}">
-                        @csrf
-
-                        <div class="form-group row">
-                            <label for="email" class="col-md-4 col-form-label text-md-right">{{ __('E-Mail Address') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="email" type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ old('email') }}" required autofocus>
-
-                                @if ($errors->has('email'))
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $errors->first('email') }}</strong>
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label for="password" class="col-md-4 col-form-label text-md-right">{{ __('Password') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" required>
-
-                                @if ($errors->has('password'))
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $errors->first('password') }}</strong>
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <div class="col-md-6 offset-md-4">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
-
-                                    <label class="form-check-label" for="remember">
-                                        {{ __('Remember Me') }}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group row mb-0">
-                            <div class="col-md-8 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
-                                    {{ __('Login') }}
-                                </button>
-
-                                @if (Route::has('password.request'))
-                                    <a class="btn btn-link" href="{{ route('password.request') }}">
-                                        {{ __('Forgot Your Password?') }}
-                                    </a>
-                                @endif
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div> -->
-<div id="auth">
-    <div class="row h-100">
-        <div class="col-lg-7 d-lg-block" style="padding-right: 0px">
-            <div id="auth-right"></div>
-        </div>
-        <div class="col-lg-5 col-12 login-left">
-            <div id="auth-left" class="mt-5">
-                <!-- <div class="auth-logo">
-                    <a href="index.html"><img src="assets/images/logo/logo.png" alt="Logo"></a>
-                </div> -->
-                <h2 class="text-center mt-5 text-white"><i class="bi bi-file-lock-fill"></i> Welcome back!</h2>
-                <!-- <p class="auth-subtitle mb-5">Log in with your data that you entered during registration.</p> -->
-
-                <form method="POST" action="{{ route('login') }}">
                     @csrf
-                    <div class="form-group position-relative has-icon-left mb-4">
-                        <p class="text-white mb-2">Email</p>
-                        <div class="form-group position-relative has-icon-left">
-                            <input id="email" type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ old('email') }}" required placeholder="Email">
+                        <div class="form-group">
+
+                            <span class="input-group-text">
+                                <i class="fa fa-user"></i>
+                            </span>
+
+                            <input type="text"
+                                class="form-control {{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ old('email') }}"
+                                placeholder="Email" required>
+                            
                             @if ($errors->has('email'))
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $errors->first('email') }}</strong>
                                 </span>
                             @endif
-                            <div class="form-control-icon">
-                                <i class="bi bi-person"></i>
-                            </div>
+
                         </div>
-                    </div>
-                    <div class="form-group position-relative has-icon-left mb-4">
-                        <p class="text-white mb-2">Password</p>
-                        <div class="form-group position-relative has-icon-left">
-                            <input id="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" name="password" required placeholder="*********">
+
+                        <div class="form-group">
+
+                            <span class="input-group-text">
+                                <i class="fa fa-lock"></i>
+                            </span>
+
+                            <input type="password"
+                                class="form-control {{ $errors->has('password') ? ' is-invalid' : '' }}"
+                                placeholder="Password" name="password" required>
+
                             @if ($errors->has('password'))
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $errors->first('password') }}</strong>
                                 </span>
                             @endif
-                            <div class="form-control-icon">
-                                <i class="bi bi-shield-lock"></i>
-                            </div>
+
                         </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+
+                            <div class="form-check">
+
+                                <input class="form-check-input"
+                                    type="checkbox"
+                                    id="remember">
+
+                                <label class="form-check-label" for="remember">
+                                    Remember Me
+                                </label>
+
+                            </div>
+
+                            <a href="#" class="forgot-password">
+                                Forgot Password?
+                            </a>
+
+                        </div>
+
+                        <button class="btn btn-primary btn-login w-100" type="submit">
+
+                            <i class="fa-solid fa-right-to-bracket me-2"></i>
+
+                            Login
+
+                        </button>
+
+                    </form>
+
+                    <div class="footer">
+
+                        © 2026 W Group Inc.<br>
+
+                        Cargo Monitoring System
+
                     </div>
-                    @if (Route::has('password.request'))
-                    <div class="form-group position-relative">
-                        <a href="{{ route('password.request') }}">
-                            {{ __('Forgot Your Password?') }}
-                        </a>
-                    </div>
-                    @endif
-                    <!-- <button class="btn btn-primary btn-block btn-lg shadow-lg mt-5">Log in</button> -->
-                    <button type="submit" class="btn btn-light btn-block btn-lg shadow-lg mt-3">
-                        {{ __('SIGN IN') }}
-                    </button>
-                    <div class="d-flex align-items-center my-4">
-                        <hr class="flex-grow-1 text-light">
-                        <span class="mx-3 text-white">OR</span>
-                        <hr class="flex-grow-1 text-light">
-                    </div>
-                    <div class="form-group position-relative text-center">
-                        <p class="text-white">Don't you have account?&nbsp;<a href="https://ticketing.rico.com.ph/itd/" class="text-white">Request Here</p>
-                        </a>
-                    </div>
-                </form>
+
+                </div>
+
             </div>
+
         </div>
+
     </div>
-</div>
-@endsection
+
+</body>
+
+</html>

@@ -665,7 +665,8 @@
                             limit: 1,
                             id: shipmentId,
                             buyersCode: buyersCode,
-                            sapServer: sapServer
+                            sapServer: sapServer,
+                            module: 'Shipment'
                         },
                         beforeSend: function(){
                             button.prop('disabled',true).html('<span class="spinner-border spinner-border-sm" role="status"></span>');

@@ -57,7 +57,7 @@
                 <div class="sidebar-header">
                     <div class="d-flex justify-content-between">
                         <div class="logo">
-                            <a href="index.html"><img src="{{ asset('images/logo.png') }}" width="180" alt="Logo" srcset=""></a>
+                            <a href="{{ route('home') }}"><img src="{{ asset('images/logo.png') }}" width="180" alt="Logo" srcset=""></a>
                         </div>
                         <div class="toggler">
                             <a href="#" class="sidebar-hide d-xl-none d-block"><i class="bi bi-x bi-middle"></i></a>
@@ -81,6 +81,7 @@
                                 @endforeach
                             @endforeach
                         @endif
+                        <hr>
                         <li class="sidebar-item">
                             <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class='sidebar-link'>
                                 <span>Sign out</span>

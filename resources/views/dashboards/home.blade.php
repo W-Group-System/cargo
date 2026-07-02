@@ -259,7 +259,12 @@
                 { data: 'formatted_created_at' },
                 { data: 'CardCode' },
                 { data: 'CardName'},
-                { data: 'SapServer'},
+                {
+                    data: 'SapServer',
+                    render: function(data, type, row) {
+                        return data ? data.toUpperCase() : '';
+                    }
+                },
             ],
             createdRow: function(row, data, dataIndex) {
                 $(row).addClass('clickable-row');
