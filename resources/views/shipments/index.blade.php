@@ -130,7 +130,7 @@
                                     <th>Buyers Name</th>
                                     <th>Warehouse</th>
                                     <th>Availability Date</th>
-                                    <th>Posting Date</th>
+                                    <th>CBW Doc Status</th>
                                     <th class="text-align-center" width="120">Action</th>
                                 </tr>
                             </thead>
@@ -662,7 +662,7 @@
                     }
                 },
                 { data: 'AvailabilityDate'},
-                { data: 'cargo_posting_date'},
+                { data: 'cbw_doc_status'},
                 {
                     render: function (data, type, row) {
                         return `<button type="button" class="btn btn-primary btn-update" id="btnCargoUpdate"
