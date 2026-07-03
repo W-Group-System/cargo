@@ -80,6 +80,11 @@ class CargoController extends Controller
                 $ordersList = $ordersList->where("CargoStatus",$status);
             }
 
+            if (isset($request->warehouse) && !empty(isset($request->warehouse))) {
+                $warehouse = $request->warehouse;
+                $ordersList = $ordersList->where("SapServer",$warehouse);
+            }
+
             if ($request->filled('start_date') && $request->filled('end_date')) {
                 $start = Carbon::parse($request->start_date)->startOfDay();
                 $end   = Carbon::parse($request->end_date)->endOfDay();

@@ -123,6 +123,11 @@ class ShipmentController extends Controller
                 });
             }
 
+            if (isset($request->warehouse) && !empty(isset($request->warehouse))) {
+                $warehouse = $request->warehouse;
+                $ordersList = $ordersList->where("po.SapServer", $warehouse);
+            }
+
             if (isset($request->status) && !empty(isset($request->status))) {
                 $status = $request->status;
                 if ($status == "PENDING") {

@@ -111,7 +111,16 @@
                                         <i class="bi bi-caret-down"></i>
                                     </div>
                                 </div>
-
+                                <div class="col-auto">
+                                    <select name="warehouse" id="warehouse" class="form-select">
+                                        <option value="">- Select Warehouse -</option>
+                                        @foreach (["whi"=>"WHI", "ccc"=>"CCC", "pbi"=>"PBI"] as $key => $value)
+                                            <option value="{{ $key }}">
+                                                {{ $value }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
                                 <div class="col-auto">
                                     <button type="submit" class="btn btn-success">
                                         <i class="bi bi-search"></i>&nbsp;Search
@@ -640,6 +649,7 @@
                         start_date: $('#start_date').val(),
                         end_date: $('#end_date').val(),
                         status: cardStatusFilter,
+                        warehouse: $('select[name="warehouse"]').val(),
                         search: $('#dt-search-0').val()
                     },
                     success: function (resp) {

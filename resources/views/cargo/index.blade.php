@@ -39,6 +39,16 @@
                                 </select>
                             </div>
                             <div class="col-auto">
+                                <select class="form-control" name="warehouse">
+                                    <option value="">-Select Warehouse-</option>
+                                    @foreach (["whi"=>"WHI", "ccc"=>"CCC", "pbi"=>"PBI"] as $key => $value)
+                                        <option value="{{ $key }}">
+                                            {{ $value }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-auto">
                                 <button type="submit" class="btn btn-success">
                                     <i class="bi bi-search"></i>&nbsp;Search
                                 </button>
@@ -52,8 +62,9 @@
                                     <th>Status</th>
                                     <th>Buyers Code</th>
                                     <th>Buyers Name</th>
+                                    <th>Availability Date</th>
+                                    <th>Pickup Date</th>
                                     <th>Warehouse</th>
-                                    <th>Date Created</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -340,6 +351,7 @@
                         start_date:  $('#start_date').val(),
                         end_date:  $('#end_date').val(),
                         status:  $('select[name="status"]').val(),
+                        warehouse:  $('select[name="warehouse"]').val(),
                         search: $('#dt-search-0').val()
                     },
                     success: function (resp) {
@@ -355,13 +367,14 @@
                 { data: 'cargo_status.description'},
                 { data: 'CardCode' },
                 { data: 'CardName'},
+                { data: 'AvailabilityDate'},
+                { data: 'PickupDate'},
                 {
                     data: 'SapServer',
                     render: function(data, type, row) {
                         return data ? data.toUpperCase() : '';
                     }
                 },
-                { data: 'formatted_created_at' },
                 {
                     render: function (data, type, row) {
                         return `<button type="button" class="btn btn-primary btn-update" id="btnCargoUpdate"
