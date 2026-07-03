@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\OrderClass;
 use App\Helpers\Helper;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
@@ -18,6 +19,13 @@ use GuzzleHttp\Client;
 
 class OrderController extends Controller
 {
+    protected OrderClass $orderClass;
+    public function __construct(OrderClass $orderClass)
+    {
+        $this->middleware('auth');
+        $this->orderClass = $orderClass;
+    }
+
     public function index(Request $request)
     {
         $data['ActiveModule'] = 'Orders';
@@ -168,7 +176,7 @@ class OrderController extends Controller
             
             if (isset($processOrder->id)) {
                 $processOrderId = $processOrder->id;
-                $getOrderListByCode = $this->SapOrderList($cardCode,$sapServer,"");
+                $getOrderListByCode = $this->orderClass->SapOrderList($cardCode,$sapServer,"","O");
                 if ($getOrderListByCode["isSuccess"]) {
                     $data = $getOrderListByCode["data"];
                     if (count($data) > 0) {
