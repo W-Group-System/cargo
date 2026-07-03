@@ -20,9 +20,11 @@ class ShipmentNotification extends Mailable
      */
     public $subject = "";
     public $htmlContent = "";
-    public function __construct($html)
+    protected $files = [];
+    public function __construct($html,$fileAttachements=[])
     {
         $this->htmlContent = $html;
+        $this->files = $fileAttachements;
     }
 
     /**
@@ -32,8 +34,16 @@ class ShipmentNotification extends Mailable
      */
     public function build()
     {
-        $data = ["templateContent" => $this->htmlContent];
-        return $this->view('email.email_notification',$data)
-        ->subject($this->subject);
+
+        $mail = $this->view('email.email_notification', [
+                'templateContent' => $this->htmlContent,
+            ])
+            ->subject($this->subject);
+
+        foreach ($this->files as $file) {
+            $mail->attach($file);
+        }
+
+        return $mail;
     }
 }

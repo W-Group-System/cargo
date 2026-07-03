@@ -57,8 +57,10 @@
                 @endforeach
             </tbody>
         </table>
-        <button class="btn btn-primary form-control" type="submit">
-            Save
-        </button>
+        @if ($canUpdate)
+            <button class="btn btn-primary form-control" type="submit">
+                Save
+            </button>
+        @endif
     </form>
 </div>

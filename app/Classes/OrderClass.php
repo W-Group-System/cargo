@@ -22,7 +22,7 @@ class OrderClass {
         DB::beginTransaction();
         try {
     
-            $getOrderListByCode = $this->SapOrderList($cardCode,$sapServer,"");
+            $getOrderListByCode = $this->SapOrderList($cardCode,$sapServer,"","O");
             if ($getOrderListByCode["isSuccess"]) {
                 $data = $getOrderListByCode["data"];
                 $processOrder = ProcessedOrders::create([
@@ -87,7 +87,7 @@ class OrderClass {
         
     }
 
-    public function SapOrderList($cardCode,$sapServer,$soNumber){
+    public function SapOrderList($cardCode,$sapServer,$soNumber,$status){
         
         $response = [
             "isSuccess"=>false,
@@ -121,7 +121,7 @@ class OrderClass {
                 
                 if (!empty($endpointData) > 0) {
 
-                    $endpoint = $endpointData->Endpoint."?buyersCode={$cardCode}&page={$page}&soNumber={$soNumber}&limit={$limit}";
+                    $endpoint = $endpointData->Endpoint."?buyersCode={$cardCode}&page={$page}&soNumber={$soNumber}&limit={$limit}&status={$status}";
                     $sapResponse = $client->request('GET', $endpoint, [
                         'headers' => [
                             'Accept' => 'application/json', 

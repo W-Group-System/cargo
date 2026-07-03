@@ -27,7 +27,7 @@
     <link href="{{ asset('vendors/perfect-scrollbar/perfect-scrollbar.css') }}" rel="stylesheet">
     <link href="{{ asset('vendors/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-    <link rel="stylesheet" href="{{ asset('js/datatables/dataTables.bootstrap5.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('js/DataTables/dataTables.bootstrap5.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/base.css') }}">
      <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -47,6 +47,27 @@
             opacity: .8;
             background-size: 120px 120px;
         }
+        thead tr:first-child th {
+            background-color: #2D589F !important;
+            color: #fff !important;
+        }
+
+        thead tr:first-child th:first-child {
+            border-top-left-radius: 10px !important;
+        }
+
+        thead tr:first-child th:last-child {
+            border-top-right-radius: 10px !important;
+        }
+
+        .clickable-card {
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+
+        .clickable-card.active {
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.35);
+        }
     </style>
 </head>
 <body>
@@ -57,7 +78,7 @@
                 <div class="sidebar-header">
                     <div class="d-flex justify-content-between">
                         <div class="logo">
-                            <a href="index.html"><img src="{{ asset('images/logo.png') }}" width="180" alt="Logo" srcset=""></a>
+                            <a href="{{ route('home') }}"><img src="{{ asset('images/logo.png') }}" width="180" alt="Logo" srcset=""></a>
                         </div>
                         <div class="toggler">
                             <a href="#" class="sidebar-hide d-xl-none d-block"><i class="bi bi-x bi-middle"></i></a>
@@ -81,8 +102,10 @@
                                 @endforeach
                             @endforeach
                         @endif
+                        <hr>
                         <li class="sidebar-item">
                             <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class='sidebar-link'>
+                                <i class="bi bi-box-arrow-right"></i>
                                 <span>Sign out</span>
                             </a>
                         </li>
@@ -109,12 +132,20 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-    <script src="{{ asset('js/datatables/datatables.min.js') }}"></script>
-    <script src="{{ asset('js/datatables/dataTables.bootstrap5.min.js') }}"></script>
+    <script src="{{ asset('js/DataTables/datatables.min.js') }}"></script>
+    <script src="{{ asset('js/DataTables/dataTables.bootstrap5.min.js') }}"></script>
     <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     @include('sweetalert::alert')
-    
+    {{-- <script>
+        @if(session('error'))
+            Swal.fire({
+                title: 'Unauthorized!',
+                text: @json(session('error')),
+                icon: 'error'
+            });
+        @endif
+    </script> --}}
     @yield('footer')
 </body>
 </html>

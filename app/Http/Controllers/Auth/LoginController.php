@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\RolesAccess;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
@@ -25,7 +27,29 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected function redirectTo()
+    {
+        $roleId = Auth::user()->role;
+
+        $access = RolesAccess::from('roles_access as ra')
+            ->select('m.module_url')
+            ->leftJoin('modules as m', 'm.id', '=', 'ra.module_id')
+            ->where('ra.role_id', $roleId)
+            ->where('ra.can_read', 1)
+            ->orderBy('m.module_order', 'asc')
+            ->first();
+
+        if ($access) {
+            return $access->module_url;
+        }
+
+        Auth::logout();
+
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+
+        return '/login';
+    }
 
     /**
      * Create a new controller instance.

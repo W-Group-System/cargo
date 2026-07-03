@@ -53,6 +53,17 @@
                     </div>
                 </div>
 
+                <div class="col-md-4 col-lg-3">
+                    <select class="form-control" name="warehouse">
+                        <option value="">-Select Warehouse-</option>
+                        @foreach (["whi"=>"WHI", "ccc"=>"CCC", "pbi"=>"PBI"] as $key => $value)
+                            <option value="{{ $key }}">
+                                {{ $value }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <div class="col-auto">
                     <button type="submit" class="btn btn-success">
                         <i class="bi bi-search"></i>
@@ -65,12 +76,12 @@
 </div>
         <div class="row">
             <div class="col-6 col-lg-3 col-md-6">
-                <div class="card">
+                <div class="card clickable-card">
                     <div class="card-body px-3 py-4-5">
                         <div class="row">
                             <div class="col-md-8">
                                 <h6 class="text-muted font-semibold">PENDING</h6>
-                                <h6 class="font-extrabold mb-0">0</h6>
+                                <h6 class="font-extrabold mb-0" id="pending">0</h6>
                             </div>
                             <div class="col-md-4">
                                 <div class="stats-icon purple">
@@ -84,12 +95,12 @@
                 </div>
             </div>
             <div class="col-6 col-lg-3 col-md-6">
-                <div class="card">
+                <div class="card clickable-card">
                     <div class="card-body px-3 py-4-5">
                         <div class="row">
                             <div class="col-md-8">
                                 <h6 class="text-muted font-semibold">IN-TRANSIT</h6>
-                                <h6 class="font-extrabold mb-0">0</h6>
+                                <h6 class="font-extrabold mb-0" id="inTransit">0</h6>
                             </div>
                             <div class="col-md-4">
                                 <div class="stats-icon purple">
@@ -103,12 +114,12 @@
                 </div>
             </div>
             <div class="col-6 col-lg-3 col-md-6">
-                <div class="card">
+                <div class="card clickable-card">
                     <div class="card-body px-3 py-4-5">
                         <div class="row">
                             <div class="col-md-8">
                                 <h6 class="text-muted font-semibold">DELIVERED</h6>
-                                <h6 class="font-extrabold mb-0">0</h6>
+                                <h6 class="font-extrabold mb-0" id="delivered">0</h6>
                             </div>
                             <div class="col-md-4">
                                 <div class="stats-icon purple">
@@ -122,12 +133,12 @@
                 </div>
             </div>
             <div class="col-6 col-lg-3 col-md-6">
-                <div class="card">
+                <div class="card clickable-card">
                     <div class="card-body px-3 py-4-5">
                         <div class="row">
                             <div class="col-md-8">
                                 <h6 class="text-muted font-semibold">IRREGULARITIES</h6>
-                                <h6 class="font-extrabold mb-0">0</h6>
+                                <h6 class="font-extrabold mb-0" id="irregularities">0</h6>
                             </div>
                             <div class="col-md-4">
                                 <div class="stats-icon purple">
@@ -154,9 +165,10 @@
                                     <thead class="table-light">
                                         <tr>
                                             <th>Status</th>
-                                            <th>Date Created</th>
+                                            <th>Availability Date</th>
                                             <th>Buyers Code</th>
                                             <th>Buyers Name</th>
+                                            <th>CBW Doc Status</th>
                                             <th>Warehouse</th>
                                         </tr>
                                     </thead>
@@ -210,8 +222,23 @@
 
         cb(start, end);
 
+        LoadShipmentCounts();
+        
         $('#dashboardFilterForm').submit(function (e) { 
             e.preventDefault();
+            ReloadDataTable();
+        });
+
+        let cardStatusFilter = '';
+        $('.clickable-card').click(function () {
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+                cardStatusFilter = '';
+            } else {
+                $('.clickable-card').removeClass('active');
+                $(this).addClass('active');
+                cardStatusFilter = $(this).find('h6').first().text().trim();
+            }
             ReloadDataTable();
         });
 
@@ -219,7 +246,7 @@
             processing: true,
             serverSide: true,
             responsive: true,
-            searching: false,
+            searching: true,
             ordering: false,
             paging: true,
             autoWidth: false,
@@ -229,6 +256,12 @@
             language: {
                 processing: '<div class="spinner-border"></div>',
             },
+            columnDefs: [
+                {
+                    targets: '_all',
+                    className: 'text-center align-middle'
+                }
+            ],
             ajax: function (data, callback) {
                 let page = (data.start / data.length) + 1;
                 let limit = data.length;
@@ -240,7 +273,10 @@
                         page: page,
                         limit: limit,
                         start_date: $('#start_date').val(),
-                        end_date: $('#end_date').val()
+                        end_date: $('#end_date').val(),
+                        status: cardStatusFilter,
+                        warehouse: $('select[name="warehouse"]').val(),
+                        search: $('#dt-search-0').val()
                     },
                     success: function (resp) {
                         callback({
@@ -252,34 +288,67 @@
                 });
             },
             columns: [
-                { data: 'shipment_details.delivery_status[0].description'},
-                { data: 'formatted_created_at' },
+                { data: 'shipmentStatus'},
+                { data: 'AvailabilityDate' },
                 { data: 'CardCode' },
                 { data: 'CardName'},
-                { data: 'SapServer'},
+                { data: 'cbw_doc_status' },
+                {
+                    data: 'SapServer',
+                    render: function(data, type, row) {
+                        return data ? data.toUpperCase() : '';
+                    }
+                },
             ],
             createdRow: function(row, data, dataIndex) {
                 $(row).addClass('clickable-row');
             },
             rowCallback : function(row,data,DisplayIndex){
                 $(row).on('click', function () {
-                    $('.trackinPointDiv').html('<center><span class="spinner-border spinner-border-lg" role="status"></span></center>');
-                    $.ajax({
-                        type: "GET",
-                        url: "{{ route('trackpoints') }}",
-                        data: {
-                            id:data.shipment_details.id
-                        },
-                        success: function (response) {
-                            $('.trackinPointDiv').html(response);
-                        }
-                    });
+                    LoadTrackingPoints(data.shipment_details?.id??"");
                 });
             }
         });
 
         function ReloadDataTable() {
             orderTable.ajax.reload(null, true);
+            LoadShipmentCounts();
+            LoadTrackingPoints("",true);
+        }
+
+        function LoadShipmentCounts(){
+            $.ajax({
+                type: "GET",
+                url: "{{ route('shipment.counts') }}",
+                data: {
+                    start_date: $('#start_date').val(),
+                    end_date: $('#end_date').val()
+                },
+                success: function (response) {
+                    $('#pending').text(response.pending);
+                    $('#inTransit').text(response.in_transit);
+                    $('#delivered').text(response.delivered);
+                    $('#irregularities').text(response.irregularities);
+                }
+            });
+        }
+
+        function LoadTrackingPoints(shipmentId,reset=false){
+            $('.trackinPointDiv').html('<center><span class="spinner-border spinner-border-lg" role="status"></span></center>');
+            if(reset){
+                $('.trackinPointDiv').html('<h3><center>Select Shipment</center></h3>');
+                return;
+            }
+            $.ajax({
+                type: "GET",
+                url: "{{ route('trackpoints') }}",
+                data: {
+                    id:shipmentId
+                },
+                success: function (response) {
+                    $('.trackinPointDiv').html(response);
+                }
+            });
         }
     });
 </script>

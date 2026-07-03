@@ -1,8 +1,10 @@
 @extends('layouts.header')
 @section('content')
-{{-- @php
-    dd(get_defined_vars());
-@endphp --}}
+<header class="mb-3">
+    <a href="#" class="burger-btn d-block d-xl-none">
+        <i class="bi bi-justify fs-3"></i>
+    </a>
+</header>
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="col-lg-12 grid-margin stretch-card">
@@ -11,12 +13,12 @@
                     <h4 class="card-title">Shipment Management</h4>
                      <div class="row">
                         <div class="col-6 col-lg-3 col-md-6">
-                            <div class="card border border-primary">
+                            <div class="card border border-primary clickable-card" data-status="PENDING">
                                 <div class="card-body px-3 py-4-5">
                                     <div class="row">
                                         <div class="col-md-8">
                                             <h6 class="text-muted font-semibold">Pending Shipments</h6>
-                                            <h6 class="font-extrabold mb-0">0</h6>
+                                            <h6 class="font-extrabold mb-0" id="pending">0</h6>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="stats-icon purple">
@@ -30,12 +32,12 @@
                             </div>
                         </div>
                         <div class="col-6 col-lg-3 col-md-6">
-                            <div class="card border border-primary">
+                            <div class="card border border-primary clickable-card" data-status="IN-TRANSIT">
                                 <div class="card-body px-3 py-4-5">
                                     <div class="row">
                                         <div class="col-md-8">
                                             <h6 class="text-muted font-semibold">In Transit</h6>
-                                            <h6 class="font-extrabold mb-0">0</h6>
+                                            <h6 class="font-extrabold mb-0" id="inTransit">0</h6>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="stats-icon blue">
@@ -49,12 +51,12 @@
                             </div>
                         </div>
                         <div class="col-6 col-lg-3 col-md-6">
-                            <div class="card border border-primary">
+                            <div class="card border border-primary clickable-card" data-status="SHIPPED">
                                 <div class="card-body px-3 py-4-5">
                                     <div class="row">
                                         <div class="col-md-8">
                                             <h6 class="text-muted font-semibold">Shipped</h6>
-                                            <h6 class="font-extrabold mb-0">0</h6>
+                                            <h6 class="font-extrabold mb-0" id="shipped">0</h6>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="stats-icon green">
@@ -68,12 +70,12 @@
                             </div>
                         </div>
                         <div class="col-6 col-lg-3 col-md-6">
-                            <div class="card border border-primary">
+                            <div class="card border border-primary clickable-card" data-status="IRREGULARITIES">
                                 <div class="card-body px-3 py-4-5">
                                     <div class="row">
                                         <div class="col-md-8">
                                             <h6 class="text-muted font-semibold">Irregularities</h6>
-                                            <h6 class="font-extrabold mb-0">0</h6>
+                                            <h6 class="font-extrabold mb-0" id="irregularities">0</h6>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="stats-icon red">
@@ -111,7 +113,16 @@
                                         <i class="bi bi-caret-down"></i>
                                     </div>
                                 </div>
-
+                                <div class="col-auto">
+                                    <select name="warehouse" id="warehouse" class="form-select">
+                                        <option value="">- Select Warehouse -</option>
+                                        @foreach (["whi"=>"WHI", "ccc"=>"CCC", "pbi"=>"PBI"] as $key => $value)
+                                            <option value="{{ $key }}">
+                                                {{ $value }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
                                 <div class="col-auto">
                                     <button type="submit" class="btn btn-success">
                                         <i class="bi bi-search"></i>&nbsp;Search
@@ -126,12 +137,12 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Status</th>
-                                    <th>Date Created</th>
                                     <th>Buyers Code</th>
                                     <th>Buyers Name</th>
                                     <th>Warehouse</th>
-                                    <th>Posting Date</th>
-                                    <th class="text-center" width="120">Action</th>
+                                    <th>Availability Date</th>
+                                    <th>CBW Doc Status</th>
+                                    <th class="text-align-center" width="120">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -143,7 +154,7 @@
         </div>
     </div>
 </div>
-@component('components.modal',['modal_id' => 'updateStatusModal','title' => 'Update shipment information','form_id' => 'updateShipmentForm', 'size' => 'modal-xl'])
+@component('components.modal',['modal_id' => 'updateStatusModal','title' => 'Update shipment information','form_id' => 'updateShipmentForm', 'size' => 'modal-xl','canUpdate'=>$canUpdate])
     <div class="row g-4">
         <div class="col-12 col-lg-6">
             <div class="d-flex mb-2 align-items-center">
@@ -172,12 +183,22 @@
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link"
-                    id="profile-tab"
+                    id="cargo-tab"
                     data-bs-toggle="tab"
                     data-bs-target="#cargoTab"
                     type="button"
                     role="tab">
                 Cargo
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link"
+                    id="files-tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#shipmentFiles"
+                    type="button"
+                    role="tab">
+                Shipment Files
             </button>
         </li>
     </ul>
@@ -382,6 +403,13 @@
                             </div>
                         </div>
 
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">Vessel/Voyage Name.</label>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="vesselName" id="vesselName">
+                            </div>
+                        </div>
+
                         <hr>
 
                         <!-- Dates -->
@@ -489,6 +517,46 @@
                 </div>
             </div>
         </div>
+
+        <div class="tab-pane fade show" id="shipmentFiles" role="tabpanel">
+            <!-- Upload Section -->
+                <div class="row align-items-end mb-4">
+                    <div class="col-md-9">
+                        <label for="attachment" class="form-label">Select File</label>
+                        <input
+                            type="file"
+                            class="form-control"
+                            id="attachments"
+                            name="attachments[]"
+                            multiple>
+                    </div>
+
+                    <div class="col-md-3 d-grid">
+                        @if ($canUpdate)
+                            <button type="button" class="btn btn-primary" id="btnUpload">
+                                Upload
+                            </button>
+                        @endif
+                        
+                    </div>
+                </div>
+
+                <!-- Uploaded Files Table -->
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle" id="uploadedFilesTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>File Name</th>
+                                <th>Date Uploaded</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                        </tbody>
+                    </table>
+                </div>
+        </div>
     </div>
 @endcomponent
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -497,6 +565,10 @@
 
 <script type="text/javascript">
     $(function () {
+        let canUpdate = "{{ $canUpdate }}";
+        let canCreate = "{{ $canCreate }}";
+        let canDelete = "{{ $canDelete }}";
+        
         var start = moment().subtract(29, 'days');
         var end = moment();
 
@@ -521,12 +593,28 @@
 
         cb(start, end);
 
+        LoadShipmentCounts();
+
         let coLoadArray = {};
         let sapServerDefault = '';
         let currentTrackPoint = '';
 
         $('#shipmentListForm').submit(function (e) { 
             e.preventDefault();
+            LoadShipmentCounts();
+            ReloadDataTable();
+        });
+
+        let cardStatusFilter = '';
+        $('.clickable-card').click(function () {
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+                cardStatusFilter = '';
+            } else {
+                $('.clickable-card').removeClass('active');
+                $(this).addClass('active');
+                cardStatusFilter = $(this).data('status');
+            }
             ReloadDataTable();
         });
 
@@ -534,7 +622,7 @@
             processing: true,
             serverSide: true,
             responsive: true,
-            searching: false,
+            searching: true,
             ordering: false,
             paging: true,
             autoWidth: false,
@@ -544,6 +632,12 @@
             language: {
                 processing: '<div class="spinner-border"></div>',
             },
+            columnDefs: [
+                {
+                    targets: '_all',
+                    className: 'text-center align-middle'
+                }
+            ],
             ajax: function (data, callback) {
                 let page = (data.start / data.length) + 1;
                 let limit = data.length;
@@ -555,7 +649,10 @@
                         page: page,
                         limit: limit,
                         start_date: $('#start_date').val(),
-                        end_date: $('#end_date').val()
+                        end_date: $('#end_date').val(),
+                        status: cardStatusFilter,
+                        warehouse: $('select[name="warehouse"]').val(),
+                        search: $('#dt-search-0').val()
                     },
                     success: function (resp) {
                         callback({
@@ -567,12 +664,17 @@
                 });
             },
             columns: [
-                { data: 'shipment_details.delivery_status[0].description'},
-                { data: 'formatted_created_at' },
+                { data: 'shipmentStatus'},
                 { data: 'CardCode' },
                 { data: 'CardName'},
-                { data: 'SapServer'},
-                { data: 'cargo_posting_date'},
+                {
+                    data: 'SapServer',
+                    render: function(data, type, row) {
+                        return data ? data.toUpperCase() : '';
+                    }
+                },
+                { data: 'AvailabilityDate'},
+                { data: 'cbw_doc_status'},
                 {
                     render: function (data, type, row) {
                         return `<button type="button" class="btn btn-primary btn-update" id="btnCargoUpdate"
@@ -597,7 +699,8 @@
                             limit: 1,
                             id: shipmentId,
                             buyersCode: buyersCode,
-                            sapServer: sapServer
+                            sapServer: sapServer,
+                            module: 'Shipment'
                         },
                         beforeSend: function(){
                             button.prop('disabled',true).html('<span class="spinner-border spinner-border-sm" role="status"></span>');
@@ -608,13 +711,13 @@
                             var cc = resp.data[0].shipment_details?.cc_recipients ? resp.data[0].shipment_details?.cc_recipients.split(','):[];                            
 
                             $('#headerBuyersCode').text(resp.data[0].CardCode);
-                            $('#deliveryStatusDesc').text(resp.data[0].shipment_details?.delivery_status[0]?.description??"-");
+                            $('#deliveryStatusDesc').text(resp.data[0].shipmentStatus??"-");
                             $('#id').val(shipmentId);
                             $('#deliveryStatus').val(resp.data[0].shipment_details?.delivery_status[0]?.code??"");
                             $('#clientRefNo').val(resp.data[0].CardCode??"");
                             $('#invoiceNo').val(resp.data[0].shipment_details?.invoice_number??"");
                             $('#cbwDocStatus').val(resp.data[0].shipment_details?.cbw_doc_status??"");
-                            $('#currentLocation').val(resp.data[0].SapServer??"");
+                            $('#currentLocation').val((resp.data[0].SapServer ?? "").toUpperCase());
                             $('#region').val(resp.data[0].shipment_details?.region??"");
                             $('#shippingLine').val(resp.data[0].shipment_details?.shipping_line??"");
                             $('#blNumber').val(resp.data[0].shipment_details?.ed_bl_number??"");
@@ -633,10 +736,12 @@
                             $('#cargoReadinessDate').val(resp.data[0].AvailabilityDate??"");
                             $('#receiver').val(receivers).trigger('change');
                             $('#cc').val(cc).trigger('change');
+                            $('#vesselName').val(resp.data[0].shipment_details?.vessel_name??"");
                             
                             GetCargoTabContent(resp.data[0].CardCode,resp.data[0].SapServer, function(success){
                                 if (success) {
                                     $('#trackPoints').val(resp.data[0].shipment_details?.track_points??"");
+                                    $('#home-tab').trigger('click');
                                     $('#updateStatusModal').modal('show');
                                 }
                             });
@@ -708,8 +813,128 @@
             });
         };
 
+        let filesTable = $('#uploadedFilesTable').DataTable({
+            processing: true,
+            serverSide: true,
+            responsive: true,
+            searching: false,
+            ordering: false,
+            paging: true,
+            autoWidth: false,
+            scrollY: '480px',
+            scrollCollapse: false,
+            lengthChange: false,
+            language: {
+                processing: '<div class="spinner-border"></div>',
+            },
+            ajax: function (data, callback) {
+                let page = (data.start / data.length) + 1;
+                let limit = data.length;
+
+                $.ajax({
+                    url: "{{ route('shipment.files') }}",
+                    type: 'GET',
+                    data: {
+                        page: page,
+                        limit: limit,
+                        shipmentId:$('#id').val()
+                    },
+                    success: function (resp) {
+                        callback({
+                            data: resp.data,            
+                            recordsTotal: resp.total,   
+                            recordsFiltered: resp.total 
+                        });
+                    }
+                });
+            },
+            columns: [
+                {
+                    render: function (data, type, row) {
+                        return `<a href="storage/${row.file_path}" target="_blank">${row.file_name}</a>`
+                    }
+                },
+                { data: 'formatted_created_at'},
+                {
+                    className:'text-center',
+                    render: function (data, type, row) {
+                        if (canDelete) {
+                            return `<button class="btn btn-sm btn-danger deleteFile" data-id="${row.id}"><i class="bi bi-trash"></i></button>`;
+                        }
+                        return ``;
+                    }
+                }
+            ],
+            rowCallback : function(row,data,DisplayIndex){
+                $(row).find('.deleteFile').unbind('click').on('click',function(e){
+                    e.preventDefault();
+                    let fileId = $(this).data('id');
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ route('delete.files')}}",
+                        data: {id:fileId},
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function (response) {
+                            ReloadFilesDataTable();
+                        }
+                    });
+                });
+            }
+        });
+
+        $('#files-tab').on('click', function () {
+            ReloadFilesDataTable();
+            // $('#uploadedFilesTable').DataTable().columns.adjust().responsive.recalc();
+        });
+
+        $('#btnUpload').click(function () {
+            let files = $('#attachments')[0].files;
+
+            if (files.length === 0) {
+                alert('Please select at least one file.');
+                return;
+            }
+
+            let formData = new FormData();
+
+            // Other data
+            formData.append('shipment_id', $('#id').val());
+
+            // Append each file
+            $.each(files, function (index, file) {
+                formData.append('attachments[]', file);
+            });
+
+            $.ajax({
+                url: "{{ route('upload.files') }}",
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (response) {
+                    // alert(response.message);
+                    $('#attachments').val('');
+                    ReloadFilesDataTable();
+                },
+                error: function (xhr) {
+                    console.log(xhr.responseJSON);
+                }
+            });
+
+        });
+
         function ReloadDataTable() {
             orderTable.ajax.reload(null, true);
+            LoadShipmentCounts();
+        }
+
+        function ReloadFilesDataTable() {
+            filesTable.ajax.reload(null, true);
         }
 
         function ComputeTransitTime(dateValOne,dateValTwo){
@@ -828,6 +1053,7 @@
             currentTrackPoint = '';
             sapServerDefault = '';
             coLoadArray = {};
+            $('#files-tab,#cargo-tab').removeClass('active');
         });
 
         $('#updateShipmentForm').submit(function (e) { 
@@ -863,6 +1089,23 @@
             tags: true, // allows new values
             tokenSeparators: [',']
         });
+
+        function LoadShipmentCounts(){
+            $.ajax({
+                type: "GET",
+                url: "{{ route('shipment.counts') }}",
+                data: {
+                    start_date: $('#start_date').val(),
+                    end_date: $('#end_date').val()
+                },
+                success: function (response) {
+                    $('#pending').text(response.pending);
+                    $('#inTransit').text(response.in_transit);
+                    $('#shipped').text(response.shipped);
+                    $('#irregularities').text(response.irregularities);
+                }
+            });
+        }
     });
 </script>
 @endsection

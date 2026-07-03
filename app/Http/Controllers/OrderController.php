@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\OrderClass;
 use App\Helpers\Helper;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
@@ -18,9 +19,19 @@ use GuzzleHttp\Client;
 
 class OrderController extends Controller
 {
+    protected OrderClass $orderClass;
+    public function __construct(OrderClass $orderClass)
+    {
+        $this->middleware('auth');
+        $this->orderClass = $orderClass;
+    }
+
     public function index(Request $request)
     {
         $data['ActiveModule'] = 'Orders';
+        $data['canCreate'] = $request->create;
+        $data['canUpdate'] = $request->update;
+        $data['canDelete'] = $request->delete;
         return view('orders.indexV2', $data);
     }
 
@@ -165,13 +176,14 @@ class OrderController extends Controller
             
             if (isset($processOrder->id)) {
                 $processOrderId = $processOrder->id;
-                $getOrderListByCode = $this->SapOrderList($cardCode,$sapServer,"");
+                $getOrderListByCode = $this->orderClass->SapOrderList($cardCode,$sapServer,"","O");
                 if ($getOrderListByCode["isSuccess"]) {
                     $data = $getOrderListByCode["data"];
                     if (count($data) > 0) {
                         foreach ($data as $key => $value) {
                             $collectedData = collect($value);
                             $cardCode = $collectedData["BuyersCode"];
+                            $contactData = collect($collectedData["contact_name"]);
                             $order = Order::create([
                                 'process_order_id' => $processOrderId,
                                 'sap_server' => $sapServer,
@@ -179,9 +191,11 @@ class OrderController extends Controller
                                 'CardCode'   => $collectedData["BuyersCode"],
                                 'CardName'   => $collectedData["CardName"],
                                 'Label'      => $collectedData["U_Label"],
-                                'BuyersPO'  => $collectedData["U_BuyersPO"]
-                                // ,
-                                // 'ContactName'  => $collectedData["ContactName"]
+                                'Packaging'  => $collectedData["U_Packaging"],
+                                'BuyersPO'  => $collectedData["U_BuyersPO"],
+                                'ContactName'  => $contactData["Name"]??"",
+                                'LoadingPort'  => $collectedData["LoadingPort"]??"",
+                                'PortOfDestination'  => $collectedData["PortOfDestination"]??""
                             ]);
 
                             if (isset($order->id)) {

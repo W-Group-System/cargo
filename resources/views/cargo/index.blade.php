@@ -1,5 +1,10 @@
 @extends('layouts.header')
 @section('content')
+<header class="mb-3">
+    <a href="#" class="burger-btn d-block d-xl-none">
+        <i class="bi bi-justify fs-3"></i>
+    </a>
+</header>
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="col-lg-12 grid-margin stretch-card">
@@ -28,7 +33,26 @@
                                     <i class="bi bi-caret-down"></i>
                                 </div>
                             </div>
-
+                            <div class="col-auto">
+                                <select class="form-control" name="status">
+                                    <option value="">-Select Status-</option>
+                                    @foreach ($CargoStatusArr as $key => $value)
+                                        <option value="{{ $key }}">
+                                            {{ $value }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-auto">
+                                <select class="form-control" name="warehouse">
+                                    <option value="">-Select Warehouse-</option>
+                                    @foreach (["whi"=>"WHI", "ccc"=>"CCC", "pbi"=>"PBI"] as $key => $value)
+                                        <option value="{{ $key }}">
+                                            {{ $value }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                             <div class="col-auto">
                                 <button type="submit" class="btn btn-success">
                                     <i class="bi bi-search"></i>&nbsp;Search
@@ -43,8 +67,9 @@
                                     <th>Status</th>
                                     <th>Buyers Code</th>
                                     <th>Buyers Name</th>
+                                    <th>Availability Date</th>
+                                    <th>Pickup Date</th>
                                     <th>Warehouse</th>
-                                    <th>Date Created</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -94,12 +119,14 @@
                                     </select>
                                 </div>
                                 <div class="col-12 col-md-2">
-                                    <button
-                                        type="submit"
-                                        id="btnAddCoLoad"
-                                        class="btn btn-secondary w-100">
-                                        +
-                                    </button>
+                                    @if ($canUpdate)
+                                        <button
+                                            type="submit"
+                                            id="btnAddCoLoad"
+                                            class="btn btn-secondary w-100">
+                                            +
+                                        </button>
+                                    @endif
                                 </div>
                             </div>
                         </form>
@@ -149,7 +176,9 @@
                                         type="date"
                                         class="form-control"
                                         name="availabilityDate"
-                                        id="availabilityDate">
+                                        id="availabilityDate"
+                                        required
+                                        >
                                 </div>
                                 <div class="mb-3">
                                     <label for="pickupDate" class="form-label">
@@ -160,7 +189,7 @@
                                         class="form-control"
                                         name="pickupDate"
                                         id="pickupDate"
-                                        required>
+                                        >
                                 </div>
                             </div>
                             <!-- Right Column -->
@@ -174,7 +203,7 @@
                                         id="status"
                                         class="form-control">
                                         <option value="">-Select Data-</option>
-                                        @foreach (["FP"=>"For packing","POP"=>"Packing on process","RFP"=>"Ready for pickup","L"=>"Loaded"] as $key => $value)
+                                        @foreach ($CargoStatusArr as $key => $value)
                                             <option value="{{ $key }}">
                                                 {{ $value }}
                                             </option>
@@ -183,12 +212,14 @@
                                 </div>
                             </div>
                             <div class="col-12">
-                                <button
-                                    type="submit"
-                                    id="btnProcessCargo"
-                                    class="btn btn-secondary w-100">
-                                    Process
-                                </button>
+                                @if ($canUpdate)
+                                    <button
+                                        type="submit"
+                                        id="btnProcessCargo"
+                                        class="btn btn-secondary w-100">
+                                        Process
+                                    </button>
+                                @endif
                             </div>
                         </div>
                     </form>
@@ -207,6 +238,10 @@
 {{-- <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> --}}
 <script type="text/javascript">
     $(document).ready(function () {
+        let canUpdate = "{{ $canUpdate }}";
+        let canCreate = "{{ $canCreate }}";
+        let canDelete = "{{ $canDelete }}";
+
         let sapServerDefault = "";
         var start = moment().subtract(29, 'days');
         var end = moment();
@@ -292,7 +327,7 @@
             processing: true,
             serverSide: true,
             responsive: true,
-            searching: false,
+            searching: true,
             ordering: false,
             paging: true,
             autoWidth: false,
@@ -302,6 +337,12 @@
             language: {
                 processing: '<div class="spinner-border"></div>',
             },
+            columnDefs: [
+                {
+                    targets: '_all',
+                    className: 'text-center align-middle'
+                }
+            ],
             ajax: function (data, callback) {
                 let page = (data.start / data.length) + 1;
                 let limit = data.length;
@@ -313,7 +354,10 @@
                         page: page,
                         limit: limit,                          
                         start_date:  $('#start_date').val(),
-                        end_date:  $('#end_date').val()
+                        end_date:  $('#end_date').val(),
+                        status:  $('select[name="status"]').val(),
+                        warehouse:  $('select[name="warehouse"]').val(),
+                        search: $('#dt-search-0').val()
                     },
                     success: function (resp) {
                         callback({
@@ -328,8 +372,14 @@
                 { data: 'cargo_status.description'},
                 { data: 'CardCode' },
                 { data: 'CardName'},
-                { data: 'SapServer'},
-                { data: 'created_at' },
+                { data: 'AvailabilityDate'},
+                { data: 'PickupDate'},
+                {
+                    data: 'SapServer',
+                    render: function(data, type, row) {
+                        return data ? data.toUpperCase() : '';
+                    }
+                },
                 {
                     render: function (data, type, row) {
                         return `<button type="button" class="btn btn-primary btn-update" id="btnCargoUpdate"

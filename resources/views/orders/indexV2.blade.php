@@ -1,5 +1,10 @@
 @extends('layouts.header')
 @section('content')
+<header class="mb-3">
+    <a href="#" class="burger-btn d-block d-xl-none">
+        <i class="bi bi-justify fs-3"></i>
+    </a>
+</header>
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="col-lg-12 grid-margin stretch-card">
@@ -86,6 +91,10 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="text/javascript">
 $(document).ready(function(){
+    let canUpdate = "{{ $canUpdate }}";
+    let canCreate = "{{ $canCreate }}";
+    let canDelete = "{{ $canDelete }}";
+    
     var start = moment().subtract(29, 'days');
     var end = moment();
 
@@ -129,6 +138,12 @@ $(document).ready(function(){
         language: {
             processing: '<div class="spinner-border"></div>',
         },
+        columnDefs: [
+            {
+                targets: '_all',
+                className: 'text-center align-middle'
+            }
+        ],
         ajax: function (data, callback) {
             let page = (data.start / data.length) + 1;
             let limit = data.length;
@@ -171,17 +186,20 @@ $(document).ready(function(){
             {
                 render: function (data, type, row) {
                     let button = '';
-                    if (row.OrderStatus !== "") {
-                        button = `<button type="button" class="btn btn-success btn-process"
-                            data-cardcode="${row.BuyersCode}" data-sapserver="${$('#sap_server').val()}" data-cardname="${row.CardName}" data-docdate="${row.DocDate}" disabled>
-                            <i class="bi bi-download"></i>
-                        </button>`;
-                    }else{
-                        button = `<button type="button" class="btn btn-success btn-process"
-                            data-cardcode="${row.BuyersCode}" data-sapserver="${$('#sap_server').val()}" data-cardname="${row.CardName}" data-docdate="${row.DocDate}">
-                            <i class="bi bi-download"></i>
-                        </button>`;
+                    if (canCreate) {
+                        if (row.OrderStatus !== "") {
+                            button = `<button type="button" class="btn btn-success btn-process"
+                                data-cardcode="${row.BuyersCode}" data-sapserver="${$('#sap_server').val()}" data-cardname="${row.CardName}" data-docdate="${row.DocDate}" disabled>
+                                <i class="bi bi-download"></i>
+                            </button>`;
+                        }else{
+                            button = `<button type="button" class="btn btn-success btn-process"
+                                data-cardcode="${row.BuyersCode}" data-sapserver="${$('#sap_server').val()}" data-cardname="${row.CardName}" data-docdate="${row.DocDate}">
+                                <i class="bi bi-download"></i>
+                            </button>`;
+                        }
                     }
+                    
                     return button;
                 }
             }

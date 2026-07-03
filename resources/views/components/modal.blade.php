@@ -15,9 +15,11 @@
               <span class="visually-hidden">Loading...</span>
           </div>
           <button type="button" class="btn btn-secondary closeBtn" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-success submitBtn">
-            {{ isset($saveButtonName) ? $saveButtonName:'Save' }}
-          </button>
+          @if ((isset($canCreate) && $canCreate) || (isset($canUpdate) && $canUpdate))
+              <button type="submit" class="btn btn-success submitBtn">
+                {{ isset($saveButtonName) ? $saveButtonName:'Save' }}
+              </button>
+          @endif
         </div>
       </form>
     </div>

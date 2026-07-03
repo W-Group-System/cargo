@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\ShipmentClass;
+use App\DelayedShipmentUpdate;
 use App\DeliveryStatus;
 use App\Mail\ShipmentNotification;
 use App\Order;
@@ -9,27 +11,36 @@ use App\ProcessedOrders;
 use App\Regions;
 use App\Services\NotificationService;
 use App\ShipmentDetails;
+use App\ShipmentFiles;
 use App\ShipmentTracking;
 use App\TrackingPoints;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 class ShipmentController extends Controller
 {
     protected NotificationService $notification;
-    public function __construct(NotificationService $notif)
+    protected ShipmentClass $shipment;
+    public function __construct(NotificationService $notif, ShipmentClass $shipment)
     {
         $this->middleware('auth');
         $this->notification = $notif;
+        $this->shipment = $shipment;
     }
     public function index(Request $request)
     {
         $data = array();
         $data['ActiveModule'] = 'Shipments';
+        $data['canCreate'] = $request->create;
+        $data['canUpdate'] = $request->update;
+        $data['canDelete'] = $request->delete;
+        
         $data['trackingPoints'] = TrackingPoints::where('status','A')->pluck('description','code');
         $data['deliveryStatus'] = DeliveryStatus::select('description','code','disabled')->where('status','A')->get();
         $data['regions'] = Regions::pluck('region','id');
@@ -51,30 +62,44 @@ class ShipmentController extends Controller
             $page = $request->page ?? 1;
             $limit = $request->limit ?? 10;
             $coloadSoNumberArr = [];
+            $module = $request->module ?? "";
 
-            $ordersList = ProcessedOrders::with(['ShipmentDetails.DeliveryStatus'])->select(
-                "id",
-                "SapServer",
-                "CardCode",
-                "CardName",
-                "MinDocDate",
-                "AvailabilityDate",
-                "PickupDate",
-                "CargoStatus",
-                "OrderStatus",
-                "ShipmentStatus",
-                "is_coload",
-                "coloaded_by",
-                "coload_order",
-                DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d') as formatted_created_at"),
-                DB::raw("DATE_FORMAT(cargo_posting_date, '%Y-%m-%d') as cargo_posting_date")
+            $ordersList = ProcessedOrders::from("processed_orders as po")->with(['ShipmentDetails.DeliveryStatus'])->select(
+                "po.id",
+                "po.SapServer",
+                "po.CardCode",
+                "po.CardName",
+                "po.MinDocDate",
+                "po.PickupDate",
+                "po.CargoStatus",
+                "po.OrderStatus",
+                "po.ShipmentStatus",
+                "po.is_coload",
+                "po.coloaded_by",
+                "po.coload_order",
+                "sd.cbw_doc_status",
+                DB::raw("DATE_FORMAT(po.created_at, '%Y-%m-%d') as formatted_created_at"),
+                DB::raw("DATE_FORMAT(po.cargo_posting_date, '%Y-%m-%d') as cargo_posting_date"),
+                DB::raw("DATE_FORMAT(po.AvailabilityDate, '%Y-%m-%d') as AvailabilityDate"),
+                DB::raw(
+                    "CASE 
+                        WHEN COALESCE(sd.eta_destination, '') = '' AND po.CargoStatus = 'L' 
+                            THEN 'Pending' 
+                        WHEN COALESCE(sd.eta_destination, '') <> '' AND COALESCE(sd.ata_destination, '') = '' 
+                            THEN 'In Transit' 
+                        WHEN COALESCE(sd.ata_destination, '') <> '' 
+                            THEN 'Shipped' ELSE '' 
+                    END AS shipmentStatus"
+                )
             )
+            ->leftJoin("shipment_details as sd","sd.process_order_id","po.id")
             ->where(function($q){
-                $q->where("AvailabilityDate","<>","")->where("PickupDate","<>","")->where("CargoStatus","L");
+                $q->whereRaw("COALESCE(po.AvailabilityDate,'') <> ''")->whereRaw("COALESCE(po.PickupDate,'') <> ''")
+                ->where("po.CargoStatus","L");
             });
 
             if (isset($request->id) && !empty($request->id)) {
-                $ordersList = $ordersList->with(['ShipmentDetails.ShipmentTracking','OrderData.OrderItemList'])->where("id",$request->id);
+                $ordersList = $ordersList->with(['ShipmentDetails.ShipmentTracking','OrderData.OrderItemList'])->where("po.id",$request->id);
                 $coloadList = Order::from('orders as o')->select('o.CardCode','o.DocNum')
                     ->leftJoin('processed_orders as po','po.id','=','o.process_order_id')
                     ->where('po.is_coload','1')
@@ -90,22 +115,63 @@ class ShipmentController extends Controller
             if (isset($request->search) && !empty(isset($request->search))) {
                 $search = $request->search;
                 $ordersList = $ordersList->where(function ($query) use ($search) {
-                    $query->where('CardCode', 'LIKE', "%{$search}%")
-                        ->orWhere('CardName', 'LIKE', "%{$search}%");
+                    $query->where('po.CardCode', 'LIKE', "%{$search}%")
+                        ->orWhere('po.CardName', 'LIKE', "%{$search}%")
+                        ->orWhere('po.SapServer', 'LIKE', "%{$search}%")
+                        ->orWhere('sd.cbw_doc_status', 'LIKE', "%{$search}%")
+                        ->orWhere('po.cargo_posting_date', 'LIKE', "%{$search}%");
                 });
+            }
+
+            if (isset($request->warehouse) && !empty(isset($request->warehouse))) {
+                $warehouse = $request->warehouse;
+                $ordersList = $ordersList->where("po.SapServer", $warehouse);
+            }
+
+            if (isset($request->status) && !empty(isset($request->status))) {
+                $status = $request->status;
+                if ($status == "PENDING") {
+                    $ordersList = $ordersList->where(function($q){
+                        $q->whereNotNull('po.AvailabilityDate')
+                        ->whereRaw('COALESCE(po.AvailabilityDate, "") <> ""')
+                        ->whereRaw('COALESCE(po.PickupDate, "") <> ""')
+                        ->whereRaw('COALESCE(po.PickupDate, "") <> ""')
+                        ->where('po.CargoStatus', 'L')
+                        ->whereRaw('COALESCE(sd.eta_destination, "") = ""');
+                    });
+                }elseif ($status == "IN-TRANSIT") {
+                    $ordersList = $ordersList->where(function($q){
+                        $q->whereRaw('COALESCE(sd.eta_destination, "") <> ""')
+                          ->whereRaw('COALESCE(sd.ata_destination, "") = ""');
+                    });
+                }elseif ($status == "SHIPPED" || $status == "DELIVERED") {
+                    $ordersList = $ordersList->where(function($q){
+                        $q->whereRaw('COALESCE(sd.ata_destination, "") <> ""');
+                    });
+                }
+                elseif ($status == "IRREGULARITIES") {
+                    $ordersList = $ordersList->where(function($q){
+                        $q->where('sd.delivery_status',"DLY");
+                    });
+                }
             }
 
             if ($request->filled('start_date') && $request->filled('end_date')) {
                 $start = Carbon::parse($request->start_date)->startOfDay();
                 $end   = Carbon::parse($request->end_date)->endOfDay();
 
-                $ordersList->whereBetween('created_at', [$start, $end]);
+                // if ($module == "Shipment") {
+                //     $ordersList->whereBetween('po.cargo_posting_date', [$start, $end]);
+                // }else{
+                    $ordersList->whereBetween('po.AvailabilityDate', [$start, $end]);
+                // }
+                
             }
-            $ordersList = $ordersList->where("is_coload",null);
+            $ordersList = $ordersList->where("po.is_coload",null);
 
             $totalCount = (clone $ordersList)->count();
 
-            $ordersList = $ordersList->orderBy("cargo_posting_date","desc")
+            $ordersList = $ordersList->orderBy("po.AvailabilityDate","desc")
                 ->skip(($page - 1) * $limit)
                 ->take($limit)
                 ->get();
@@ -134,6 +200,7 @@ class ShipmentController extends Controller
             $receiversToSave = "";
             $ccRecipientsToSave = "";
             $savedId = "";
+            $currentEta = null;
 
             if (count($receivers) > 0) {
                 $receiversToSave = implode(",",$receivers);
@@ -146,6 +213,8 @@ class ShipmentController extends Controller
             if (!empty($shipmentDetailsData)) {
                 $currentTrackingPoint = $shipmentDetailsData->tracking_points;
                 $savedId = $shipmentDetailsData->id;
+                $currentEta = !empty($shipmentDetailsData->eta_destination)?Carbon::parse($shipmentDetailsData->eta_destination):null;
+                $currentDeliveryStatus = $shipmentDetailsData->delivery_status;
                 $save = $shipmentDetailsData->update([
                     'delivery_status' => $request->deliveryStatus,
                     'tracking_points' => $request->trackPoints,
@@ -164,7 +233,8 @@ class ShipmentController extends Controller
                     'date_docs_completed' => $request->dateDocsCompleted,
                     'remarks' => $request->remarks,
                     'email_recipients' => $receiversToSave,
-                    'cc_recipients' => $ccRecipientsToSave
+                    'cc_recipients' => $ccRecipientsToSave,
+                    'vessel_name' => $request->vesselName
                 ]);
 
                 if ($save) {
@@ -175,6 +245,25 @@ class ShipmentController extends Controller
                             'arrival_date' => Carbon::now(),
                             'status' => $request->deliveryStatus
                         ]);
+                    }
+
+                    if ($currentDeliveryStatus !== $request->deliveryStatus) {
+                        if ($request->deliveryStatus == "DLY") {
+                            DelayedShipmentUpdate::updateOrCreate(['shipment_details_id' => $savedId],['shipment_details_id' => $savedId,'prev_eta' => $currentEta,'updated_eta' => $request->etaDestination??null,'is_notif_sent' => 0]);    
+                            $this->shipment->SendDelayedNotification($savedId);
+                        }
+                        if ($request->deliveryStatus == "DPT") {
+                            $this->shipment->SendCargoDepartedNotification($savedId);
+                        }
+                        if ($request->deliveryStatus == "ARVTP") {
+                            $this->shipment->SendCargoTranshipmentArrivalNotification($savedId);
+                        }
+                        if ($request->deliveryStatus == "LCV") {
+                            $this->shipment->SendCargoLoadedInConnectingVesselNotification($savedId);
+                        }
+                        if ($request->deliveryStatus == "AD") {
+                            $this->shipment->SendCargoArrivedAtDestinationPortNotification($savedId);
+                        }
                     }
                 }
             }else{
@@ -197,7 +286,8 @@ class ShipmentController extends Controller
                     'date_docs_completed' => $request->dateDocsCompleted,
                     'remarks' => $request->remarks,
                     'email_recipients' => $receiversToSave,
-                    'cc_recipients' => $ccRecipientsToSave
+                    'cc_recipients' => $ccRecipientsToSave,
+                    'vessel_name' => $request->vesselName
                 ]);
 
                 if ($save) {
@@ -218,28 +308,112 @@ class ShipmentController extends Controller
                 "message" => "Shipment information updated successfully.",
                 "isSuccess" => $isSuccess
             ];
-
-            // dd($receivers);
-            if (count($receivers)>0 && !empty($savedId)) {
-                if ($request->deliveryStatus == "DLY") {
-                    Log::info("SENDING EMAIL");
-                    $params = [
-                        "shipmentDetailsId"=>$savedId,
-                        "vesselName"=>$request->containerNumber??"",
-                        "delayReason"=>$request->remarks??"",
-                        "etd"=>$request->etdOrigin??"",
-                        "eta"=>$request->etaDestination??""
-                    ];
-                    $this->notification->SendEmail("DLYD",$params,$receivers,$ccRecipients);
-                    Log::info("DONE SENDING EMAIL");
-                }
-            }
             
         } catch (\Exception $th) {
             Log::error("FAILED IN UPDATING SHIPMENT DETAILS :".$th);
         }
 
         if ($isSuccess) {
+            return response()->json($response,200);
+        }else{
+            return response()->json($response,400);
+        }
+    }
+
+    public function ShipmentFileList(Request $request){
+        $response = [
+            "isSuccess"=>false,
+            "message"=>"Failed to retrieve information.",
+            "total"=>0,
+            "page"=>1,
+            "data"=>null
+        ];
+        try {
+            $page = $request->page ?? 1;
+            $limit = $request->limit ?? 10;
+
+            $fileList = ShipmentFiles::select(
+                'id',
+                'file_name',
+                'file_path',
+                DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d') as formatted_created_at")
+            )
+            ->where("processed_order_id",$request->shipmentId);
+
+            $totalCount = (clone $fileList)->count();
+
+            $fileList = $fileList->orderBy("id","desc")
+                ->skip(($page - 1) * $limit)
+                ->take($limit)
+                ->get();
+            $response["isSuccess"] = true;
+            $response["message"] = "Successfully retrieved information.";
+            $response["total"] = $totalCount;
+            $response["data"] = $fileList;
+        } catch (\Throwable $th) {
+            Log::error("ERROR IN GETTING SHIPMENT FILES: ".$th);
+        }
+        
+        return $response;
+    }
+
+    public function UploadFiles(Request $request)
+    {
+        $request->validate([
+            'attachments.*' => 'required|file|max:10240', // 10MB each
+        ]);
+        
+        if ($request->hasFile('attachments')) {
+
+            foreach ($request->file('attachments') as $file) {
+
+                $filename = time() . '_' . $file->getClientOriginalName();
+
+                $path = $file->storeAs(
+                    'shipment-files',
+                    $filename,
+                    'public'
+                );
+
+                ShipmentFiles::create([
+                    'processed_order_id' => $request->shipment_id,
+                    'file_name' => $filename,
+                    'original_name' => $file->getClientOriginalName(),
+                    'file_path' => $path,
+                    'user_id' => Auth::user()->id,
+                ]);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Files uploaded successfully.'
+        ]);
+    }
+
+    public function DeleteFile(Request $request){
+        
+        $response = [
+            "message"=>"Failed to delete file.",
+            "isSuccess"=>false
+        ];
+        try {
+            $fileData = ShipmentFiles::where("id",$request->id)->first();
+            if ($fileData && Storage::disk('public')->exists($fileData->file_path)) {
+                Storage::disk('public')->delete($fileData->file_path);
+            }
+
+            $fileData->delete(); // Delete the database record
+
+            $response = [
+                "message"=>"File deleted successfully.",
+                "isSuccess"=>true
+            ];
+        } catch (\Throwable $th) {
+            Log::error("FAILED TO DELETE FILE: ".$th->getMessage());
+        }
+
+        if($response["isSuccess"]){
             return response()->json($response,200);
         }else{
             return response()->json($response,400);

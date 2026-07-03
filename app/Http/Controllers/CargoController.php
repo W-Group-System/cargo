@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Cargo;
+use App\CargoStatus;
 use App\Classes\OrderClass;
 use App\Order;
 use App\ProcessedOrders;
@@ -21,8 +22,12 @@ class CargoController extends Controller
     public function index(Request $request)
     {
         $data = array();
+        $data['canCreate'] = $request->create;
+        $data['canUpdate'] = $request->update;
+        $data['canDelete'] = $request->delete;
+        
         $data['ActiveModule'] = 'Cargo Management';
-        $data['shipmentStatusArr'] = ShipmentStatus::ShipmentStatusArray();
+        $data['CargoStatusArr'] = CargoStatus::where('status', 'A')->pluck('description', 'code');
 
         return view('cargo.index',$data);
     }
@@ -39,7 +44,23 @@ class CargoController extends Controller
             $page = $request->page ?? 1;
             $limit = $request->limit ?? 10;
 
-            $ordersList = ProcessedOrders::with(['CargoStatus'])->select("*");
+            $ordersList = ProcessedOrders::with(['CargoStatus'])
+            ->select(
+                "SapServer",
+                "CardCode",
+                "CardName",
+                "MinDocDate",
+                "AvailabilityDate",
+                "PickupDate",
+                "CargoStatus",
+                "OrderStatus",
+                "ShipmentStatus",
+                "is_coload",
+                "coloaded_by",
+                "coload_order",
+                "cargo_posting_date",
+                DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d') as formatted_created_at")
+            );
 
             if (isset($request->id) && !empty($request->id)) {
                 $ordersList = $ordersList->where("id",$request->id);
@@ -49,8 +70,19 @@ class CargoController extends Controller
                 $search = $request->search;
                 $ordersList = $ordersList->where(function ($query) use ($search) {
                     $query->where('CardCode', 'LIKE', "%{$search}%")
-                        ->orWhere('CardName', 'LIKE', "%{$search}%");
+                        ->orWhere('CardName', 'LIKE', "%{$search}%")
+                        ->orWhere('SapServer', 'LIKE', "%{$search}%");
                 });
+            }
+
+            if (isset($request->status) && !empty(isset($request->status))) {
+                $status = $request->status;
+                $ordersList = $ordersList->where("CargoStatus",$status);
+            }
+
+            if (isset($request->warehouse) && !empty(isset($request->warehouse))) {
+                $warehouse = $request->warehouse;
+                $ordersList = $ordersList->where("SapServer",$warehouse);
             }
 
             if ($request->filled('start_date') && $request->filled('end_date')) {

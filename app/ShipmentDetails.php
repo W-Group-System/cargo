@@ -33,12 +33,13 @@ class ShipmentDetails extends Model
         'date_docs_completed',
         'remarks',
         'email_recipients',
-        'cc_recipients'
+        'cc_recipients',
+        'vessel_name'
     ];
 
     public function ProcessedOrder()
     {
-        return $this->belongsTo(ProcessedOrders::class,'id','process_order_id');
+        return $this->belongsTo(ProcessedOrders::class,'process_order_id','id');
     }
     public function ShipmentTracking()
     {
@@ -47,5 +48,9 @@ class ShipmentDetails extends Model
     public function DeliveryStatus()
     {
         return $this->hasMany(DeliveryStatus::class, 'code', 'delivery_status');
+    }
+    public function DelayedShipmentUpdate()
+    {
+        return $this->hasOne(DelayedShipmentUpdate::class, 'shipment_details_id', 'id');
     }
 }
