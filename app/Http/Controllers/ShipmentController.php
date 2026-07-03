@@ -77,6 +77,7 @@ class ShipmentController extends Controller
                 "po.is_coload",
                 "po.coloaded_by",
                 "po.coload_order",
+                "sd.cbw_doc_status",
                 DB::raw("DATE_FORMAT(po.created_at, '%Y-%m-%d') as formatted_created_at"),
                 DB::raw("DATE_FORMAT(po.cargo_posting_date, '%Y-%m-%d') as cargo_posting_date"),
                 DB::raw("DATE_FORMAT(po.AvailabilityDate, '%Y-%m-%d') as AvailabilityDate"),
@@ -115,8 +116,39 @@ class ShipmentController extends Controller
                 $search = $request->search;
                 $ordersList = $ordersList->where(function ($query) use ($search) {
                     $query->where('po.CardCode', 'LIKE', "%{$search}%")
-                        ->orWhere('po.CardName', 'LIKE', "%{$search}%");
+                        ->orWhere('po.CardName', 'LIKE', "%{$search}%")
+                        ->orWhere('po.SapServer', 'LIKE', "%{$search}%")
+                        ->orWhere('sd.cbw_doc_status', 'LIKE', "%{$search}%")
+                        ->orWhere('po.cargo_posting_date', 'LIKE', "%{$search}%");
                 });
+            }
+
+            if (isset($request->status) && !empty(isset($request->status))) {
+                $status = $request->status;
+                if ($status == "PENDING") {
+                    $ordersList = $ordersList->where(function($q){
+                        $q->whereNotNull('po.AvailabilityDate')
+                        ->whereRaw('COALESCE(po.AvailabilityDate, "") <> ""')
+                        ->whereRaw('COALESCE(po.PickupDate, "") <> ""')
+                        ->whereRaw('COALESCE(po.PickupDate, "") <> ""')
+                        ->where('po.CargoStatus', 'L')
+                        ->whereRaw('COALESCE(sd.eta_destination, "") = ""');
+                    });
+                }elseif ($status == "IN-TRANSIT") {
+                    $ordersList = $ordersList->where(function($q){
+                        $q->whereRaw('COALESCE(sd.eta_destination, "") <> ""')
+                          ->whereRaw('COALESCE(sd.ata_destination, "") = ""');
+                    });
+                }elseif ($status == "SHIPPED" || $status == "DELIVERED") {
+                    $ordersList = $ordersList->where(function($q){
+                        $q->whereRaw('COALESCE(sd.ata_destination, "") <> ""');
+                    });
+                }
+                elseif ($status == "IRREGULARITIES") {
+                    $ordersList = $ordersList->where(function($q){
+                        $q->where('sd.delivery_status',"DLY");
+                    });
+                }
             }
 
             if ($request->filled('start_date') && $request->filled('end_date')) {

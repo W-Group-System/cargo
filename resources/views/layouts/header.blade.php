@@ -59,6 +59,15 @@
         thead tr:first-child th:last-child {
             border-top-right-radius: 10px !important;
         }
+
+        .clickable-card {
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+
+        .clickable-card.active {
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.35);
+        }
     </style>
 </head>
 <body>

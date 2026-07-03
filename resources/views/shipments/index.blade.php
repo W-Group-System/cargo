@@ -11,7 +11,7 @@
                     <h4 class="card-title">Shipment Management</h4>
                      <div class="row">
                         <div class="col-6 col-lg-3 col-md-6">
-                            <div class="card border border-primary">
+                            <div class="card border border-primary clickable-card" data-status="PENDING">
                                 <div class="card-body px-3 py-4-5">
                                     <div class="row">
                                         <div class="col-md-8">
@@ -30,7 +30,7 @@
                             </div>
                         </div>
                         <div class="col-6 col-lg-3 col-md-6">
-                            <div class="card border border-primary">
+                            <div class="card border border-primary clickable-card" data-status="IN-TRANSIT">
                                 <div class="card-body px-3 py-4-5">
                                     <div class="row">
                                         <div class="col-md-8">
@@ -49,7 +49,7 @@
                             </div>
                         </div>
                         <div class="col-6 col-lg-3 col-md-6">
-                            <div class="card border border-primary">
+                            <div class="card border border-primary clickable-card" data-status="SHIPPED">
                                 <div class="card-body px-3 py-4-5">
                                     <div class="row">
                                         <div class="col-md-8">
@@ -68,7 +68,7 @@
                             </div>
                         </div>
                         <div class="col-6 col-lg-3 col-md-6">
-                            <div class="card border border-primary">
+                            <div class="card border border-primary clickable-card" data-status="IRREGULARITIES">
                                 <div class="card-body px-3 py-4-5">
                                     <div class="row">
                                         <div class="col-md-8">
@@ -594,6 +594,19 @@
             ReloadDataTable();
         });
 
+        let cardStatusFilter = '';
+        $('.clickable-card').click(function () {
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+                cardStatusFilter = '';
+            } else {
+                $('.clickable-card').removeClass('active');
+                $(this).addClass('active');
+                cardStatusFilter = $(this).data('status');
+            }
+            ReloadDataTable();
+        });
+
         let orderTable = $('#shipmentTable').DataTable({
             processing: true,
             serverSide: true,
@@ -626,6 +639,7 @@
                         limit: limit,
                         start_date: $('#start_date').val(),
                         end_date: $('#end_date').val(),
+                        status: cardStatusFilter,
                         search: $('#dt-search-0').val()
                     },
                     success: function (resp) {

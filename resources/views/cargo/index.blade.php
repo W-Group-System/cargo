@@ -28,7 +28,16 @@
                                     <i class="bi bi-caret-down"></i>
                                 </div>
                             </div>
-
+                            <div class="col-auto">
+                                <select class="form-control" name="status">
+                                    <option value="">-Select Status-</option>
+                                    @foreach ($CargoStatusArr as $key => $value)
+                                        <option value="{{ $key }}">
+                                            {{ $value }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
                             <div class="col-auto">
                                 <button type="submit" class="btn btn-success">
                                     <i class="bi bi-search"></i>&nbsp;Search
@@ -178,7 +187,7 @@
                                         id="status"
                                         class="form-control">
                                         <option value="">-Select Data-</option>
-                                        @foreach (["FP"=>"For packing","POP"=>"Packing on process","RFP"=>"Ready for pickup","L"=>"Loaded"] as $key => $value)
+                                        @foreach ($CargoStatusArr as $key => $value)
                                             <option value="{{ $key }}">
                                                 {{ $value }}
                                             </option>
@@ -330,6 +339,7 @@
                         limit: limit,                          
                         start_date:  $('#start_date').val(),
                         end_date:  $('#end_date').val(),
+                        status:  $('select[name="status"]').val(),
                         search: $('#dt-search-0').val()
                     },
                     success: function (resp) {

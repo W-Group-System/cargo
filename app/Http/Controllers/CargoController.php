@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Cargo;
+use App\CargoStatus;
 use App\Classes\OrderClass;
 use App\Order;
 use App\ProcessedOrders;
@@ -26,7 +27,7 @@ class CargoController extends Controller
         $data['canDelete'] = $request->delete;
         
         $data['ActiveModule'] = 'Cargo Management';
-        $data['shipmentStatusArr'] = ShipmentStatus::ShipmentStatusArray();
+        $data['CargoStatusArr'] = CargoStatus::where('status', 'A')->pluck('description', 'code');
 
         return view('cargo.index',$data);
     }
@@ -69,8 +70,14 @@ class CargoController extends Controller
                 $search = $request->search;
                 $ordersList = $ordersList->where(function ($query) use ($search) {
                     $query->where('CardCode', 'LIKE', "%{$search}%")
-                        ->orWhere('CardName', 'LIKE', "%{$search}%");
+                        ->orWhere('CardName', 'LIKE', "%{$search}%")
+                        ->orWhere('SapServer', 'LIKE', "%{$search}%");
                 });
+            }
+
+            if (isset($request->status) && !empty(isset($request->status))) {
+                $status = $request->status;
+                $ordersList = $ordersList->where("CargoStatus",$status);
             }
 
             if ($request->filled('start_date') && $request->filled('end_date')) {
