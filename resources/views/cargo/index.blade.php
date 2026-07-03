@@ -162,7 +162,7 @@
                                         class="form-control"
                                         name="pickupDate"
                                         id="pickupDate"
-                                        required>
+                                        >
                                 </div>
                             </div>
                             <!-- Right Column -->
