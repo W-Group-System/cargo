@@ -241,7 +241,7 @@ $(document).ready(function(){
         }
     });
 
-    $('#dateCreated,#buyersCode,#buyersName').on('change keyup', function () {
+    $('#dateCreated,#buyersCode,#buyersName').on('change', function () {
         ReloadDataTable();
     });
 
