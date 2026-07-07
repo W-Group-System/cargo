@@ -70,6 +70,7 @@ class HomeController extends Controller
         $irregularities = DB::table('shipment_details as sd')
             // ->whereNull('sd.ata_destination')
             // ->whereRaw('DATE_ADD(sd.eta_destination, INTERVAL 7 DAY) <= NOW()')
+            ->leftJoin('processed_orders as po', 'sd.process_order_id', '=', 'po.id')
             ->where('sd.delivery_status',"DLY");
 
         $delivered = DB::table('shipment_details as sd')
@@ -81,20 +82,12 @@ class HomeController extends Controller
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $start = Carbon::parse($request->start_date)->startOfDay();
             $end   = Carbon::parse($request->end_date)->endOfDay();
-
-            if ($module == "Shipment") {
-                $pending = $pending->whereBetween('po.AvailabilityDate',[$start, $end]);
-                $inTransit = $inTransit->whereBetween('po.AvailabilityDate',[$start, $end]);
-                $shipped = $shipped->whereBetween('po.AvailabilityDate',[$start, $end]);
-                $irregularities = $irregularities->whereBetween('po.AvailabilityDate',[$start, $end]);
-                $delivered = $delivered->whereBetween('po.AvailabilityDate',[$start, $end]);
-            }else{
-                $pending = $pending->whereBetween('po.created_at',[$start, $end]);
-                $inTransit = $inTransit->whereBetween('sd.created_at',[$start, $end]);
-                $shipped = $shipped->whereBetween('sd.created_at',[$start, $end]);
-                $irregularities = $irregularities->whereBetween('sd.created_at',[$start, $end]);
-                $delivered = $delivered->whereBetween('sd.created_at',[$start, $end]);
-            }
+        
+            $pending = $pending->whereBetween('po.AvailabilityDate',[$start, $end]);
+            $inTransit = $inTransit->whereBetween('po.AvailabilityDate',[$start, $end]);
+            $shipped = $shipped->whereBetween('po.AvailabilityDate',[$start, $end]);
+            $irregularities = $irregularities->whereBetween('po.AvailabilityDate',[$start, $end]);
+            $delivered = $delivered->whereBetween('po.AvailabilityDate',[$start, $end]);
         }
 
         $pending = $pending->count();
