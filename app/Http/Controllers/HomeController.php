@@ -83,11 +83,11 @@ class HomeController extends Controller
             $end   = Carbon::parse($request->end_date)->endOfDay();
 
             if ($module == "Shipment") {
-                $pending = $pending->whereBetween('po.cargo_posting_date',[$start, $end]);
-                $inTransit = $inTransit->whereBetween('po.cargo_posting_date',[$start, $end]);
-                $shipped = $shipped->whereBetween('po.cargo_posting_date',[$start, $end]);
-                $irregularities = $irregularities->whereBetween('po.cargo_posting_date',[$start, $end]);
-                $delivered = $delivered->whereBetween('po.cargo_posting_date',[$start, $end]);
+                $pending = $pending->whereBetween('po.AvailabilityDate',[$start, $end]);
+                $inTransit = $inTransit->whereBetween('po.AvailabilityDate',[$start, $end]);
+                $shipped = $shipped->whereBetween('po.AvailabilityDate',[$start, $end]);
+                $irregularities = $irregularities->whereBetween('po.AvailabilityDate',[$start, $end]);
+                $delivered = $delivered->whereBetween('po.AvailabilityDate',[$start, $end]);
             }else{
                 $pending = $pending->whereBetween('po.created_at',[$start, $end]);
                 $inTransit = $inTransit->whereBetween('sd.created_at',[$start, $end]);
