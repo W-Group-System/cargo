@@ -3,9 +3,11 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-
-class ShipmentFiles extends Model
+use OwenIt\Auditing\Contracts\Auditable;
+class ShipmentFiles extends Model implements Auditable
 {
+    use \OwenIt\Auditing\Auditable;
+
     protected $table = 'shipment_files';
     protected $primaryKey = 'id';
     protected $fillable = [
