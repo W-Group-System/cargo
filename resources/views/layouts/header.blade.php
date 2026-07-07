@@ -15,7 +15,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Cargo Visibility and Order Management</title>
-    {{-- <link rel="shortcut icon" href="{{ URL::asset(config('logo.logos')::first()->icon) }}"> --}}
+    <link rel="shortcut icon" href="{{ asset('images/logo-only.png') }}">
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
