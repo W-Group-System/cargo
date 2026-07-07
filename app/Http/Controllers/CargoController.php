@@ -253,8 +253,7 @@ class CargoController extends Controller
 
         try {
             $data = [$cardCode=>[]];
-            $orderController = new OrderController();
-            $buyersCodeDetails = $orderController->SapOrderList($cardCode,$sapServer,"");
+            $buyersCodeDetails = $this->order->SapOrderList($cardCode,$sapServer,"","");
             if($buyersCodeDetails["isSuccess"]){
                 $details = $buyersCodeDetails["data"];                
                 foreach ($details as $key => $value) {
