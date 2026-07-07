@@ -21,12 +21,7 @@ use App\Http\Controllers\UserController;
 |
 */
 
-Route::get('/', function () {
-    return view('auth.login');
-});
-
-// Route::get('/', [LoginController::class,'login']);
-
+Route::get('/', [LoginController::class, 'showLoginForm']);
 Auth::routes();
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/home', [HomeController::class,'index'])->name('home')->middleware('access');
