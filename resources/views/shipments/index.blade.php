@@ -318,7 +318,7 @@
                         <h5 class="mb-3">Email Recipients</h5>
 
                         <div class="row mb-3">
-                            <label class="col-md-2 col-form-label">Receivers</label>
+                            <label class="col-md-2 col-form-label">Recipients</label>
                             <div class="col-md-10">
                                 <select id="receiver" name="receiver[]" class="form-control" multiple>
                                     @foreach ($users as $key => $value)
