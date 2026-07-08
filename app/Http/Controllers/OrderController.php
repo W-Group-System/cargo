@@ -252,7 +252,7 @@ class OrderController extends Controller
             $soNumber = $request->soNo??"";
             $page = $request->page??"1";
             $limit = $request->limit??"1";
-            $soNumberDetails = $this->SapOrderList($cardCode,$sapServer,$soNumber);
+            $soNumberDetails = $this->orderClass->SapOrderList($cardCode,$sapServer,$soNumber,"");
             if ($soNumberDetails["isSuccess"]) {
                 $incoTerms = $soNumberDetails["data"][0]->IncoTerms??"";
                 $PortOfOrigin = $soNumberDetails["data"][0]->LoadingPort??"";
