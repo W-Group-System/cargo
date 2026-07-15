@@ -136,12 +136,14 @@ class ShipmentController extends Controller
                         ->whereRaw('COALESCE(po.PickupDate, "") <> ""')
                         ->whereRaw('COALESCE(po.PickupDate, "") <> ""')
                         ->where('po.CargoStatus', 'L')
-                        ->whereRaw('COALESCE(sd.eta_destination, "") = ""');
+                        ->whereRaw('COALESCE(sd.eta_destination, "") = ""')
+                        ->whereRaw("COALESCE(sd.delivery_status, '') <> 'IT' AND COALESCE(sd.delivery_status, '') <> 'DLV'");
                     });
                 }elseif ($status == "IN-TRANSIT") {
                     $ordersList = $ordersList->where(function($q){
-                        $q->whereRaw('COALESCE(sd.eta_destination, "") <> ""')
-                          ->whereRaw('COALESCE(sd.ata_destination, "") = ""');
+                        $q->where('sd.delivery_status',"IT");
+                        // whereRaw('COALESCE(sd.eta_destination, "") <> ""')
+                        //   ->whereRaw('COALESCE(sd.ata_destination, "") = ""');
                     });
                 }elseif ($status == "SHIPPED" || $status == "DELIVERED") {
                     $ordersList = $ordersList->where(function($q){
