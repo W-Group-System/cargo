@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Classes\ShipmentClass;
 use App\DelayedShipmentUpdate;
 use App\DeliveryStatus;
-use App\Mail\ShipmentNotification;
 use App\Order;
 use App\ProcessedOrders;
 use App\Regions;
@@ -13,8 +12,8 @@ use App\Services\NotificationService;
 use App\ShipmentDetails;
 use App\ShipmentFiles;
 use App\ShipmentTracking;
+use App\SuggestionVault;
 use App\TrackingPoints;
-use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -44,7 +43,7 @@ class ShipmentController extends Controller
         $data['trackingPoints'] = TrackingPoints::where('status','A')->pluck('description','code');
         $data['deliveryStatus'] = DeliveryStatus::select('description','code','disabled')->where('status','A')->get();
         $data['regions'] = Regions::pluck('region','id');
-        $data['users'] = User::pluck('email','email');
+        $data['users'] = SuggestionVault::where("type","EMAIL")->pluck('suggestion','suggestion');
         
         return view('shipments.index',$data);
     }
@@ -208,6 +207,14 @@ class ShipmentController extends Controller
             if (count($ccRecipients) > 0) {
                 $ccRecipientsToSave = implode(",",$ccRecipients);
             }
+
+            $mergeEmails = array_merge($receivers,$ccRecipients);
+            if (count($mergeEmails)>0) {
+                foreach ($mergeEmails as $value) {
+                    SuggestionVault::updateOrCreate(["suggestion"=>$value,"type"=>"EMAIL"],["suggestion"=>$value,"type"=>"EMAIL"]);
+                }
+            }
+
             $shipmentDetailsData = ShipmentDetails::where(['process_order_id'=>$request->id])->first();
             
             if (!empty($shipmentDetailsData)) {
