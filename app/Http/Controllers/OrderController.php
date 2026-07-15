@@ -135,7 +135,7 @@ class OrderController extends Controller
             
         } catch (\Throwable $th) {
             Log::error("ERROR IN GETTING SAP ORDER LIST: ".$th);
-            dd("ERROR IN GETTING SAP ORDER LIST: ".$th);
+            // dd("ERROR IN GETTING SAP ORDER LIST: ".$th);
         }
         
         if ($isSuccess) {
