@@ -84,7 +84,7 @@ class ShipmentController extends Controller
                     "CASE 
                         WHEN COALESCE(sd.eta_destination, '') = '' AND po.CargoStatus = 'L' 
                             THEN 'Pending' 
-                        WHEN COALESCE(sd.eta_destination, '') <> '' AND COALESCE(sd.ata_destination, '') = '' 
+                        WHEN COALESCE(sd.delivery_status, '') = 'IT'
                             THEN 'In Transit' 
                         WHEN COALESCE(sd.ata_destination, '') <> '' 
                             THEN 'Shipped' ELSE '' 
