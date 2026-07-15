@@ -49,12 +49,11 @@ class HomeController extends Controller
 
         $pending = DB::table('processed_orders as po')
             ->leftJoin('shipment_details as sd', 'sd.process_order_id', '=', 'po.id')
-            ->whereNotNull('po.AvailabilityDate')
             ->whereRaw('COALESCE(po.AvailabilityDate, "") <> ""')
             ->whereRaw('COALESCE(po.PickupDate, "") <> ""')
             ->whereRaw('COALESCE(po.PickupDate, "") <> ""')
             ->where('po.CargoStatus', 'L')
-            ->whereRaw('COALESCE(sd.eta_destination, "") = ""')
+            ->whereRaw('COALESCE(sd.ata_destination, "") = ""')
             ->whereRaw("COALESCE(sd.delivery_status, '') <> 'IT' AND COALESCE(sd.delivery_status, '') <> 'DLV'");
 
         $inTransit = DB::table('shipment_details as sd')

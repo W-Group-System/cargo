@@ -82,7 +82,7 @@ class ShipmentController extends Controller
                 DB::raw("DATE_FORMAT(po.AvailabilityDate, '%Y-%m-%d') as AvailabilityDate"),
                 DB::raw(
                     "CASE 
-                        WHEN COALESCE(sd.eta_destination, '') = '' AND po.CargoStatus = 'L' AND COALESCE(sd.delivery_status, '') <> 'IT' AND COALESCE(sd.delivery_status, '') <> 'DLV'
+                        WHEN po.CargoStatus = 'L' AND COALESCE(sd.delivery_status, '') <> 'IT' AND COALESCE(sd.delivery_status, '') <> 'DLV' AND COALESCE(sd.ata_destination, '') = ''
                             THEN 'Pending' 
                         WHEN COALESCE(sd.delivery_status, '') = 'IT'
                             THEN 'In Transit' 
@@ -136,7 +136,7 @@ class ShipmentController extends Controller
                         ->whereRaw('COALESCE(po.PickupDate, "") <> ""')
                         ->whereRaw('COALESCE(po.PickupDate, "") <> ""')
                         ->where('po.CargoStatus', 'L')
-                        ->whereRaw('COALESCE(sd.eta_destination, "") = ""')
+                        ->whereRaw('COALESCE(sd.ata_destination, "") = ""')
                         ->whereRaw("COALESCE(sd.delivery_status, '') <> 'IT' AND COALESCE(sd.delivery_status, '') <> 'DLV'");
                     });
                 }elseif ($status == "IN-TRANSIT") {
