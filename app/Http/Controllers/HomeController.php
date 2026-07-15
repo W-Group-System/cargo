@@ -54,7 +54,8 @@ class HomeController extends Controller
             ->whereRaw('COALESCE(po.PickupDate, "") <> ""')
             ->whereRaw('COALESCE(po.PickupDate, "") <> ""')
             ->where('po.CargoStatus', 'L')
-            ->whereRaw('COALESCE(sd.eta_destination, "") = ""');
+            ->whereRaw('COALESCE(sd.eta_destination, "") = ""')
+            ->whereRaw("COALESCE(sd.delivery_status, '') <> 'IT' AND COALESCE(sd.delivery_status, '') <> 'DLV'");
 
         $inTransit = DB::table('shipment_details as sd')
             // ->leftJoin('processed_orders as po', 'sd.process_order_id', '=', 'po.id')

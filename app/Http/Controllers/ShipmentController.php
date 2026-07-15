@@ -82,7 +82,7 @@ class ShipmentController extends Controller
                 DB::raw("DATE_FORMAT(po.AvailabilityDate, '%Y-%m-%d') as AvailabilityDate"),
                 DB::raw(
                     "CASE 
-                        WHEN COALESCE(sd.eta_destination, '') = '' AND po.CargoStatus = 'L' 
+                        WHEN COALESCE(sd.eta_destination, '') = '' AND po.CargoStatus = 'L' AND COALESCE(sd.delivery_status, '') <> 'IT' AND COALESCE(sd.delivery_status, '') <> 'DLV'
                             THEN 'Pending' 
                         WHEN COALESCE(sd.delivery_status, '') = 'IT'
                             THEN 'In Transit' 
