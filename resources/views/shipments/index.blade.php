@@ -802,6 +802,10 @@
                             $('#vesselName').val(resp.data[0].shipment_details?.vessel_name??"");
                             $('#atpd').val(resp.data[0].shipment_details?.atp_date??"");
                             $('#dtd').val(resp.data[0].shipment_details?.dt_date??"");
+                            $('#sendEmail').prop(
+                                'checked',
+                                resp.data[0].shipment_details?.notification_enabled == '1'
+                            );
                             
                             GetCargoTabContent(resp.data[0].CardCode,resp.data[0].SapServer, function(success){
                                 if (success) {

@@ -39,7 +39,8 @@ class ShipmentDetails extends Model implements Auditable
         'cc_recipients',
         'vessel_name',
         'atp_date',
-        'dt_date'
+        'dt_date',
+        'notification_enabled'
     ];
 
     public function ProcessedOrder()

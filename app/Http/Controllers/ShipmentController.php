@@ -87,8 +87,9 @@ class ShipmentController extends Controller
                 DB::raw("DATE_FORMAT(po.cargo_posting_date, '%Y-%m-%d') as cargo_posting_date"),
                 DB::raw("DATE_FORMAT(po.AvailabilityDate, '%Y-%m-%d') as AvailabilityDate"),
                 "ds.description as shipmentStatus",
-                "atp_date",
-                "dt_date"
+                "sd.atp_date",
+                "sd.dt_date",
+                "sd.notification_enabled"
                 // DB::raw(
                 //     "CASE 
                 //         WHEN po.CargoStatus = 'L' AND COALESCE(sd.delivery_status, '') <> 'IT' AND COALESCE(sd.delivery_status, '') <> 'DLV' AND COALESCE(sd.ata_destination, '') = ''
@@ -294,7 +295,8 @@ class ShipmentController extends Controller
                     'cc_recipients' => $ccRecipientsToSave,
                     'vessel_name' => $request->vesselName,
                     'atp_date' => $request->atpd,
-                    'dt_date' => $request->dtd
+                    'dt_date' => $request->dtd,
+                    'notification_enabled' => $sendEmail?'1':'0'
                 ]);
 
                 if ($save) {
