@@ -43,6 +43,16 @@ class CargoController extends Controller
         try {
             $page = $request->page ?? 1;
             $limit = $request->limit ?? 10;
+            $orderColumn = $request->input('order_column');
+            $orderDir = $request->input('order_dir', 'asc');
+
+            $sortableColumns = [
+                0 => 'CargoStatus',
+                1 => 'CardCode',
+                2 => 'CardName',
+                3 => 'AvailabilityDate',
+                4 => 'SapServer'
+            ];
 
             $ordersList = ProcessedOrders::with(['CargoStatus'])
             ->select(
@@ -59,8 +69,10 @@ class CargoController extends Controller
                 "coloaded_by",
                 "coload_order",
                 "cargo_posting_date",
+                "cbw_doc_status",
                 DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d') as formatted_created_at")
-            );
+            )
+            ->where("CargoStatus","<>","L");
 
             if (isset($request->id) && !empty($request->id)) {
                 $ordersList = $ordersList->where("id",$request->id);
@@ -95,7 +107,17 @@ class CargoController extends Controller
 
             $totalCount = (clone $ordersList)->count();
 
-            $ordersList = $ordersList->orderBy("id","desc") 
+            if (array_key_exists($orderColumn, $sortableColumns)) {
+                $ordersList->orderBy(
+                    $sortableColumns[$orderColumn],
+                    $orderDir === 'desc' ? 'desc' : 'asc'
+                );
+            } else {
+                // Default sorting
+                $ordersList->orderBy('id', 'desc');
+            }
+
+            $ordersList = $ordersList
                 ->skip(($page - 1) * $limit)
                 ->take($limit)
                 ->get();
@@ -144,6 +166,7 @@ class CargoController extends Controller
                     $response["availabilityDate"] = $processedOrderData->AvailabilityDate;
                     $response["pickupDate"] = $processedOrderData->PickupDate;
                     $response["status"] = $processedOrderData->CargoStatus;
+                    $response["cbwDocStatus"] = $processedOrderData->cbw_doc_status;
                     $coloadSoNumberArr = [];
                     $coloadList = Order::from('orders as o')->select('o.CardCode','o.DocNum')
                                 ->leftJoin('processed_orders as po','po.id','=','o.process_order_id')
@@ -190,6 +213,17 @@ class CargoController extends Controller
             $status = $request->status??null;
             $coloads = json_decode($request->coloads, true);
             $removedColoadsArr = json_decode($request->removedColoads);
+            $cbwStatus = $request->cbwDocStatus??null;
+
+            if ($status == "L") {
+                if ($availabilityDate == null || $pickupDate == null || $cbwStatus == null) {
+                    $response = [
+                        "isSuccess"=>false,
+                        "message"=>"All fields are required for loaded status."
+                    ];   
+                    return  response()->json($response,400);
+                }
+            }
 
             if (!empty($buyersCode)) {
                 $processedOrderData = ProcessedOrders::where("CardCode",$buyersCode)->first();
@@ -204,7 +238,7 @@ class CargoController extends Controller
                     $sapServer = $processedOrderData->SapServer;
                     $processedOrderId = $processedOrderData->id;
                     $orderStatus = (!empty($coloads) && count(array_keys($coloads)) > 0?'BL':'S');
-                    $processedOrderData = $processedOrderData->update(["AvailabilityDate"=>$availabilityDate,"PickupDate"=>$pickupDate,"CargoStatus"=>$status,"OrderStatus"=>$orderStatus,"cargo_posting_date"=>$processedOrderDataPostingDate]);
+                    $processedOrderData = $processedOrderData->update(["AvailabilityDate"=>$availabilityDate,"PickupDate"=>$pickupDate,"CargoStatus"=>$status,"OrderStatus"=>$orderStatus,"cargo_posting_date"=>$processedOrderDataPostingDate,"cbw_doc_status"=>$cbwStatus]);
                     $order = 1;
                     foreach ($coloads as $key => $value) {
                         $processedOrderColoadDataExistence = ProcessedOrders::where("CardCode",$key)->first();

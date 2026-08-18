@@ -971,6 +971,8 @@
                     let packaging = response.data[0].U_Packaging;
                     let label = response.data[0].U_Label;
                     let dateCreated = response.data[0].DocDate;
+                    let portDestination = response.data[0].PortOfDestination;
+                    let incoTerms = response.data[0].IncoTerms;
 
                     let orderItemList = response.data[0].items;
                     let html = `
@@ -978,6 +980,8 @@
                         <p style="margin-bottom: 0.25rem;">Packing: <span style="font-weight: 700;" id="packaging">${packaging}</span></p>
                         <p style="margin-bottom: 0.25rem;">Label: <span style="font-weight: 700;" id="label">${label}</span></p>
                         <p style="margin-bottom: 0.25rem;">Date created: <span style="font-weight: 700;" id="dateCreated">${dateCreated}</span></p>
+                        <p style="margin-bottom: 0.25rem;">Inco terms: <span style="font-weight: 700;" id="dateCreated">${incoTerms}</span></p>
+                        <p style="margin-bottom: 0.25rem;">Port of destination: <span style="font-weight: 700;" id="dateCreated">${portDestination}</span></p>
                     `;
                     html += `<div class="border rounded p-2 overflow-auto" style="max-height: 150px;">`;
                     orderItemList.forEach(item => {

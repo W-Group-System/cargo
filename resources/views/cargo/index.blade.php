@@ -68,7 +68,6 @@
                                     <th>Buyers Code</th>
                                     <th>Buyers Name</th>
                                     <th>Availability Date</th>
-                                    <th>Pickup Date</th>
                                     <th>Warehouse</th>
                                     <th>Action</th>
                                 </tr>
@@ -210,6 +209,17 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">
+                                        CBW Doc Status
+                                    </label>
+                                    <select class="form-control" name="cbwDocStatus" id="cbwDocStatus">
+                                        <option value="">- Status -</option>
+                                        @foreach (["Ongoing","Approved","N/A"] as $item)
+                                            <option value="{{ $item }}">{{ $item }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-12">
                                 @if ($canUpdate)
@@ -328,7 +338,7 @@
             serverSide: true,
             responsive: true,
             searching: true,
-            ordering: false,
+            ordering: true,
             paging: true,
             autoWidth: false,
             // scrollY: '480px',
@@ -346,7 +356,8 @@
             ajax: function (data, callback) {
                 let page = (data.start / data.length) + 1;
                 let limit = data.length;
-
+                let orderColumn = data.order?.[0]?.column;
+                let orderDir = data.order?.[0]?.dir;
                 $.ajax({
                     url: "{{ route('cargoes.list') }}",
                     type: 'GET',
@@ -357,7 +368,11 @@
                         end_date:  $('#end_date').val(),
                         status:  $('select[name="status"]').val(),
                         warehouse:  $('select[name="warehouse"]').val(),
-                        search: $('#dt-search-0').val()
+                        search: $('#dt-search-0').val(),
+
+                        // DataTables sorting
+                        order_column: orderColumn ?? '',
+                        order_dir: orderDir ?? ''
                     },
                     success: function (resp) {
                         callback({
@@ -373,7 +388,6 @@
                 { data: 'CardCode' },
                 { data: 'CardName'},
                 { data: 'AvailabilityDate'},
-                { data: 'PickupDate'},
                 {
                     data: 'SapServer',
                     render: function(data, type, row) {
@@ -422,6 +436,7 @@
                         $('#availabilityDate').val(response.availabilityDate);
                         $('#pickupDate').val(response.pickupDate);
                         $('#status').val(response.status);
+                        $('#cbwDocStatus').val(response.cbwDocStatus);
                         $.each(Object.entries(response.coloads), function(index, item) {
                             let key = item[0];
                             let value = item[1];
@@ -571,6 +586,8 @@
                     let packaging = response.data[0].U_Packaging;
                     let label = response.data[0].U_Label;
                     let dateCreated = response.data[0].DocDate;
+                    let portDestination = response.data[0].PortOfDestination;
+                    let incoTerms = response.data[0].IncoTerms;
 
                     let orderItemList = response.data[0].items;
                     let html = `
@@ -578,6 +595,8 @@
                         <p style="margin-bottom: 0.25rem;">Packing: <span style="font-weight: 700;" id="packaging">${packaging}</span></p>
                         <p style="margin-bottom: 0.25rem;">Label: <span style="font-weight: 700;" id="label">${label}</span></p>
                         <p style="margin-bottom: 0.25rem;">Date created: <span style="font-weight: 700;" id="dateCreated">${dateCreated}</span></p>
+                        <p style="margin-bottom: 0.25rem;">Inco terms: <span style="font-weight: 700;" id="dateCreated">${incoTerms}</span></p>
+                        <p style="margin-bottom: 0.25rem;">Port of destination: <span style="font-weight: 700;" id="dateCreated">${portDestination}</span></p>
                     `;
                     html += `<div class="border rounded p-2 overflow-auto" style="max-height: 150px;">`;
                     orderItemList.forEach(item => {

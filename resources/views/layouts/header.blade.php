@@ -27,7 +27,10 @@
     <link href="{{ asset('vendors/perfect-scrollbar/perfect-scrollbar.css') }}" rel="stylesheet">
     <link href="{{ asset('vendors/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-    <link rel="stylesheet" href="{{ asset('js/DataTables/dataTables.bootstrap5.min.css') }}">
+    {{-- <link rel="stylesheet" href="{{ asset('js/DataTables/dataTables.bootstrap5.min.css') }}">
+     --}}
+     <link rel="stylesheet"
+      href="https://cdn.datatables.net/2.3.3/css/dataTables.bootstrap5.css">
     <link rel="stylesheet" href="{{ asset('css/base.css') }}">
      <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -132,8 +135,11 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-    <script src="{{ asset('js/DataTables/datatables.min.js') }}"></script>
-    <script src="{{ asset('js/DataTables/dataTables.bootstrap5.min.js') }}"></script>
+    {{-- <script src="{{ asset('js/DataTables/datatables.min.js') }}"></script>
+    <script src="{{ asset('js/DataTables/dataTables.bootstrap5.min.js') }}"></script> --}}
+
+    <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
+<script src="https://cdn.datatables.net/2.3.3/js/dataTables.bootstrap5.js"></script>
     <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     @include('sweetalert::alert')

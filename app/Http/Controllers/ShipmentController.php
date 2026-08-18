@@ -76,7 +76,7 @@ class ShipmentController extends Controller
                 "po.is_coload",
                 "po.coloaded_by",
                 "po.coload_order",
-                "sd.cbw_doc_status",
+                "po.cbw_doc_status",
                 DB::raw("DATE_FORMAT(po.created_at, '%Y-%m-%d') as formatted_created_at"),
                 DB::raw("DATE_FORMAT(po.cargo_posting_date, '%Y-%m-%d') as cargo_posting_date"),
                 DB::raw("DATE_FORMAT(po.AvailabilityDate, '%Y-%m-%d') as AvailabilityDate"),
