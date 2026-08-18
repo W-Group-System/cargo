@@ -49,34 +49,25 @@ class HomeController extends Controller
 
         $pending = DB::table('processed_orders as po')
             ->leftJoin('shipment_details as sd', 'sd.process_order_id', '=', 'po.id')
-            ->whereRaw('COALESCE(po.AvailabilityDate, "") <> ""')
-            ->whereRaw('COALESCE(po.PickupDate, "") <> ""')
-            ->whereRaw('COALESCE(po.PickupDate, "") <> ""')
             ->where('po.CargoStatus', 'L')
-            ->whereRaw('COALESCE(sd.ata_destination, "") = ""')
-            ->whereRaw("COALESCE(sd.delivery_status, '') <> 'IT' AND COALESCE(sd.delivery_status, '') <> 'DLV'");
+            ->whereNull('po.is_coload')
+            ->whereRaw("COALESCE(sd.delivery_status, '') IN ('P', '')");
 
         $inTransit = DB::table('shipment_details as sd')
             ->leftJoin('processed_orders as po', 'sd.process_order_id', '=', 'po.id')
-            // ->whereRaw('COALESCE(sd.eta_destination, "") <> ""')
-            // ->whereRaw('COALESCE(sd.ata_destination, "") = ""');
-            ->where('sd.delivery_status',"IT");
+            ->whereRaw('COALESCE(sd.delivery_status, "") = "IT"');
 
         $shipped = DB::table('shipment_details as sd')
             ->leftJoin('processed_orders as po', 'sd.process_order_id', '=', 'po.id')
-            ->whereRaw('COALESCE(sd.ata_destination, "") <> ""');
-            // ->whereNotNull('sd.shipping_line');
+            ->whereRaw('COALESCE(sd.delivery_status, "") <> "P"');
 
         $irregularities = DB::table('shipment_details as sd')
-            // ->whereNull('sd.ata_destination')
-            // ->whereRaw('DATE_ADD(sd.eta_destination, INTERVAL 7 DAY) <= NOW()')
             ->leftJoin('processed_orders as po', 'sd.process_order_id', '=', 'po.id')
-            ->where('sd.delivery_status',"DLY");
+            ->whereRaw('COALESCE(sd.delivery_status, "") = "DLY"');
 
         $delivered = DB::table('shipment_details as sd')
             ->leftJoin('processed_orders as po', 'sd.process_order_id', '=', 'po.id')   
-            ->whereRaw('COALESCE(sd.ata_destination, "") <> ""');
-            // ->where('sd.delivery_status',"DLV");
+            ->whereRaw('COALESCE(sd.delivery_status, "") = "DLV"');
 
 
         if ($request->filled('start_date') && $request->filled('end_date')) {

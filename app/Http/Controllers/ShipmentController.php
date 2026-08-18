@@ -90,23 +90,11 @@ class ShipmentController extends Controller
                 "sd.atp_date",
                 "sd.dt_date",
                 "sd.notification_enabled"
-                // DB::raw(
-                //     "CASE 
-                //         WHEN po.CargoStatus = 'L' AND COALESCE(sd.delivery_status, '') <> 'IT' AND COALESCE(sd.delivery_status, '') <> 'DLV' AND COALESCE(sd.ata_destination, '') = ''
-                //             THEN 'Pending' 
-                //         WHEN COALESCE(sd.delivery_status, '') = 'IT'
-                //             THEN 'In Transit' 
-                //         WHEN COALESCE(sd.ata_destination, '') <> '' 
-                //             THEN 'Shipped' ELSE '' 
-                //     END AS shipmentStatus"
-                // )
             )
             ->leftJoin("shipment_details as sd","sd.process_order_id","po.id")
             ->leftJoin("delivery_status as ds","ds.code","=","sd.delivery_status")
-            ->where(function($q){
-                $q->whereRaw("COALESCE(po.AvailabilityDate,'') <> ''")->whereRaw("COALESCE(po.PickupDate,'') <> ''")
-                ->where("po.CargoStatus","L");
-            });
+            ->where("po.CargoStatus","L")
+            ->whereNull("po.is_coload");
 
             if (isset($request->id) && !empty($request->id)) {
                 $ordersList = $ordersList->with(['ShipmentDetails.ShipmentTracking','OrderData.OrderItemList'])->where("po.id",$request->id);
@@ -147,28 +135,25 @@ class ShipmentController extends Controller
                 $status = $request->status;
                 if ($status == "PENDING") {
                     $ordersList = $ordersList->where(function($q){
-                        $q->whereNotNull('po.AvailabilityDate')
-                        ->whereRaw('COALESCE(po.AvailabilityDate, "") <> ""')
-                        ->whereRaw('COALESCE(po.PickupDate, "") <> ""')
-                        ->whereRaw('COALESCE(po.PickupDate, "") <> ""')
-                        ->where('po.CargoStatus', 'L')
-                        ->whereRaw('COALESCE(sd.ata_destination, "") = ""')
-                        ->whereRaw("COALESCE(sd.delivery_status, '') <> 'IT' AND COALESCE(sd.delivery_status, '') <> 'DLV'");
+                        $q->whereRaw("COALESCE(sd.delivery_status, '') IN ('P', '')");
                     });
                 }elseif ($status == "IN-TRANSIT") {
                     $ordersList = $ordersList->where(function($q){
-                        $q->where('sd.delivery_status',"IT");
-                        // whereRaw('COALESCE(sd.eta_destination, "") <> ""')
-                        //   ->whereRaw('COALESCE(sd.ata_destination, "") = ""');
+                        $q->whereRaw('COALESCE(sd.delivery_status, "") = "IT"');
                     });
-                }elseif ($status == "SHIPPED" || $status == "DELIVERED") {
+                }elseif ($status == "SHIPPED") {
                     $ordersList = $ordersList->where(function($q){
-                        $q->whereRaw('COALESCE(sd.ata_destination, "") <> ""');
+                        $q->whereRaw('COALESCE(sd.delivery_status, "") <> "P"');
+                    });
+                }
+                elseif ($status == "DELIVERED") {
+                    $ordersList = $ordersList->where(function($q){
+                        $q->whereRaw('COALESCE(sd.delivery_status, "") = "DLV"');
                     });
                 }
                 elseif ($status == "IRREGULARITIES") {
                     $ordersList = $ordersList->where(function($q){
-                        $q->where('sd.delivery_status',"DLY");
+                        $q->whereRaw('COALESCE(sd.delivery_status, "") = "DLY"');
                     });
                 }
             }
@@ -184,7 +169,6 @@ class ShipmentController extends Controller
                 // }
                 
             }
-            $ordersList = $ordersList->where("po.is_coload",null);
 
             $totalCount = (clone $ordersList)->count();
 
