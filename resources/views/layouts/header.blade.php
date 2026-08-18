@@ -71,6 +71,11 @@
         .clickable-card.active {
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.35);
         }
+
+        .dataTable th,
+        .dataTable td {
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body>

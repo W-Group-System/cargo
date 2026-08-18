@@ -82,10 +82,13 @@ class ShipmentController extends Controller
                 "sd.invoice_number",
                 DB::raw("DATE_FORMAT(sd.atd_origin, '%Y-%m-%d') as atdOrigin"),
                 DB::raw("DATE_FORMAT(sd.eta_destination, '%Y-%m-%d') as etaDestination"),
+                DB::raw("DATE_FORMAT(sd.ata_destination, '%Y-%m-%d') as ataDestination"),
                 DB::raw("DATE_FORMAT(po.created_at, '%Y-%m-%d') as formatted_created_at"),
                 DB::raw("DATE_FORMAT(po.cargo_posting_date, '%Y-%m-%d') as cargo_posting_date"),
                 DB::raw("DATE_FORMAT(po.AvailabilityDate, '%Y-%m-%d') as AvailabilityDate"),
-                "ds.description as shipmentStatus"
+                "ds.description as shipmentStatus",
+                "atp_date",
+                "dt_date"
                 // DB::raw(
                 //     "CASE 
                 //         WHEN po.CargoStatus = 'L' AND COALESCE(sd.delivery_status, '') <> 'IT' AND COALESCE(sd.delivery_status, '') <> 'DLV' AND COALESCE(sd.ata_destination, '') = ''
@@ -124,8 +127,13 @@ class ShipmentController extends Controller
                     $query->where('po.CardCode', 'LIKE', "%{$search}%")
                         ->orWhere('po.CardName', 'LIKE', "%{$search}%")
                         ->orWhere('po.SapServer', 'LIKE', "%{$search}%")
-                        ->orWhere('sd.cbw_doc_status', 'LIKE', "%{$search}%")
-                        ->orWhere('po.cargo_posting_date', 'LIKE', "%{$search}%");
+                        ->orWhere('po.cbw_doc_status', 'LIKE', "%{$search}%")
+                        ->orWhere('po.cargo_posting_date', 'LIKE', "%{$search}%")
+                        ->orWhere('sd.invoice_number', 'LIKE', "%{$search}%")
+                        ->orWhere('sd.atd_origin', 'LIKE', "%{$search}%")
+                        ->orWhere('sd.eta_destination', 'LIKE', "%{$search}%")
+                        ->orWhere('sd.ata_destination', 'LIKE', "%{$search}%")
+                        ->orWhere('ds.description', 'LIKE', "%{$search}%");
                 });
             }
 
@@ -269,7 +277,7 @@ class ShipmentController extends Controller
                     'delivery_status' => $request->deliveryStatus,
                     'tracking_points' => $request->trackPoints,
                     'invoice_number' => $request->invoiceNo,
-                    'cbw_doc_status' => $request->cbwDocStatus,
+                    // 'cbw_doc_status' => $request->cbwDocStatus,
                     'region' => $request->region,
                     'shipping_line' => $request->shippingLine,
                     'ed_bl_number' => $request->blNumber,
@@ -284,7 +292,9 @@ class ShipmentController extends Controller
                     'remarks' => $request->remarks,
                     'email_recipients' => $receiversToSave,
                     'cc_recipients' => $ccRecipientsToSave,
-                    'vessel_name' => $request->vesselName
+                    'vessel_name' => $request->vesselName,
+                    'atp_date' => $request->atpd,
+                    'dt_date' => $request->dtd
                 ]);
 
                 if ($save) {

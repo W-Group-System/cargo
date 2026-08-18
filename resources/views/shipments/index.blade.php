@@ -143,6 +143,7 @@
                                     <th>Invoice #</th>
                                     <th>ATD</th>
                                     <th>ETA</th>
+                                    <th>ATA</th>
                                     <th>CBW Doc Status</th>
                                     <th class="text-align-center" width="120">Action</th>
                                 </tr>
@@ -273,18 +274,6 @@
                             <label class="col-md-4 col-form-label">INCO Terms</label>
                             <div class="col-md-8">
                                 <input type="text" class="form-control" id="incoTerms" readonly>
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <label class="col-md-4 col-form-label">CBW Doc Status</label>
-                            <div class="col-md-8">
-                                <select class="form-control" name="cbwDocStatus" id="cbwDocStatus">
-                                    <option value="">- Status -</option>
-                                    @foreach (["Ongoing","Approved","N/A"] as $item)
-                                        <option value="{{ $item }}">{{ $item }}</option>
-                                    @endforeach
-                                </select>
                             </div>
                         </div>
                     </div>
@@ -469,6 +458,20 @@
                             <label class="col-md-4 col-form-label">ATD Origin</label>
                             <div class="col-md-8">
                                 <input type="date" class="form-control" name="atdOrigin" id="atdOrigin">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">ATPD</label>
+                            <div class="col-md-8">
+                                <input type="date" class="form-control" name="atpd" id="atpd">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-md-4 col-form-label">DTD</label>
+                            <div class="col-md-8">
+                                <input type="date" class="form-control" name="dtd" id="dtd">
                             </div>
                         </div>
 
@@ -733,6 +736,7 @@
                 { data: 'invoice_number'},
                 { data: 'atdOrigin'},
                 { data: 'etaDestination'},
+                { data: 'ataDestination'},
                 { data: 'cbw_doc_status'},
                 {
                     render: function (data, type, row) {
@@ -796,6 +800,8 @@
                             $('#receiver').val(receivers).trigger('change');
                             $('#cc').val(cc).trigger('change');
                             $('#vesselName').val(resp.data[0].shipment_details?.vessel_name??"");
+                            $('#atpd').val(resp.data[0].shipment_details?.atp_date??"");
+                            $('#dtd').val(resp.data[0].shipment_details?.dt_date??"");
                             
                             GetCargoTabContent(resp.data[0].CardCode,resp.data[0].SapServer, function(success){
                                 if (success) {
