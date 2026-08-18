@@ -457,21 +457,21 @@
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">ATD Origin</label>
                             <div class="col-md-8">
-                                <input type="date" class="form-control" name="atdOrigin" id="atdOrigin">
+                                <input type="date" class="form-control triggerStatus" data-status="IT" name="atdOrigin" id="atdOrigin">
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">ATPD</label>
                             <div class="col-md-8">
-                                <input type="date" class="form-control" name="atpd" id="atpd">
+                                <input type="date" class="form-control triggerStatus" data-status="ATP" name="atpd" id="atpd">
                             </div>
                         </div>
 
                         <div class="row mb-3">
-                            <label class="col-md-4 col-form-label">DTD</label>
+                            <label class="col-md-4 col-form-label">DTPD</label>
                             <div class="col-md-8">
-                                <input type="date" class="form-control" name="dtd" id="dtd">
+                                <input type="date" class="form-control triggerStatus" data-status="IT" name="dtd" id="dtd">
                             </div>
                         </div>
 
@@ -485,7 +485,7 @@
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">ATA Destination</label>
                             <div class="col-md-8">
-                                <input type="date" class="form-control" name="ataDestination" id="ataDestination">
+                                <input type="date" class="form-control triggerStatus" data-status="AFD" name="ataDestination" id="ataDestination">
                             </div>
                         </div>
 
@@ -506,7 +506,7 @@
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">Delivery Date</label>
                             <div class="col-md-8">
-                                <input type="date" class="form-control" name="deliveryDate" id="deliveryDate">
+                                <input type="date" class="form-control triggerStatus" data-status="DLV" name="deliveryDate" id="deliveryDate">
                             </div>
                         </div>
 
@@ -646,6 +646,7 @@
         let coLoadArray = {};
         let sapServerDefault = '';
         let currentTrackPoint = '';
+        let currentDlvStatus =  '';
 
         $('#shipmentListForm').submit(function (e) { 
             e.preventDefault();
@@ -772,11 +773,11 @@
                             currentTrackPoint = resp.data[0].shipment_details?.tracking_points??""
                             var receivers = resp.data[0].shipment_details?.email_recipients ? resp.data[0].shipment_details?.email_recipients.split(','):[];
                             var cc = resp.data[0].shipment_details?.cc_recipients ? resp.data[0].shipment_details?.cc_recipients.split(','):[];                            
-
+                            currentDlvStatus = resp.data[0].shipment_details?.delivery_status[0]?.code??"P";
                             $('#headerBuyersCode').text(resp.data[0].CardCode);
                             $('#deliveryStatusDesc').text(resp.data[0].shipmentStatus??"-");
                             $('#id').val(shipmentId);
-                            $('#deliveryStatus').val(resp.data[0].shipment_details?.delivery_status[0]?.code??"");
+                            $('#deliveryStatus').val(resp.data[0].shipment_details?.delivery_status[0]?.code??"P");
                             $('#clientRefNo').val(resp.data[0].CardCode??"");
                             $('#invoiceNo').val(resp.data[0].shipment_details?.invoice_number??"");
                             $('#cbwDocStatus').val(resp.data[0].shipment_details?.cbw_doc_status??"");
@@ -1167,6 +1168,17 @@
             width: '100%',
             tags: true, // allows new values
             tokenSeparators: [',']
+        });
+
+        $('.triggerStatus').change(function (e) { 
+            e.preventDefault();
+            let status = currentDlvStatus;
+            
+            if ($(this).val() !== '') {
+                status = $(this).data('status');
+            }
+
+            $('#deliveryStatus').val(status);
         });
 
         function LoadShipmentCounts(){
