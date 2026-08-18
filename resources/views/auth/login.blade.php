@@ -229,10 +229,12 @@
                     </form>
 
                     <div class="footer">
-
+                       
                         © 2026 W Group Inc.<br>
 
-                        Cargo Monitoring System
+                        Cargo Monitoring System <br>
+
+                        Version 1.1.0 
 
                     </div>
 
