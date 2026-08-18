@@ -62,6 +62,8 @@ class ShipmentController extends Controller
             $limit = $request->limit ?? 10;
             $coloadSoNumberArr = [];
             $module = $request->module ?? "";
+            $orderColumn = $request->input('order_column');
+            $orderDir = $request->input('order_dir', 'asc');
 
             $ordersList = ProcessedOrders::from("processed_orders as po")->with(['ShipmentDetails.DeliveryStatus'])->select(
                 "po.id",
@@ -77,21 +79,26 @@ class ShipmentController extends Controller
                 "po.coloaded_by",
                 "po.coload_order",
                 "po.cbw_doc_status",
+                "sd.invoice_number",
+                DB::raw("DATE_FORMAT(sd.atd_origin, '%Y-%m-%d') as atdOrigin"),
+                DB::raw("DATE_FORMAT(sd.eta_destination, '%Y-%m-%d') as etaDestination"),
                 DB::raw("DATE_FORMAT(po.created_at, '%Y-%m-%d') as formatted_created_at"),
                 DB::raw("DATE_FORMAT(po.cargo_posting_date, '%Y-%m-%d') as cargo_posting_date"),
                 DB::raw("DATE_FORMAT(po.AvailabilityDate, '%Y-%m-%d') as AvailabilityDate"),
-                DB::raw(
-                    "CASE 
-                        WHEN po.CargoStatus = 'L' AND COALESCE(sd.delivery_status, '') <> 'IT' AND COALESCE(sd.delivery_status, '') <> 'DLV' AND COALESCE(sd.ata_destination, '') = ''
-                            THEN 'Pending' 
-                        WHEN COALESCE(sd.delivery_status, '') = 'IT'
-                            THEN 'In Transit' 
-                        WHEN COALESCE(sd.ata_destination, '') <> '' 
-                            THEN 'Shipped' ELSE '' 
-                    END AS shipmentStatus"
-                )
+                "ds.description as shipmentStatus"
+                // DB::raw(
+                //     "CASE 
+                //         WHEN po.CargoStatus = 'L' AND COALESCE(sd.delivery_status, '') <> 'IT' AND COALESCE(sd.delivery_status, '') <> 'DLV' AND COALESCE(sd.ata_destination, '') = ''
+                //             THEN 'Pending' 
+                //         WHEN COALESCE(sd.delivery_status, '') = 'IT'
+                //             THEN 'In Transit' 
+                //         WHEN COALESCE(sd.ata_destination, '') <> '' 
+                //             THEN 'Shipped' ELSE '' 
+                //     END AS shipmentStatus"
+                // )
             )
             ->leftJoin("shipment_details as sd","sd.process_order_id","po.id")
+            ->leftJoin("delivery_status as ds","ds.code","=","sd.delivery_status")
             ->where(function($q){
                 $q->whereRaw("COALESCE(po.AvailabilityDate,'') <> ''")->whereRaw("COALESCE(po.PickupDate,'') <> ''")
                 ->where("po.CargoStatus","L");
@@ -172,7 +179,40 @@ class ShipmentController extends Controller
 
             $totalCount = (clone $ordersList)->count();
 
-            $ordersList = $ordersList->orderBy("po.AvailabilityDate","desc")
+            if (isset($orderColumn) && !empty($orderColumn)) {
+                if($orderColumn == "shipmentStatus"){
+                    $ordersList->orderBy("ds.description",$orderDir === 'desc' ? 'desc' : 'asc');
+                }
+                if($orderColumn == "AvailabilityDate"){
+                    $ordersList->orderBy("po.AvailabilityDate",$orderDir === 'desc' ? 'desc' : 'asc');
+                }
+                if($orderColumn == "CardCode"){
+                    $ordersList->orderBy("po.CardCode",$orderDir === 'desc' ? 'desc' : 'asc');
+                }
+                if($orderColumn == "CardName"){
+                    $ordersList->orderBy("po.CardName",$orderDir === 'desc' ? 'desc' : 'asc');
+                }
+                if($orderColumn == "cbw_doc_status"){
+                    $ordersList->orderBy("po.cbw_doc_status",$orderDir === 'desc' ? 'desc' : 'asc');
+                }
+                if($orderColumn == "SapServer"){
+                    $ordersList->orderBy("po.SapServer",$orderDir === 'desc' ? 'desc' : 'asc');
+                }
+                if($orderColumn == "invoice_number"){
+                    $ordersList->orderBy("sd.invoice_number",$orderDir === 'desc' ? 'desc' : 'asc');
+                }
+                if($orderColumn == "atdOrigin"){
+                    $ordersList->orderBy("sd.atd_origin",$orderDir === 'desc' ? 'desc' : 'asc');
+                }
+                if($orderColumn == "etaDestination"){
+                    $ordersList->orderBy("sd.eta_destination",$orderDir === 'desc' ? 'desc' : 'asc');
+                }
+            } else {
+                // Default sorting
+                $ordersList->orderBy('id', 'desc');
+            }
+
+            $ordersList = $ordersList
                 ->skip(($page - 1) * $limit)
                 ->take($limit)
                 ->get();
@@ -202,6 +242,7 @@ class ShipmentController extends Controller
             $ccRecipientsToSave = "";
             $savedId = "";
             $currentEta = null;
+            $sendEmail = isset($request->sendEmail) && $request->sendEmail == "1" ? true:false;
 
             if (count($receivers) > 0) {
                 $receiversToSave = implode(",",$receivers);
@@ -256,21 +297,32 @@ class ShipmentController extends Controller
                         ]);
                     }
 
-                    if ($currentDeliveryStatus !== $request->deliveryStatus) {
-                        if ($request->deliveryStatus == "DLY") {
-                            DelayedShipmentUpdate::updateOrCreate(['shipment_details_id' => $savedId],['shipment_details_id' => $savedId,'prev_eta' => $currentEta,'updated_eta' => $request->etaDestination??null,'is_notif_sent' => 0]);    
-                            $this->shipment->SendDelayedNotification($savedId);
+                    if ($request->deliveryStatus == "DLY") {
+                        if (!Carbon::parse($currentEta)->isSameDay(Carbon::parse($request->etaDestination))) 
+                        {
+                            $updateDelayedShipment = DelayedShipmentUpdate::updateOrCreate(['shipment_details_id' => $savedId],['shipment_details_id' => $savedId,'prev_eta' => $currentEta,'updated_eta' => $request->etaDestination??null,'is_notif_sent' => 0]);   
                         }
-                        if ($request->deliveryStatus == "DPT") {
+                        if ($sendEmail){
+                            $this->shipment->SendDelayedNotification($savedId); 
+                        }
+                    }
+                    if ($request->deliveryStatus == "DPT") {
+                        if ($sendEmail){
                             $this->shipment->SendCargoDepartedNotification($savedId);
                         }
-                        if ($request->deliveryStatus == "ARVTP") {
+                    }
+                    if ($request->deliveryStatus == "ARVTP") {
+                        if ($sendEmail){
                             $this->shipment->SendCargoTranshipmentArrivalNotification($savedId);
                         }
-                        if ($request->deliveryStatus == "LCV") {
+                    }
+                    if ($request->deliveryStatus == "LCV") {
+                        if ($sendEmail){
                             $this->shipment->SendCargoLoadedInConnectingVesselNotification($savedId);
                         }
-                        if ($request->deliveryStatus == "AD") {
+                    }
+                    if ($request->deliveryStatus == "AD") {
+                        if ($sendEmail){
                             $this->shipment->SendCargoArrivedAtDestinationPortNotification($savedId);
                         }
                     }

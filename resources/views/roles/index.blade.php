@@ -150,7 +150,7 @@
             ordering: false,
             paging: true,
             autoWidth: false,
-            scrollY: '480px',
+            
             scrollCollapse: false,
             lengthChange: false,
             language: {

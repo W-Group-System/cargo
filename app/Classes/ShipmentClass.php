@@ -28,11 +28,11 @@ class ShipmentClass{
                 'customerName'=>isset($shipmentData->ProcessedOrder->OrderData[0]->ContactName)?$shipmentData->ProcessedOrder->OrderData[0]->ContactName:'',
                 'delayReason'=>$shipmentData->remarks,
                 'poNumber'=>isset($shipmentData->ProcessedOrder->OrderData[0]->BuyersPO)?$shipmentData->ProcessedOrder->OrderData[0]->BuyersPO:'',
-                'buyerInvoice'=>$shipmentData->invoice_number,
+                'buyerInvoice'=>$shipmentData->ProcessedOrder->CardCode."/".$shipmentData->invoice_number,
                 'containerNumber'=>$shipmentData->container_number,
                 'vesselVoyage'=>$shipmentData->vessel_name,
-                'previousEta'=>isset($shipmentData->DelayedShipmentUpdate->prev_eta)?Carbon::parse($shipmentData->atd_origin)->format('M d, Y h:i A'):'',
-                'revisedEta'=>!empty($shipmentData->atd_origin)?Carbon::parse($shipmentData->atd_origin)->format('M d, Y h:i A'):''
+                'previousEta'=>isset($shipmentData->DelayedShipmentUpdate->prev_eta)?Carbon::parse($shipmentData->DelayedShipmentUpdate->prev_eta)->format('M d, Y'):'',
+                'revisedEta'=>!empty($shipmentData->DelayedShipmentUpdate->updated_eta)?Carbon::parse($shipmentData->DelayedShipmentUpdate->updated_eta)->format('M d, Y'):''
             ];
 
             $attachments = [];
@@ -76,8 +76,8 @@ class ShipmentClass{
                 'containerNumber'=>$shipmentData->container_number,
                 'vesselVoyage'=>$shipmentData->vessel_name,
                 'portOfDischarge'=>isset($shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination)?$shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination:'',
-                'atd'=>Carbon::parse($shipmentData->atd_origin)->format('M d, Y h:i A'),
-                'eta'=>Carbon::parse($shipmentData->eta_destination)->format('M d, Y h:i A')
+                'atd'=>Carbon::parse($shipmentData->atd_origin)->format('M d, Y'),
+                'eta'=>Carbon::parse($shipmentData->eta_destination)->format('M d, Y')
             ];
 
             $receivers = !empty($shipmentData->email_recipients) ? explode(",",$shipmentData->email_recipients):[];
@@ -139,8 +139,8 @@ class ShipmentClass{
                 'vesselVoyage'=>$shipmentData->vessel_name,
                 'portOfLoading'=>isset($shipmentData->ProcessedOrder->OrderData[0]->LoadingPort)?$shipmentData->ProcessedOrder->OrderData[0]->LoadingPort:'',
                 'portOfDischarge'=>isset($shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination)?$shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination:'',
-                'atd'=>Carbon::parse($shipmentData->atd_origin)->format('M d, Y h:i A'),
-                'eta'=>Carbon::parse($shipmentData->eta_destination)->format('M d, Y h:i A')
+                'atd'=>Carbon::parse($shipmentData->atd_origin)->format('M d, Y'),
+                'eta'=>Carbon::parse($shipmentData->eta_destination)->format('M d, Y')
             ];
 
             $receivers = !empty($shipmentData->email_recipients) ? explode(",",$shipmentData->email_recipients):[];
@@ -172,7 +172,7 @@ class ShipmentClass{
                 'containerNumber'=>$shipmentData->container_number,
                 'vesselVoyage'=>$shipmentData->vessel_name,
                 'destinationPort'=>isset($shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination)?$shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination:'',
-                'ata'=>!empty($shipmentData->ata_destination)?Carbon::parse($shipmentData->ata_destination)->format('M d, Y h:i A'):''
+                'ata'=>!empty($shipmentData->ata_destination)?Carbon::parse($shipmentData->ata_destination)->format('M d, Y'):''
             ];
 
             $receivers = !empty($shipmentData->email_recipients) ? explode(",",$shipmentData->email_recipients):[];

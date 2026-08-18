@@ -140,7 +140,9 @@
                                     <th>Buyers Code</th>
                                     <th>Buyers Name</th>
                                     <th>Warehouse</th>
-                                    <th>Availability Date</th>
+                                    <th>Invoice #</th>
+                                    <th>ATD</th>
+                                    <th>ETA</th>
                                     <th>CBW Doc Status</th>
                                     <th class="text-align-center" width="120">Action</th>
                                 </tr>
@@ -317,23 +319,66 @@
                     <div class="border rounded p-3">
                         <h5 class="mb-3">Email Recipients</h5>
 
-                        <div class="row mb-3">
-                            <label class="col-md-2 col-form-label">Recipients</label>
+                        <!-- Send Email -->
+                        <div class="row mb-3 align-items-center">
                             <div class="col-md-10">
-                                <select id="receiver" name="receiver[]" class="form-control" multiple>
+                                <div class="form-check form-switch">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        role="switch"
+                                        name="sendEmail"
+                                        id="sendEmail"
+                                        value="1"
+                                    >
+                                    <label class="form-check-label" for="sendEmail">
+                                        Enable email notification
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Recipients -->
+                        <div class="row mb-3">
+                            <label for="receiver" class="col-md-2 col-form-label">
+                                Recipients
+                            </label>
+
+                            <div class="col-md-10">
+                                <select
+                                    id="receiver"
+                                    name="receiver[]"
+                                    class="form-control"
+                                    multiple
+                                >
                                     @foreach ($users as $key => $value)
-                                        <option value="{{ $key }}">{{ $value }}</option>
+                                        <option value="{{ $key }}">
+                                            {{ $value }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
 
-                        <div class="row mb-3">
-                            <label class="col-md-2 col-form-label">CC</label>
+                        <!-- CC -->
+                        <div class="row mb-0">
+                            <label for="cc" class="col-md-2 col-form-label">
+                                CC
+                            </label>
+
                             <div class="col-md-10">
-                                <select id="cc" name="cc[]" class="form-control" multiple>
+                                <select
+                                    id="cc"
+                                    name="cc[]"
+                                    class="form-control"
+                                    multiple
+                                >
                                     @foreach ($users as $key => $value)
-                                        <option value="{{ $key }}">{{ $value }}</option>
+                                        <option value="{{ $key }}">
+                                            {{ $value }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -416,28 +461,28 @@
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">ETD Origin</label>
                             <div class="col-md-8">
-                                <input type="datetime-local" class="form-control" name="etdOrigin" id="etdOrigin">
+                                <input type="date" class="form-control" name="etdOrigin" id="etdOrigin">
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">ATD Origin</label>
                             <div class="col-md-8">
-                                <input type="datetime-local" class="form-control" name="atdOrigin" id="atdOrigin">
+                                <input type="date" class="form-control" name="atdOrigin" id="atdOrigin">
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">ETA Destination</label>
                             <div class="col-md-8">
-                                <input type="datetime-local" class="form-control" name="etaDestination" id="etaDestination">
+                                <input type="date" class="form-control" name="etaDestination" id="etaDestination">
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">ATA Destination</label>
                             <div class="col-md-8">
-                                <input type="datetime-local" class="form-control" name="ataDestination" id="ataDestination">
+                                <input type="date" class="form-control" name="ataDestination" id="ataDestination">
                             </div>
                         </div>
 
@@ -623,10 +668,10 @@
             serverSide: true,
             responsive: true,
             searching: true,
-            ordering: false,
+            ordering: true,
+            order: [],
             paging: true,
             autoWidth: false,
-            scrollY: '480px',
             scrollCollapse: false,
             lengthChange: false,
             language: {
@@ -641,6 +686,14 @@
             ajax: function (data, callback) {
                 let page = (data.start / data.length) + 1;
                 let limit = data.length;
+                let orderColumn = data.order?.[0]?.column;
+                let orderDir = data.order?.[0]?.dir;
+
+                let orderColumnName = '';
+
+                if (orderColumn !== undefined) {
+                    orderColumnName = data.columns[orderColumn].data;
+                }
 
                 $.ajax({
                     url: "{{ route('shipment.list') }}",
@@ -652,7 +705,11 @@
                         end_date: $('#end_date').val(),
                         status: cardStatusFilter,
                         warehouse: $('select[name="warehouse"]').val(),
-                        search: $('#dt-search-0').val()
+                        search: $('#dt-search-0').val(),
+
+                        // DataTables sorting
+                        order_column: orderColumnName ?? '',
+                        order_dir: orderDir ?? ''
                     },
                     success: function (resp) {
                         callback({
@@ -673,7 +730,9 @@
                         return data ? data.toUpperCase() : '';
                     }
                 },
-                { data: 'AvailabilityDate'},
+                { data: 'invoice_number'},
+                { data: 'atdOrigin'},
+                { data: 'etaDestination'},
                 { data: 'cbw_doc_status'},
                 {
                     render: function (data, type, row) {
@@ -821,7 +880,7 @@
             ordering: false,
             paging: true,
             autoWidth: false,
-            scrollY: '480px',
+            
             scrollCollapse: false,
             lengthChange: false,
             language: {
@@ -948,7 +1007,8 @@
                 const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
 
-                return `${days}d ${hours}h ${minutes}m`;
+                // return `${days}d ${hours}h ${minutes}m`;
+                return `${days} day/s`;
             } else {
                 return "";
             }
@@ -966,6 +1026,9 @@
                     sapServer: sapServer
                 },
                 dataType: "JSON",
+                beforeSend: function(){
+                    $('.soInfoContainer').html('<center><div class="spinner-border"></div></center>');
+                },
                 success: function (response) {
                     let soNo = response.data[0].DocNum;
                     let packaging = response.data[0].U_Packaging;
@@ -973,6 +1036,7 @@
                     let dateCreated = response.data[0].DocDate;
                     let portDestination = response.data[0].PortOfDestination;
                     let incoTerms = response.data[0].IncoTerms;
+                    let mode = response.data[0].U_Modeship;
 
                     let orderItemList = response.data[0].items;
                     let html = `
@@ -981,6 +1045,7 @@
                         <p style="margin-bottom: 0.25rem;">Label: <span style="font-weight: 700;" id="label">${label}</span></p>
                         <p style="margin-bottom: 0.25rem;">Date created: <span style="font-weight: 700;" id="dateCreated">${dateCreated}</span></p>
                         <p style="margin-bottom: 0.25rem;">Inco terms: <span style="font-weight: 700;" id="dateCreated">${incoTerms}</span></p>
+                        <p style="margin-bottom: 0.25rem;">Mode: <span style="font-weight: 700;" id="dateCreated">${mode}</span></p>
                         <p style="margin-bottom: 0.25rem;">Port of destination: <span style="font-weight: 700;" id="dateCreated">${portDestination}</span></p>
                     `;
                     html += `<div class="border rounded p-2 overflow-auto" style="max-height: 150px;">`;

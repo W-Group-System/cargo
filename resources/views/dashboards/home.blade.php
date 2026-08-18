@@ -247,10 +247,11 @@
             serverSide: true,
             responsive: true,
             searching: true,
-            ordering: false,
+            ordering: true,
+            order: [],
             paging: true,
             autoWidth: false,
-            // scrollY: '480px',
+            // 
             scrollCollapse: false,
             lengthChange: false,
             language: {
@@ -265,6 +266,14 @@
             ajax: function (data, callback) {
                 let page = (data.start / data.length) + 1;
                 let limit = data.length;
+                let orderColumn = data.order?.[0]?.column;
+                let orderDir = data.order?.[0]?.dir;
+
+                let orderColumnName = '';
+
+                if (orderColumn !== undefined) {
+                    orderColumnName = data.columns[orderColumn].data;
+                }
 
                 $.ajax({
                     url: "{{ route('shipment.list') }}",
@@ -276,7 +285,11 @@
                         end_date: $('#end_date').val(),
                         status: cardStatusFilter,
                         warehouse: $('select[name="warehouse"]').val(),
-                        search: $('#dt-search-0').val()
+                        search: $('#dt-search-0').val(),
+
+                        // DataTables sorting
+                        order_column: orderColumnName ?? '',
+                        order_dir: orderDir ?? ''
                     },
                     success: function (resp) {
                         callback({

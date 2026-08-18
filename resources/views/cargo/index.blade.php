@@ -339,6 +339,7 @@
             responsive: true,
             searching: true,
             ordering: true,
+            order: [],
             paging: true,
             autoWidth: false,
             // scrollY: '480px',
@@ -581,6 +582,9 @@
                     sapServer: sapServer
                 },
                 dataType: "JSON",
+                beforeSend: function(){
+                    $('.soInfoContainer').html('<center><div class="spinner-border"></div></center>');
+                },
                 success: function (response) {
                     let soNo = response.data[0].DocNum;
                     let packaging = response.data[0].U_Packaging;
@@ -588,6 +592,7 @@
                     let dateCreated = response.data[0].DocDate;
                     let portDestination = response.data[0].PortOfDestination;
                     let incoTerms = response.data[0].IncoTerms;
+                    let mode = response.data[0].U_Modeship;
 
                     let orderItemList = response.data[0].items;
                     let html = `
@@ -596,6 +601,7 @@
                         <p style="margin-bottom: 0.25rem;">Label: <span style="font-weight: 700;" id="label">${label}</span></p>
                         <p style="margin-bottom: 0.25rem;">Date created: <span style="font-weight: 700;" id="dateCreated">${dateCreated}</span></p>
                         <p style="margin-bottom: 0.25rem;">Inco terms: <span style="font-weight: 700;" id="dateCreated">${incoTerms}</span></p>
+                        <p style="margin-bottom: 0.25rem;">Mode: <span style="font-weight: 700;" id="dateCreated">${mode}</span></p>
                         <p style="margin-bottom: 0.25rem;">Port of destination: <span style="font-weight: 700;" id="dateCreated">${portDestination}</span></p>
                     `;
                     html += `<div class="border rounded p-2 overflow-auto" style="max-height: 150px;">`;

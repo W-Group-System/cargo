@@ -72,7 +72,7 @@ class CargoController extends Controller
                 "cbw_doc_status",
                 DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d') as formatted_created_at")
             )
-            ->where("CargoStatus","<>","L");
+            ->whereRaw("COALESCE(CargoStatus,'') <> 'L'");
 
             if (isset($request->id) && !empty($request->id)) {
                 $ordersList = $ordersList->where("id",$request->id);
@@ -100,7 +100,6 @@ class CargoController extends Controller
             if ($request->filled('start_date') && $request->filled('end_date')) {
                 $start = Carbon::parse($request->start_date)->startOfDay();
                 $end   = Carbon::parse($request->end_date)->endOfDay();
-
                 $ordersList->whereBetween('created_at', [$start, $end]);
             }
             $ordersList = $ordersList->where("is_coload",null);
