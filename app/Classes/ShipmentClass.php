@@ -32,7 +32,8 @@ class ShipmentClass{
                 'containerNumber'=>$shipmentData->container_number,
                 'vesselVoyage'=>$shipmentData->vessel_name,
                 'previousEta'=>isset($shipmentData->DelayedShipmentUpdate->prev_eta)?Carbon::parse($shipmentData->DelayedShipmentUpdate->prev_eta)->format('M d, Y'):'',
-                'revisedEta'=>!empty($shipmentData->DelayedShipmentUpdate->updated_eta)?Carbon::parse($shipmentData->DelayedShipmentUpdate->updated_eta)->format('M d, Y'):''
+                'revisedEta'=>!empty($shipmentData->DelayedShipmentUpdate->updated_eta)?Carbon::parse($shipmentData->DelayedShipmentUpdate->updated_eta)->format('M d, Y'):'',
+                'buyersCode' => $shipmentData->ProcessedOrder->CardCode
             ];
 
             $attachments = [];
@@ -72,12 +73,13 @@ class ShipmentClass{
                 'customerName'=>isset($shipmentData->ProcessedOrder->OrderData[0]->ContactName)?$shipmentData->ProcessedOrder->OrderData[0]->ContactName:'',
                 'portOfLoading'=>isset($shipmentData->ProcessedOrder->OrderData[0]->LoadingPort)?$shipmentData->ProcessedOrder->OrderData[0]->LoadingPort:'',
                 'poNumber'=>isset($shipmentData->ProcessedOrder->OrderData[0]->BuyersPO)?$shipmentData->ProcessedOrder->OrderData[0]->BuyersPO:'',
-                'buyerInvoice'=>$shipmentData->invoice_number,
+                'buyerInvoice'=>$shipmentData->ProcessedOrder->CardCode."/".$shipmentData->invoice_number,
                 'containerNumber'=>$shipmentData->container_number,
                 'vesselVoyage'=>$shipmentData->vessel_name,
                 'portOfDischarge'=>isset($shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination)?$shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination:'',
                 'atd'=>Carbon::parse($shipmentData->atd_origin)->format('M d, Y'),
-                'eta'=>Carbon::parse($shipmentData->eta_destination)->format('M d, Y')
+                'eta'=>Carbon::parse($shipmentData->eta_destination)->format('M d, Y'),
+                'buyersCode' => $shipmentData->ProcessedOrder->CardCode
             ];
 
             $receivers = !empty($shipmentData->email_recipients) ? explode(",",$shipmentData->email_recipients):[];
@@ -106,7 +108,8 @@ class ShipmentClass{
                 'customerName'=>isset($shipmentData->ProcessedOrder->OrderData[0]->ContactName)?$shipmentData->ProcessedOrder->OrderData[0]->ContactName:'',
                 'portOfLoading'=>isset($shipmentData->ProcessedOrder->OrderData[0]->LoadingPort)?$shipmentData->ProcessedOrder->OrderData[0]->LoadingPort:'',
                 'poNumber'=>isset($shipmentData->ProcessedOrder->OrderData[0]->BuyersPO)?$shipmentData->ProcessedOrder->OrderData[0]->BuyersPO:'',
-                'buyerInvoice'=>$shipmentData->invoice_number
+                'buyerInvoice'=>$shipmentData->ProcessedOrder->CardCode."/".$shipmentData->invoice_number,
+                'buyersCode' => $shipmentData->ProcessedOrder->CardCode
             ];
 
             $receivers = !empty($shipmentData->email_recipients) ? explode(",",$shipmentData->email_recipients):[];
@@ -134,13 +137,14 @@ class ShipmentClass{
                 'shipmentDetailsId'=>$id,
                 'customerName'=>isset($shipmentData->ProcessedOrder->OrderData[0]->ContactName)?$shipmentData->ProcessedOrder->OrderData[0]->ContactName:'',
                 'poNumber'=>isset($shipmentData->ProcessedOrder->OrderData[0]->BuyersPO)?$shipmentData->ProcessedOrder->OrderData[0]->BuyersPO:'',
-                'buyerInvoice'=>$shipmentData->invoice_number,
+                'buyerInvoice'=>$shipmentData->ProcessedOrder->CardCode."/".$shipmentData->invoice_number,
                 'containerNumber'=>$shipmentData->container_number,
                 'vesselVoyage'=>$shipmentData->vessel_name,
                 'portOfLoading'=>isset($shipmentData->ProcessedOrder->OrderData[0]->LoadingPort)?$shipmentData->ProcessedOrder->OrderData[0]->LoadingPort:'',
                 'portOfDischarge'=>isset($shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination)?$shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination:'',
                 'atd'=>Carbon::parse($shipmentData->atd_origin)->format('M d, Y'),
-                'eta'=>Carbon::parse($shipmentData->eta_destination)->format('M d, Y')
+                'eta'=>Carbon::parse($shipmentData->eta_destination)->format('M d, Y'),
+                'buyersCode' => $shipmentData->ProcessedOrder->CardCode
             ];
 
             $receivers = !empty($shipmentData->email_recipients) ? explode(",",$shipmentData->email_recipients):[];
@@ -168,11 +172,12 @@ class ShipmentClass{
                 'shipmentDetailsId'=>$id,
                 'customerName'=>isset($shipmentData->ProcessedOrder->OrderData[0]->ContactName)?$shipmentData->ProcessedOrder->OrderData[0]->ContactName:'',
                 'poNumber'=>isset($shipmentData->ProcessedOrder->OrderData[0]->BuyersPO)?$shipmentData->ProcessedOrder->OrderData[0]->BuyersPO:'',
-                'buyerInvoice'=>$shipmentData->invoice_number,
+                'buyerInvoice'=>$shipmentData->ProcessedOrder->CardCode."/".$shipmentData->invoice_number,
                 'containerNumber'=>$shipmentData->container_number,
                 'vesselVoyage'=>$shipmentData->vessel_name,
                 'destinationPort'=>isset($shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination)?$shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination:'',
-                'ata'=>!empty($shipmentData->ata_destination)?Carbon::parse($shipmentData->ata_destination)->format('M d, Y'):''
+                'ata'=>!empty($shipmentData->ata_destination)?Carbon::parse($shipmentData->ata_destination)->format('M d, Y'):'',
+                'buyersCode' => $shipmentData->ProcessedOrder->CardCode
             ];
 
             $receivers = !empty($shipmentData->email_recipients) ? explode(",",$shipmentData->email_recipients):[];

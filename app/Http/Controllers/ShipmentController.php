@@ -86,7 +86,7 @@ class ShipmentController extends Controller
                 DB::raw("DATE_FORMAT(po.created_at, '%Y-%m-%d') as formatted_created_at"),
                 DB::raw("DATE_FORMAT(po.cargo_posting_date, '%Y-%m-%d') as cargo_posting_date"),
                 DB::raw("DATE_FORMAT(po.AvailabilityDate, '%Y-%m-%d') as AvailabilityDate"),
-                "ds.description as shipmentStatus",
+                DB::raw("COALESCE(ds.description,'Pending') as shipmentStatus"),
                 "sd.atp_date",
                 "sd.dt_date",
                 "sd.notification_enabled"
@@ -218,7 +218,7 @@ class ShipmentController extends Controller
                 }
             } else {
                 // Default sorting
-                $ordersList->orderBy('id', 'desc');
+                $ordersList->orderBy('po.date_loaded', 'desc');
             }
 
             $ordersList = $ordersList

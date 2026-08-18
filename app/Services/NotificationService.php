@@ -25,9 +25,12 @@ class NotificationService{
                 }
 
                 $html = $templateContent;
-                // dd($attachments);
+                $subject = $templateData->subject;
+                if (isset($params["buyersCode"]) && !empty($params["buyersCode"])) {
+                    $subject = $templateData->subject." - ".$params["buyersCode"];
+                }
                 $mailService = new ShipmentNotification($html,$attachments);
-                $mailService->subject = $templateData->subject;
+                $mailService->subject = $subject;
                 $mail = Mail::to($to);
                 if (count($cc)>0) {
                     $mail->cc($cc);

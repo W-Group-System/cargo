@@ -213,7 +213,7 @@ class CargoController extends Controller
             $coloads = json_decode($request->coloads, true);
             $removedColoadsArr = json_decode($request->removedColoads);
             $cbwStatus = $request->cbwDocStatus??null;
-
+            $dateLoaded = null;
             if ($status == "L") {
                 if ($availabilityDate == null || $pickupDate == null || $cbwStatus == null) {
                     $response = [
@@ -222,6 +222,7 @@ class CargoController extends Controller
                     ];   
                     return  response()->json($response,400);
                 }
+                $dateLoaded = Carbon::now();
             }
 
             if (!empty($buyersCode)) {
@@ -237,7 +238,16 @@ class CargoController extends Controller
                     $sapServer = $processedOrderData->SapServer;
                     $processedOrderId = $processedOrderData->id;
                     $orderStatus = (!empty($coloads) && count(array_keys($coloads)) > 0?'BL':'S');
-                    $processedOrderData = $processedOrderData->update(["AvailabilityDate"=>$availabilityDate,"PickupDate"=>$pickupDate,"CargoStatus"=>$status,"OrderStatus"=>$orderStatus,"cargo_posting_date"=>$processedOrderDataPostingDate,"cbw_doc_status"=>$cbwStatus]);
+                    $processedOrderData = $processedOrderData->update(
+                        [
+                            "AvailabilityDate"=>$availabilityDate,
+                            "PickupDate"=>$pickupDate,
+                            "CargoStatus"=>$status,
+                            "OrderStatus"=>$orderStatus,
+                            "cargo_posting_date"=>$processedOrderDataPostingDate,
+                            "cbw_doc_status"=>$cbwStatus,
+                            "date_loaded" => $dateLoaded
+                        ]);
                     $order = 1;
                     foreach ($coloads as $key => $value) {
                         $processedOrderColoadDataExistence = ProcessedOrders::where("CardCode",$key)->first();

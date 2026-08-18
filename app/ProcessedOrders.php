@@ -25,7 +25,8 @@ class ProcessedOrders extends Model implements Auditable
         "coloaded_by",
         "coload_order",
         "cargo_posting_date",
-        "cbw_doc_status"
+        "cbw_doc_status",
+        "date_loaded"
     ];
 
     public function OrderData()
