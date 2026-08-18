@@ -143,7 +143,7 @@ class ShipmentController extends Controller
                     });
                 }elseif ($status == "SHIPPED") {
                     $ordersList = $ordersList->where(function($q){
-                        $q->whereRaw('COALESCE(sd.delivery_status, "") <> "P"');
+                        $q->whereRaw("COALESCE(sd.delivery_status, '') NOT IN ('P', '')");
                     });
                 }
                 elseif ($status == "DELIVERED") {
@@ -162,12 +162,7 @@ class ShipmentController extends Controller
                 $start = Carbon::parse($request->start_date)->startOfDay();
                 $end   = Carbon::parse($request->end_date)->endOfDay();
 
-                // if ($module == "Shipment") {
-                //     $ordersList->whereBetween('po.cargo_posting_date', [$start, $end]);
-                // }else{
-                    $ordersList->whereBetween('po.AvailabilityDate', [$start, $end]);
-                // }
-                
+                $ordersList->whereBetween('po.AvailabilityDate', [$start, $end]);
             }
 
             $totalCount = (clone $ordersList)->count();
