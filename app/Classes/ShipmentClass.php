@@ -26,14 +26,15 @@ class ShipmentClass{
             $params = [
                 'shipmentDetailsId'=>$id,
                 'customerName'=>isset($shipmentData->ProcessedOrder->OrderData[0]->ContactName)?$shipmentData->ProcessedOrder->OrderData[0]->ContactName:'',
-                'delayReason'=>$shipmentData->remarks,
+                'delayReason'=>$shipmentData->remarks??'',
                 'poNumber'=>isset($shipmentData->ProcessedOrder->OrderData[0]->BuyersPO)?$shipmentData->ProcessedOrder->OrderData[0]->BuyersPO:'',
                 'buyerInvoice'=>$shipmentData->ProcessedOrder->CardCode."/".$shipmentData->invoice_number,
                 'containerNumber'=>$shipmentData->container_number,
                 'vesselVoyage'=>$shipmentData->vessel_name,
                 'previousEta'=>isset($shipmentData->DelayedShipmentUpdate->prev_eta)?Carbon::parse($shipmentData->DelayedShipmentUpdate->prev_eta)->format('M d, Y'):'',
                 'revisedEta'=>!empty($shipmentData->DelayedShipmentUpdate->updated_eta)?Carbon::parse($shipmentData->DelayedShipmentUpdate->updated_eta)->format('M d, Y'):'',
-                'buyersCode' => $shipmentData->ProcessedOrder->CardCode
+                'buyersCode' => $shipmentData->ProcessedOrder->CardCode,
+                'remarks' => $shipmentData->remarks
             ];
 
             $attachments = [];
