@@ -108,10 +108,16 @@ class OrderController extends Controller
                     ]);
 
                     if ($sapResponse && $sapResponse->getStatusCode() === 200) {
-                        $processedList = ProcessedOrders::with(['ProcessedOrderStatus'])->select('OrderStatus','CardCode')->where('SapServer', $sapServer)->get()->pluck("ProcessedOrderStatus.description","CardCode");
-                        // dd($processedList);
                         $body = $sapResponse->getBody()->getContents();
                         $allData = collect(json_decode($body));
+                        $buyersCodes = collect($allData['data'])->pluck('BuyersCode');
+                        $processedList = ProcessedOrders::with(['ProcessedOrderStatus'])
+                            ->select('OrderStatus','CardCode')
+                            ->where('SapServer', $sapServer)
+                            ->whereIn('CardCode',$buyersCodes)
+                            ->get()
+                            ->pluck("ProcessedOrderStatus.description","CardCode");
+
                         $dataList = array();
                         $response["isSuccess"] = true;
                         $response["message"] = "Successfully retrieved information.";
