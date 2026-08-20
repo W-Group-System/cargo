@@ -69,6 +69,13 @@ class HomeController extends Controller
             ->leftJoin('processed_orders as po', 'sd.process_order_id', '=', 'po.id')   
             ->whereRaw('COALESCE(sd.delivery_status, "") = "DLV"');
 
+        if ($request->filled('warehouse')) {
+            $pending = $pending->where('po.SapServer',$request->warehouse);
+            $inTransit = $inTransit->where('po.SapServer',$request->warehouse);
+            $shipped = $shipped->where('po.SapServer',$request->warehouse);
+            $irregularities = $irregularities->where('po.SapServer',$request->warehouse);
+            $delivered = $delivered->where('po.SapServer',$request->warehouse);
+        }
 
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $start = Carbon::parse($request->start_date)->startOfDay();

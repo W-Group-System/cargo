@@ -335,7 +335,8 @@
                 url: "{{ route('shipment.counts') }}",
                 data: {
                     start_date: $('#start_date').val(),
-                    end_date: $('#end_date').val()
+                    end_date: $('#end_date').val(),
+                    warehouse: $('select[name="warehouse"]').val()
                 },
                 success: function (response) {
                     $('#pending').text(response.pending);
