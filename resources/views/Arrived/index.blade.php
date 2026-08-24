@@ -17,7 +17,7 @@
                                 <div class="card-body px-3 py-4-5">
                                     <div class="row">
                                         <div class="col-md-8">
-                                            <h6 class="text-muted font-semibold">Arrived</h6>
+                                            <h6 class="text-muted font-semibold">ARRIVED</h6>
                                             <h6 class="font-extrabold mb-0" id="arrived">0</h6>
                                         </div>
                                         <div class="col-md-4">
