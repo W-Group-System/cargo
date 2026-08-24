@@ -303,6 +303,7 @@ class ShipmentController extends Controller
                         }
                     }
                     if ($request->deliveryStatus == "ATP") {
+                        // dd($sendEmail);
                         if ($sendEmail){
                             $this->shipment->SendCargoTranshipmentArrivalNotification($savedId);
                         }
