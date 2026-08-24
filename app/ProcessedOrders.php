@@ -49,4 +49,8 @@ class ProcessedOrders extends Model implements Auditable
     {
         return $this->hasMany(ShipmentFiles::class, 'processed_order_id', 'id');
     }
+    public function Warehouse()
+    {
+        return $this->hasOne(Warehouse::class, 'warehouse', 'SapServer');
+    }
 }

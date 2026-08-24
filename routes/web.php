@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ArrivedShipmentsController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CargoController;
 use App\Http\Controllers\HomeController;
@@ -51,6 +52,9 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::post('/shipments/upload-files', [ShipmentController::class, 'UploadFiles'])->name('upload.files');
     Route::post('/delete/files', [ShipmentController::class, 'DeleteFile'])->name('delete.files');
+
+    // Shipments
+    Route::get('/arrived/shipments',[ArrivedShipmentsController::class,'index'])->middleware('access');
 
     // Users
     Route::get('/users',[UserController::class,'index'])->middleware('access');

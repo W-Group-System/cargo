@@ -21,7 +21,7 @@ class ShipmentClass{
         
         $isSuccess = false;
         try {
-            $shipmentData = ShipmentDetails::with(['DelayedShipmentUpdate','ProcessedOrder.OrderData','ProcessedOrder.ShipmentFiles'])->where('id',$id)->first();
+            $shipmentData = ShipmentDetails::with(['DelayedShipmentUpdate','ProcessedOrder.OrderData','ProcessedOrder.ShipmentFiles','ProcessedOrder.Warehouse'])->where('id',$id)->first();
 
             $params = [
                 'shipmentDetailsId'=>$id,
@@ -34,7 +34,8 @@ class ShipmentClass{
                 'previousEta'=>isset($shipmentData->DelayedShipmentUpdate->prev_eta)&&!empty($shipmentData->DelayedShipmentUpdate->prev_eta)?Carbon::parse($shipmentData->DelayedShipmentUpdate->prev_eta)->format('M d, Y'):'',
                 'revisedEta'=>isset($shipmentData->DelayedShipmentUpdate->updated_eta)&&!empty($shipmentData->DelayedShipmentUpdate->updated_eta)?Carbon::parse($shipmentData->DelayedShipmentUpdate->updated_eta)->format('M d, Y'):'',
                 'buyersCode' => $shipmentData->ProcessedOrder->CardCode,
-                'remarks' => $shipmentData->remarks
+                'remarks' => $shipmentData->remarks,
+                'warehouse' => isset($shipmentData->ProcessedOrder->Warehouse->description)?$shipmentData->ProcessedOrder->Warehouse->description:''
             ];
 
             $attachments = [];
@@ -67,7 +68,7 @@ class ShipmentClass{
         
         $isSuccess = false;
         try {
-            $shipmentData = ShipmentDetails::with(['ProcessedOrder.OrderData'])->where('id',$id)->first();
+            $shipmentData = ShipmentDetails::with(['ProcessedOrder.OrderData','ProcessedOrder.Warehouse'])->where('id',$id)->first();
             
             $params = [
                 'shipmentDetailsId'=>$id,
@@ -80,7 +81,8 @@ class ShipmentClass{
                 'portOfDischarge'=>isset($shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination)&&!empty($shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination)?$shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination:'',
                 'atd'=>isset($shipmentData->atd_origin)&&!empty($shipmentData->atd_origin)?Carbon::parse($shipmentData->atd_origin)->format('M d, Y'):'',
                 'eta'=>isset($shipmentData->eta_destination)&&!empty($shipmentData->eta_destination)?Carbon::parse($shipmentData->eta_destination)->format('M d, Y'):'',
-                'buyersCode' => $shipmentData->ProcessedOrder->CardCode??""
+                'buyersCode' => $shipmentData->ProcessedOrder->CardCode??"",
+                'warehouse' => isset($shipmentData->ProcessedOrder->Warehouse->description)?$shipmentData->ProcessedOrder->Warehouse->description:''
             ];
 
             $receivers = !empty($shipmentData->email_recipients) ? explode(",",$shipmentData->email_recipients):[];
@@ -101,7 +103,7 @@ class ShipmentClass{
         
         $isSuccess = false;
         try {
-            $shipmentData = ShipmentDetails::with(['ProcessedOrder.OrderData'])->where('id',$id)->first();
+            $shipmentData = ShipmentDetails::with(['ProcessedOrder.OrderData','ProcessedOrder.Warehouse'])->where('id',$id)->first();
             
             $params = [
                 'shipmentDetailsId'=>$id,
@@ -109,7 +111,8 @@ class ShipmentClass{
                 'portOfLoading'=>isset($shipmentData->ProcessedOrder->OrderData[0]->LoadingPort)&&!empty($shipmentData->ProcessedOrder->OrderData[0]->LoadingPort)?$shipmentData->ProcessedOrder->OrderData[0]->LoadingPort:'',
                 'poNumber'=>isset($shipmentData->ProcessedOrder->OrderData[0]->BuyersPO)&&!empty($shipmentData->ProcessedOrder->OrderData[0]->BuyersPO)?$shipmentData->ProcessedOrder->OrderData[0]->BuyersPO:'',
                 'buyerInvoice'=>$shipmentData->ProcessedOrder->CardCode."/".$shipmentData->invoice_number,
-                'buyersCode' => $shipmentData->ProcessedOrder->CardCode
+                'buyersCode' => $shipmentData->ProcessedOrder->CardCode,
+                'warehouse' => isset($shipmentData->ProcessedOrder->Warehouse->description)?$shipmentData->ProcessedOrder->Warehouse->description:''
             ];
 
             $receivers = !empty($shipmentData->email_recipients) ? explode(",",$shipmentData->email_recipients):[];
@@ -166,7 +169,7 @@ class ShipmentClass{
         
         $isSuccess = false;
         try {
-            $shipmentData = ShipmentDetails::with(['ProcessedOrder.OrderData'])->where('id',$id)->first();
+            $shipmentData = ShipmentDetails::with(['ProcessedOrder.OrderData','ProcessedOrder.Warehouse'])->where('id',$id)->first();
             
             $params = [
                 'shipmentDetailsId'=>$id,
@@ -177,7 +180,8 @@ class ShipmentClass{
                 'vesselVoyage'=>$shipmentData->vessel_name,
                 'destinationPort'=>isset($shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination)&&!empty($shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination)?$shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination:'',
                 'ata'=>isset($shipmentData->ata_destination)&&!empty($shipmentData->ata_destination)?Carbon::parse($shipmentData->ata_destination)->format('M d, Y'):'',
-                'buyersCode' => $shipmentData->ProcessedOrder->CardCode
+                'buyersCode' => $shipmentData->ProcessedOrder->CardCode,
+                'warehouse' => isset($shipmentData->ProcessedOrder->Warehouse->description)?$shipmentData->ProcessedOrder->Warehouse->description:''
             ];
 
             $receivers = !empty($shipmentData->email_recipients) ? explode(",",$shipmentData->email_recipients):[];

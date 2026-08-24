@@ -10,15 +10,15 @@
         <div class="col-lg-12 grid-margin stretch-card">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title">Shipment Management</h4>
+                    <h4 class="card-title">Arrived Shipments</h4>
                      <div class="row">
                         <div class="col-6 col-lg-3 col-md-6">
-                            <div class="card border border-primary clickable-card" data-status="PENDING">
+                            <div class="card border border-primary clickable-card" data-status="ARRIVED">
                                 <div class="card-body px-3 py-4-5">
                                     <div class="row">
                                         <div class="col-md-8">
-                                            <h6 class="text-muted font-semibold">Pending Shipments</h6>
-                                            <h6 class="font-extrabold mb-0" id="pending">0</h6>
+                                            <h6 class="text-muted font-semibold">Arrived</h6>
+                                            <h6 class="font-extrabold mb-0" id="arrived">0</h6>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="stats-icon purple">
@@ -32,53 +32,15 @@
                             </div>
                         </div>
                         <div class="col-6 col-lg-3 col-md-6">
-                            <div class="card border border-primary clickable-card" data-status="IN-TRANSIT">
+                            <div class="card border border-primary clickable-card" data-status="DELIVERED">
                                 <div class="card-body px-3 py-4-5">
                                     <div class="row">
                                         <div class="col-md-8">
-                                            <h6 class="text-muted font-semibold">In Transit</h6>
-                                            <h6 class="font-extrabold mb-0" id="inTransit">0</h6>
+                                            <h6 class="text-muted font-semibold">DELIVERED</h6>
+                                            <h6 class="font-extrabold mb-0" id="delivered">0</h6>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="stats-icon blue">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-truck-front-fill" viewBox="0 0 16 16">
-                                                    <path d="M3.5 0A2.5 2.5 0 0 0 1 2.5v9c0 .818.393 1.544 1 2v2a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5V14h6v1.5a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-2c.607-.456 1-1.182 1-2v-9A2.5 2.5 0 0 0 12.5 0zM3 3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3.9c0 .625-.562 1.092-1.17.994C10.925 7.747 9.208 7.5 8 7.5s-2.925.247-3.83.394A1.008 1.008 0 0 1 3 6.9zm1 9a1 1 0 1 1 0-2 1 1 0 0 1 0 2m8 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2m-5-2h2a1 1 0 1 1 0 2H7a1 1 0 1 1 0-2"/>
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6 col-lg-3 col-md-6">
-                            <div class="card border border-primary clickable-card" data-status="SHIPPED">
-                                <div class="card-body px-3 py-4-5">
-                                    <div class="row">
-                                        <div class="col-md-8">
-                                            <h6 class="text-muted font-semibold">Shipped</h6>
-                                            <h6 class="font-extrabold mb-0" id="shipped">0</h6>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="stats-icon green">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-truck-front-fill" viewBox="0 0 16 16">
-                                                    <path d="M3.5 0A2.5 2.5 0 0 0 1 2.5v9c0 .818.393 1.544 1 2v2a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5V14h6v1.5a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-2c.607-.456 1-1.182 1-2v-9A2.5 2.5 0 0 0 12.5 0zM3 3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3.9c0 .625-.562 1.092-1.17.994C10.925 7.747 9.208 7.5 8 7.5s-2.925.247-3.83.394A1.008 1.008 0 0 1 3 6.9zm1 9a1 1 0 1 1 0-2 1 1 0 0 1 0 2m8 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2m-5-2h2a1 1 0 1 1 0 2H7a1 1 0 1 1 0-2"/>
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6 col-lg-3 col-md-6">
-                            <div class="card border border-primary clickable-card" data-status="IRREGULARITIES">
-                                <div class="card-body px-3 py-4-5">
-                                    <div class="row">
-                                        <div class="col-md-8">
-                                            <h6 class="text-muted font-semibold">Irregularities</h6>
-                                            <h6 class="font-extrabold mb-0" id="irregularities">0</h6>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="stats-icon red">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-truck-front-fill" viewBox="0 0 16 16">
                                                     <path d="M3.5 0A2.5 2.5 0 0 0 1 2.5v9c0 .818.393 1.544 1 2v2a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5V14h6v1.5a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-2c.607-.456 1-1.182 1-2v-9A2.5 2.5 0 0 0 12.5 0zM3 3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3.9c0 .625-.562 1.092-1.17.994C10.925 7.747 9.208 7.5 8 7.5s-2.925.247-3.83.394A1.008 1.008 0 0 1 3 6.9zm1 9a1 1 0 1 1 0-2 1 1 0 0 1 0 2m8 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2m-5-2h2a1 1 0 1 1 0 2H7a1 1 0 1 1 0-2"/>
                                                 </svg>
@@ -143,6 +105,7 @@
                                     <th>Invoice #</th>
                                     <th>ATD</th>
                                     <th>ETA</th>
+                                    <th>ATA</th>
                                     <th class="text-align-center" width="120">Action</th>
                                 </tr>
                             </thead>
@@ -220,9 +183,9 @@
                             <label class="col-md-4 col-form-label">Delivery Status</label>
                             <div class="col-md-8">
                                 <select name="deliveryStatus" id="deliveryStatus" class="form-select" required>
-                                    <option value="">- Delivery Status -</option>
-                                    @foreach ($deliveryStatus as $item)
-                                        <option value="{{$item->code}}" {{ $item->disabled == '1'?'disabled':'' }}>{{$item->description}}</option>
+                                    <option value="">- Delivery Status -</option> 
+                                    @foreach (["AFD" => "Arrived final destination","DLV" => "Delivered - Door"] as $key=>$value)
+                                        <option value="{{$key}}">{{$value}}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -231,7 +194,7 @@
                         <div class="row">
                             <label class="col-md-4 col-form-label">Track Points</label>
                             <div class="col-md-8">
-                                <select name="trackPoints" id="trackPoints" class="form-select"></select>
+                                <select name="trackPoints" id="trackPoints" class="form-select" disabled></select>
                             </div>
                         </div>
                     </div>
@@ -250,7 +213,7 @@
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">Invoice No.</label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" id="invoiceNo" name="invoiceNo">
+                                <input type="text" class="form-control" id="invoiceNo" name="invoiceNo" readonly>
                             </div>
                         </div>
 
@@ -406,7 +369,7 @@
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">Region</label>
                             <div class="col-md-8">
-                                <select class="form-control" name="region" id="region" required>
+                                <select class="form-control" name="region" id="region" disabled readonly>
                                     @foreach ($regions as $key => $value)
                                         <option value="{{ $key }}">{{ $value }}</option>
                                     @endforeach
@@ -417,28 +380,28 @@
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">Shipping Line</label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" name="shippingLine" id="shippingLine">
+                                <input type="text" class="form-control" name="shippingLine" id="shippingLine" readonly>
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">BL Number</label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" name="blNumber" id="blNumber">
+                                <input type="text" class="form-control" name="blNumber" id="blNumber" readonly>
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">Container No.</label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" name="containerNumber" id="containerNumber">
+                                <input type="text" class="form-control" name="containerNumber" id="containerNumber" readonly>
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">Vessel/Voyage Name.</label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" name="vesselName" id="vesselName">
+                                <input type="text" class="form-control" name="vesselName" id="vesselName" readonly>
                             </div>
                         </div>
 
@@ -448,42 +411,42 @@
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">ETD Origin</label>
                             <div class="col-md-8">
-                                <input type="date" class="form-control" name="etdOrigin" id="etdOrigin">
+                                <input type="date" class="form-control" name="etdOrigin" id="etdOrigin" readonly>
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">ATD Origin</label>
                             <div class="col-md-8">
-                                <input type="date" class="form-control triggerStatus" data-status="IT" name="atdOrigin" id="atdOrigin">
+                                <input type="date" class="form-control triggerStatus" data-status="IT" name="atdOrigin" id="atdOrigin" readonly>
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">ATPD</label>
                             <div class="col-md-8">
-                                <input type="date" class="form-control triggerStatus" data-status="ATP" name="atpd" id="atpd">
+                                <input type="date" class="form-control triggerStatus" data-status="ATP" name="atpd" id="atpd" readonly>
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">DTPD</label>
                             <div class="col-md-8">
-                                <input type="date" class="form-control triggerStatus" data-status="IT" name="dtd" id="dtd">
+                                <input type="date" class="form-control triggerStatus" data-status="IT" name="dtd" id="dtd" readonly>
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">ETA Destination</label>
                             <div class="col-md-8">
-                                <input type="date" class="form-control" name="etaDestination" id="etaDestination">
+                                <input type="date" class="form-control" name="etaDestination" id="etaDestination" readonly>
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">ATA Destination</label>
                             <div class="col-md-8">
-                                <input type="date" class="form-control triggerStatus" data-status="AFD" name="ataDestination" id="ataDestination">
+                                <input type="date" class="form-control triggerStatus" data-status="AFD" name="ataDestination" id="ataDestination" readonly>
                             </div>
                         </div>
 
@@ -511,7 +474,7 @@
                         <div class="row">
                             <label class="col-md-4 col-form-label">Remarks</label>
                             <div class="col-md-8">
-                                <textarea class="form-control" name="remarks" id="remarks" rows="3"></textarea>
+                                <textarea class="form-control" name="remarks" id="remarks" rows="3" readonly></textarea>
                             </div>
                         </div>
 
@@ -566,7 +529,7 @@
 
         <div class="tab-pane fade show" id="shipmentFiles" role="tabpanel">
             <!-- Upload Section -->
-                <div class="row align-items-end mb-4">
+                {{-- <div class="row align-items-end mb-4">
                     <div class="col-md-9">
                         <label for="attachment" class="form-label">Select File</label>
                         <input
@@ -585,7 +548,7 @@
                         @endif
                         
                     </div>
-                </div>
+                </div> --}}
 
                 <!-- Uploaded Files Table -->
                 <div class="table-responsive">
@@ -708,7 +671,7 @@
                         status: cardStatusFilter,
                         warehouse: $('select[name="warehouse"]').val(),
                         search: $('#dt-search-0').val(),
-                        module: 'SHIPMENT',
+                        module: 'ARRIVED',
 
                         // DataTables sorting
                         order_column: orderColumnName ?? '',
@@ -736,6 +699,7 @@
                 { data: 'invoice_number'},
                 { data: 'atdOrigin'},
                 { data: 'etaDestination'},
+                { data: 'ataDestination'},
                 {
                     render: function (data, type, row) {
                         return `<button type="button" class="btn btn-primary btn-update" id="btnCargoUpdate"
@@ -761,7 +725,7 @@
                             id: shipmentId,
                             buyersCode: buyersCode,
                             sapServer: sapServer,
-                            module: 'SHIPMENT'
+                            module: 'ARRIVED',
                         },
                         beforeSend: function(){
                             button.prop('disabled',true).html('<span class="spinner-border spinner-border-sm" role="status"></span>');
@@ -1188,10 +1152,8 @@
                     warehouse: $('select[name="warehouse"]').val()
                 },
                 success: function (response) {
-                    $('#pending').text(response.pending);
-                    $('#inTransit').text(response.in_transit);
-                    $('#shipped').text(response.shipped);
-                    $('#irregularities').text(response.irregularities);
+                    $('#arrived').text(response.arrived);
+                    $('#delivered').text(response.delivered);
                 }
             });
         }

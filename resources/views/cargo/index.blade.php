@@ -68,6 +68,7 @@
                                     <th>Buyers Code</th>
                                     <th>Buyers Name</th>
                                     <th>Availability Date</th>
+                                    <th>CBW Doc Status</th>
                                     <th>Warehouse</th>
                                     <th>Action</th>
                                 </tr>
@@ -389,6 +390,7 @@
                 { data: 'CardCode' },
                 { data: 'CardName'},
                 { data: 'AvailabilityDate'},
+                { data:'cbw_doc_status'},
                 {
                     data: 'SapServer',
                     render: function(data, type, row) {
@@ -546,6 +548,22 @@
             removedColoadsArr.push(buyersCode);
             delete coLoadArray[buyersCode];
             LoadCoLoadList(coLoadArray);
+        });
+
+        $('#availabilityDate,#pickupDate').change(function (e) { 
+            e.preventDefault();
+            let availabilityDate = $('#availabilityDate').val();
+            let pickupDate = $('#pickupDate').val();
+
+            if (availabilityDate !== '' && pickupDate == '') {
+                $('#status').val('RFP');
+            }else if(availabilityDate == '' && pickupDate !== ''){
+                $('#status').val('L');
+            }else if(availabilityDate == '' && pickupDate == ''){
+                $('#status').val('');
+            }else{
+                $('#status').val('L');
+            }
         });
 
         function LoadCoLoadList(coLoadArray){

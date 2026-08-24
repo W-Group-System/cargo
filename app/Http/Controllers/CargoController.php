@@ -51,7 +51,8 @@ class CargoController extends Controller
                 1 => 'CardCode',
                 2 => 'CardName',
                 3 => 'AvailabilityDate',
-                4 => 'SapServer'
+                4 => 'cbw_doc_status',
+                5 => 'SapServer'
             ];
 
             $ordersList = ProcessedOrders::with(['CargoStatus'])
@@ -83,7 +84,9 @@ class CargoController extends Controller
                 $ordersList = $ordersList->where(function ($query) use ($search) {
                     $query->where('CardCode', 'LIKE', "%{$search}%")
                         ->orWhere('CardName', 'LIKE', "%{$search}%")
-                        ->orWhere('SapServer', 'LIKE', "%{$search}%");
+                        ->orWhere('SapServer', 'LIKE', "%{$search}%")
+                        ->orWhere('AvailabilityDate', 'LIKE', "%{$search}%")
+                        ->orWhere('cbw_doc_status', 'LIKE', "%{$search}%");
                 });
             }
 

@@ -69,12 +69,17 @@ class HomeController extends Controller
             ->leftJoin('processed_orders as po', 'sd.process_order_id', '=', 'po.id')   
             ->whereRaw('COALESCE(sd.delivery_status, "") = "DLV"');
 
+        $arrived = DB::table('shipment_details as sd')
+            ->leftJoin('processed_orders as po', 'sd.process_order_id', '=', 'po.id')   
+            ->whereRaw('COALESCE(sd.delivery_status, "") = "AFD"');
+
         if ($request->filled('warehouse')) {
             $pending = $pending->where('po.SapServer',$request->warehouse);
             $inTransit = $inTransit->where('po.SapServer',$request->warehouse);
             $shipped = $shipped->where('po.SapServer',$request->warehouse);
             $irregularities = $irregularities->where('po.SapServer',$request->warehouse);
             $delivered = $delivered->where('po.SapServer',$request->warehouse);
+            $arrived = $arrived->where('po.SapServer',$request->warehouse);
         }
 
         if ($request->filled('start_date') && $request->filled('end_date')) {
@@ -86,6 +91,7 @@ class HomeController extends Controller
             $shipped = $shipped->whereBetween('po.AvailabilityDate',[$start, $end]);
             $irregularities = $irregularities->whereBetween('po.AvailabilityDate',[$start, $end]);
             $delivered = $delivered->whereBetween('po.AvailabilityDate',[$start, $end]);
+            $arrived = $arrived->whereBetween('po.AvailabilityDate',[$start, $end]);
         }
 
         $pending = $pending->count();
@@ -93,13 +99,15 @@ class HomeController extends Controller
         $shipped = $shipped->count();
         $irregularities = $irregularities->count();
         $delivered = $delivered->count();
+        $arrived = $arrived->count();
 
         return [
             'pending'        => $pending,
             'in_transit'     => $inTransit,
             'shipped'        => $shipped,
             'delivered'      => $delivered,   
-            'irregularities' => $irregularities                                                    
+            'irregularities' => $irregularities,
+            'arrived'        => $arrived                                          
         ];
     }
 }

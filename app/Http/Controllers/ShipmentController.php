@@ -65,7 +65,7 @@ class ShipmentController extends Controller
             $orderColumn = $request->input('order_column');
             $orderDir = $request->input('order_dir', 'asc');
 
-            $ordersList = ProcessedOrders::from("processed_orders as po")->with(['ShipmentDetails.DeliveryStatus'])->select(
+            $ordersList = ProcessedOrders::from("processed_orders as po")->select(
                 "po.id",
                 "po.SapServer",
                 "po.CardCode",
@@ -89,12 +89,22 @@ class ShipmentController extends Controller
                 DB::raw("COALESCE(ds.description,'Pending') as shipmentStatus"),
                 "sd.atp_date",
                 "sd.dt_date",
-                "sd.notification_enabled"
+                "sd.notification_enabled",
+                "sd.delivery_status as deliveryStatus"
             )
             ->leftJoin("shipment_details as sd","sd.process_order_id","po.id")
             ->leftJoin("delivery_status as ds","ds.code","=","sd.delivery_status")
             ->where("po.CargoStatus","L")
             ->whereNull("po.is_coload");
+
+            if (!empty($module)) {
+                if ($module == "ARRIVED") {
+                    $ordersList = $ordersList->whereIn("sd.delivery_status",["AFD","DLV"]);
+                }
+                if ($module == "SHIPMENT") {
+                    $ordersList = $ordersList->whereNotIn("sd.delivery_status",["AFD","DLV"]);
+                }
+            }
 
             if (isset($request->id) && !empty($request->id)) {
                 $ordersList = $ordersList->with(['ShipmentDetails.ShipmentTracking','OrderData.OrderItemList'])->where("po.id",$request->id);
@@ -116,13 +126,16 @@ class ShipmentController extends Controller
                     $query->where('po.CardCode', 'LIKE', "%{$search}%")
                         ->orWhere('po.CardName', 'LIKE', "%{$search}%")
                         ->orWhere('po.SapServer', 'LIKE', "%{$search}%")
-                        ->orWhere('po.cbw_doc_status', 'LIKE', "%{$search}%")
                         ->orWhere('po.cargo_posting_date', 'LIKE', "%{$search}%")
                         ->orWhere('sd.invoice_number', 'LIKE', "%{$search}%")
                         ->orWhere('sd.atd_origin', 'LIKE', "%{$search}%")
                         ->orWhere('sd.eta_destination', 'LIKE', "%{$search}%")
-                        ->orWhere('sd.ata_destination', 'LIKE', "%{$search}%")
                         ->orWhere('ds.description', 'LIKE', "%{$search}%");
+                    if(!empty($module)){
+                        if ($module == "ARRIVED") {
+                            $query = $query->orWhere('sd.ata_destination', 'LIKE', "%{$search}%");
+                        }
+                    }
                 });
             }
 
@@ -154,6 +167,10 @@ class ShipmentController extends Controller
                 elseif ($status == "IRREGULARITIES") {
                     $ordersList = $ordersList->where(function($q){
                         $q->whereRaw('COALESCE(sd.delivery_status, "") = "DLY"');
+                    });
+                }elseif ($status == "ARRIVED") {
+                    $ordersList = $ordersList->where(function($q){
+                        $q->whereRaw('COALESCE(sd.delivery_status, "")= "AFD"');
                     });
                 }
             }
