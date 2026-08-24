@@ -745,6 +745,11 @@
                     }
                 }
             ],
+            createdRow: function(row, data, dataIndex) {
+                if (data.etaStatus == 'OVERDUE' || data.etaStatus == 'TODAY' || data.etaStatus == 'WITHIN_LIMIT') {
+                    $(row).addClass('table-danger');
+                }
+            },
             rowCallback : function(row,data,DisplayIndex){
                 $(row).find('.btn-update').unbind('click').on('click',function(){
                     let button = $(this);

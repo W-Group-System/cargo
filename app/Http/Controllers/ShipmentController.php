@@ -90,7 +90,27 @@ class ShipmentController extends Controller
                 "sd.atp_date",
                 "sd.dt_date",
                 "sd.notification_enabled",
-                "sd.delivery_status as deliveryStatus"
+                "sd.delivery_status as deliveryStatus",
+                DB::raw("
+                    CASE
+                        WHEN sd.eta_destination IS NULL
+                            THEN 'NO_ETA'
+                        WHEN DATE(sd.eta_destination) < CURDATE() AND COALESCE(sd.ata_destination,'') = ''
+                            THEN 'OVERDUE'
+                        WHEN DATE(sd.eta_destination) = CURDATE()
+                            THEN 'TODAY'
+                        WHEN DATE(sd.eta_destination) <=
+                            DATE_ADD(
+                                CURDATE(),
+                                INTERVAL CASE
+                                    WHEN sd.region = '2' THEN 3
+                                    ELSE 7
+                                END DAY
+                            ) AND COALESCE(sd.ata_destination,'') = ''
+                            THEN 'WITHIN_LIMIT'
+                        ELSE 'NORMAL'
+                    END AS etaStatus
+                ")
             )
             ->leftJoin("shipment_details as sd","sd.process_order_id","po.id")
             ->leftJoin("delivery_status as ds","ds.code","=","sd.delivery_status")
