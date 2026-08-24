@@ -439,7 +439,11 @@
                         $('#availabilityDate').val(response.availabilityDate);
                         $('#pickupDate').val(response.pickupDate);
                         $('#status').val(response.status);
-                        $('#cbwDocStatus').val(response.cbwDocStatus);
+                        if (response.data[0].sap_server == 'whi') {
+                            $('#cbwDocStatus').val(response.cbwDocStatus);
+                        }else{
+                            $('#cbwDocStatus').val('N/A');
+                        }
                         $.each(Object.entries(response.coloads), function(index, item) {
                             let key = item[0];
                             let value = item[1];
