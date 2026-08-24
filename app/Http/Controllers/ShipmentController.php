@@ -95,7 +95,7 @@ class ShipmentController extends Controller
                     CASE
                         WHEN sd.eta_destination IS NULL
                             THEN 'NO_ETA'
-                        WHEN DATE(sd.eta_destination) < CURDATE() AND COALESCE(sd.ata_destination,'') = ''
+                        WHEN DATE(sd.eta_destination) < CURDATE() AND COALESCE(sd.ata_destination,'') = '' AND COALESCE(sd.delivery_status,'') = 'IT'
                             THEN 'OVERDUE'
                         WHEN DATE(sd.eta_destination) = CURDATE()
                             THEN 'TODAY'
@@ -106,7 +106,7 @@ class ShipmentController extends Controller
                                     WHEN sd.region = '2' THEN 3
                                     ELSE 7
                                 END DAY
-                            ) AND COALESCE(sd.ata_destination,'') = ''
+                            ) AND COALESCE(sd.ata_destination,'') = '' AND COALESCE(sd.delivery_status,'') = 'IT'
                             THEN 'WITHIN_LIMIT'
                         ELSE 'NORMAL'
                     END AS etaStatus
