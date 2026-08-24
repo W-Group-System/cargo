@@ -302,7 +302,7 @@ class ShipmentController extends Controller
                             $this->shipment->SendCargoDepartedNotification($savedId);
                         }
                     }
-                    if ($request->deliveryStatus == "ARVTP") {
+                    if ($request->deliveryStatus == "ATP") {
                         if ($sendEmail){
                             $this->shipment->SendCargoTranshipmentArrivalNotification($savedId);
                         }
@@ -312,7 +312,7 @@ class ShipmentController extends Controller
                             $this->shipment->SendCargoLoadedInConnectingVesselNotification($savedId);
                         }
                     }
-                    if ($request->deliveryStatus == "AD") {
+                    if ($request->deliveryStatus == "AFD") {
                         if ($sendEmail){
                             $this->shipment->SendCargoArrivedAtDestinationPortNotification($savedId);
                         }
