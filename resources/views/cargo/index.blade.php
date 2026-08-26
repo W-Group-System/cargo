@@ -560,7 +560,7 @@
             let pickupDate = $('#pickupDate').val();
 
             if (availabilityDate !== '' && pickupDate == '') {
-                $('#status').val('RFP');
+                $('#status').val('FP');
             }else if(availabilityDate == '' && pickupDate !== ''){
                 $('#status').val('L');
             }else if(availabilityDate == '' && pickupDate == ''){
