@@ -3,7 +3,7 @@
 <style>
     .clickable-row {
         cursor: pointer;
-    },
+    }
     .track-header {
         background: #43b39d;
         color: #fff;
@@ -19,61 +19,61 @@
     </a>
 </header>
 
-<div class="page-content">
-    <section class="row">
-        <div class="row mb-4">
-    <div class="col-12">
-        <h4 class="card-title mb-3">Dashboard Cargo Tracking</h4>
+        <div class="page-content">
+            <section class="row">
+                <div class="row mb-4">
+            <div class="col-12">
+                <h4 class="card-title mb-3">Dashboard Cargo Tracking</h4>
 
-        <form method="GET" id="dashboardFilterForm">
-            @csrf
+                <form method="GET" id="dashboardFilterForm">
+                    @csrf
 
-            <input type="hidden" name="start_date" id="start_date" value="{{ request('start_date') }}">
-            <input type="hidden" name="end_date" id="end_date" value="{{ request('end_date') }}">
+                    <input type="hidden" name="start_date" id="start_date" value="{{ request('start_date') }}">
+                    <input type="hidden" name="end_date" id="end_date" value="{{ request('end_date') }}">
 
-            <div class="row g-2 align-items-center">
-                <div class="col-auto">
-                    <label class="form-label mb-0 fw-semibold">
-                        Filter by date sync:
-                    </label>
-                </div>
+                    <div class="row g-2 align-items-center">
+                        <div class="col-auto">
+                            <label class="form-label mb-0 fw-semibold">
+                                Filter by date sync:
+                            </label>
+                        </div>
 
-                <div class="col-md-4 col-lg-3">
-                    <div id="reportrange"
-                        class="form-control d-flex justify-content-between align-items-center"
-                        style="cursor:pointer;">
-                        <span>
-                            @if(request('start_date') && request('end_date'))
-                                {{ request('start_date') }} - {{ request('end_date') }}
-                            @else
-                                Select Date Range
-                            @endif
-                        </span>
-                        <i class="bi bi-calendar"></i>
+                        <div class="col-md-4 col-lg-3">
+                            <div id="reportrange"
+                                class="form-control d-flex justify-content-between align-items-center"
+                                style="cursor:pointer;">
+                                <span>
+                                    @if(request('start_date') && request('end_date'))
+                                        {{ request('start_date') }} - {{ request('end_date') }}
+                                    @else
+                                        Select Date Range
+                                    @endif
+                                </span>
+                                <i class="bi bi-calendar"></i>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 col-lg-3">
+                            <select class="form-control" name="warehouse">
+                                <option value="">-Select Warehouse-</option>
+                                @foreach (["whi"=>"WHI", "ccc"=>"CCC", "pbi"=>"PBI"] as $key => $value)
+                                    <option value="{{ $key }}">
+                                        {{ $value }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-search"></i>
+                                Search
+                            </button>
+                        </div>
                     </div>
-                </div>
-
-                <div class="col-md-4 col-lg-3">
-                    <select class="form-control" name="warehouse">
-                        <option value="">-Select Warehouse-</option>
-                        @foreach (["whi"=>"WHI", "ccc"=>"CCC", "pbi"=>"PBI"] as $key => $value)
-                            <option value="{{ $key }}">
-                                {{ $value }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-search"></i>
-                        Search
-                    </button>
-                </div>
+                </form>
             </div>
-        </form>
-    </div>
-</div>
+        </div>
         <div class="row">
             <div class="col-6 col-lg-3 col-md-6">
                 <div class="card clickable-card">

@@ -64,7 +64,7 @@ class ShipmentController extends Controller
             $module = $request->module ?? "";
             $orderColumn = $request->input('order_column');
             $orderDir = $request->input('order_dir', 'asc');
-
+            
             $ordersList = ProcessedOrders::from("processed_orders as po")->select(
                 "po.id",
                 "po.SapServer",
@@ -116,13 +116,30 @@ class ShipmentController extends Controller
             ->leftJoin("delivery_status as ds","ds.code","=","sd.delivery_status")
             ->where("po.CargoStatus","L")
             ->whereNull("po.is_coload");
+            
+            // if (!empty($module) && empty($request->id)) {
+            //     if ($module == "ARRIVED") {
+            //         $ordersList = $ordersList->whereIn("sd.delivery_status", ["AFD", "DLV"]);
+            //     }
 
-            if (!empty($module)) {
-                if ($module == "ARRIVED") {
-                    $ordersList = $ordersList->whereIn("sd.delivery_status",["AFD","DLV"]);
+            //     if ($module == "SHIPMENT") {
+            //         $ordersList = $ordersList->whereNotIn("sd.delivery_status", ["AFD", "DLV"]);
+            //     }
+            // }
+            if (!empty($module) && empty($request->id)) {
+
+            if ($module == "ARRIVED") {
+                    $ordersList = $ordersList->whereIn(
+                        "sd.delivery_status",
+                        ["AFD", "DLV"]
+                    );
                 }
+
                 if ($module == "SHIPMENT") {
-                    $ordersList = $ordersList->whereNotIn("sd.delivery_status",["AFD","DLV"]);
+                    $ordersList = $ordersList->where(function ($q) {
+                        $q->whereNotIn("sd.delivery_status", ["AFD", "DLV"])
+                        ->orWhereNull("sd.delivery_status");
+                    });
                 }
             }
 
@@ -253,70 +270,104 @@ class ShipmentController extends Controller
         return $response;
     }
 
-    public function SaveShipmentUpdate(Request $request){
+    public function SaveShipmentUpdate(Request $request)
+    {
         $response = [
             "message" => "Failed to update shipment information.",
             "isSuccess" => false
         ];
-        $isSuccess = false;
-        // dd($request->all());
+
         try {
-            $receivers = $request->receiver??[];
-            $ccRecipients = $request->cc??[];
-            $receiversToSave = "";
-            $ccRecipientsToSave = "";
-            $savedId = "";
+
+            $receivers = $request->receiver ?? [];
+            $ccRecipients = $request->cc ?? [];
+
+            $receiversToSave = count($receivers) > 0
+                ? implode(",", $receivers)
+                : "";
+
+            $ccRecipientsToSave = count($ccRecipients) > 0
+                ? implode(",", $ccRecipients)
+                : "";
+            // Email notification
+            $sendEmail = $request->sendEmail == "1";
+            //save email suggestions
+            $mergeEmails = array_merge($receivers, $ccRecipients);
+
+            foreach ($mergeEmails as $value) {
+                SuggestionVault::updateOrCreate(
+                    [
+                        "suggestion" => $value,
+                        "type" => "EMAIL"
+                    ],
+                    [
+                        "suggestion" => $value,
+                        "type" => "EMAIL"
+                    ]
+                );
+            }
+            // Get shipment details
+            $shipmentDetailsData = ShipmentDetails::where(
+                'process_order_id',
+                $request->id
+            )->first();
+
+            $savedId = null;
             $currentEta = null;
-            $sendEmail = isset($request->sendEmail) && $request->sendEmail == "1" ? true:false;
-
-            if (count($receivers) > 0) {
-                $receiversToSave = implode(",",$receivers);
-            }
-            if (count($ccRecipients) > 0) {
-                $ccRecipientsToSave = implode(",",$ccRecipients);
-            }
-
-            $mergeEmails = array_merge($receivers,$ccRecipients);
-            if (count($mergeEmails)>0) {
-                foreach ($mergeEmails as $value) {
-                    SuggestionVault::updateOrCreate(["suggestion"=>$value,"type"=>"EMAIL"],["suggestion"=>$value,"type"=>"EMAIL"]);
-                }
-            }
-
-            $shipmentDetailsData = ShipmentDetails::where(['process_order_id'=>$request->id])->first();
-            
+            $currentTrackingPoint = null;
+            // Update existing
             if (!empty($shipmentDetailsData)) {
-                $currentTrackingPoint = $shipmentDetailsData->tracking_points;
+
                 $savedId = $shipmentDetailsData->id;
-                $currentEta = !empty($shipmentDetailsData->eta_destination)?Carbon::parse($shipmentDetailsData->eta_destination):null;
-                $currentDeliveryStatus = $shipmentDetailsData->delivery_status;
+
+                $currentTrackingPoint = $shipmentDetailsData->tracking_points;
+
+                if (!empty($shipmentDetailsData->eta_destination)) {
+                    $currentEta = Carbon::parse(
+                        $shipmentDetailsData->eta_destination
+                    );
+                }
+
                 $save = $shipmentDetailsData->update([
                     'delivery_status' => $request->deliveryStatus,
                     'tracking_points' => $request->trackPoints,
                     'invoice_number' => $request->invoiceNo,
-                    // 'cbw_doc_status' => $request->cbwDocStatus,
+
                     'region' => $request->region,
                     'shipping_line' => $request->shippingLine,
                     'ed_bl_number' => $request->blNumber,
                     'container_number' => $request->containerNumber,
                     'courier_tracking' => $request->courierTracking,
+
                     'etd_origin' => $request->etdOrigin,
                     'atd_origin' => $request->atdOrigin,
+
                     'eta_destination' => $request->etaDestination,
                     'ata_destination' => $request->ataDestination,
+
                     'delivery_date' => $request->deliveryDate,
                     'date_docs_completed' => $request->dateDocsCompleted,
+
                     'remarks' => $request->remarks,
+
                     'email_recipients' => $receiversToSave,
                     'cc_recipients' => $ccRecipientsToSave,
+
                     'vessel_name' => $request->vesselName,
+
                     'atp_date' => $request->atpd,
                     'dt_date' => $request->dtd,
-                    'notification_enabled' => $sendEmail?'1':'0'
+
+                    'notification_enabled' => $sendEmail ? '1' : '0'
                 ]);
 
                 if ($save) {
-                    if (!empty($request->trackPoints) && $currentTrackingPoint !== $request->trackPoints) {
+
+                    // Save tracking history
+                    if (
+                        !empty($request->trackPoints) &&
+                        $currentTrackingPoint !== $request->trackPoints
+                    ) {
                         ShipmentTracking::create([
                             'shipment_details_id' => $savedId,
                             'tracking_point' => $request->trackPoints,
@@ -324,65 +375,133 @@ class ShipmentController extends Controller
                             'status' => $request->deliveryStatus
                         ]);
                     }
+                    // Email notification
+                    if ($sendEmail) {
 
-                    if ($request->deliveryStatus == "DLY") {
-                        if (!Carbon::parse($currentEta)->isSameDay(Carbon::parse($request->etaDestination))) 
-                        {
-                            $updateDelayedShipment = DelayedShipmentUpdate::updateOrCreate(['shipment_details_id' => $savedId],['shipment_details_id' => $savedId,'prev_eta' => $currentEta,'updated_eta' => $request->etaDestination??null,'is_notif_sent' => 0]);   
-                        }
-                        if ($sendEmail){
-                            $this->shipment->SendDelayedNotification($savedId); 
-                        }
-                    }
-                    if ($request->deliveryStatus == "DPT") {
-                        if ($sendEmail){
-                            $this->shipment->SendCargoDepartedNotification($savedId);
-                        }
-                    }
-                    if ($request->deliveryStatus == "ATP") {
-                        // dd($sendEmail);
-                        if ($sendEmail){
-                            $this->shipment->SendCargoTranshipmentArrivalNotification($savedId);
-                        }
-                    }
-                    if ($request->deliveryStatus == "LCV") {
-                        if ($sendEmail){
-                            $this->shipment->SendCargoLoadedInConnectingVesselNotification($savedId);
-                        }
-                    }
-                    if ($request->deliveryStatus == "AFD") {
-                        if ($sendEmail){
-                            $this->shipment->SendCargoArrivedAtDestinationPortNotification($savedId);
+                        switch ($request->deliveryStatus) {
+                            case "DLY":
+                                if (
+                                    $currentEta &&
+                                    !empty($request->etaDestination)
+                                ) {
+
+                                    $newEta = Carbon::parse(
+                                        $request->etaDestination
+                                    );
+
+                                    if (!$currentEta->isSameDay($newEta)) {
+
+                                        DelayedShipmentUpdate::updateOrCreate(
+                                            [
+                                                'shipment_details_id' => $savedId
+                                            ],
+                                            [
+                                                'shipment_details_id' => $savedId,
+                                                'prev_eta' => $currentEta,
+                                                'updated_eta' => $request->etaDestination,
+                                                'is_notif_sent' => 0
+                                            ]
+                                        );
+                                    }
+                                }
+
+                                $this->shipment->SendDelayedNotification(
+                                    $savedId
+                                );
+
+                                break;
+
+                            case "DPT":
+
+                                $this->shipment->SendCargoDepartedNotification(
+                                    $savedId
+                                );
+
+                                break;
+
+                            case "ATP":
+
+                                $this->shipment->SendCargoTranshipmentArrivalNotification(
+                                    $savedId
+                                );
+
+                                break;
+
+                            case "LCV":
+
+                                $this->shipment->SendCargoLoadedInConnectingVesselNotification(
+                                    $savedId
+                                );
+
+                                break;
+
+
+                            case "AFD":
+
+                                $this->shipment->SendCargoArrivedAtDestinationPortNotification(
+                                    $savedId
+                                );
+
+                                break;
+
+                            case "DLV":
+
+                                $this->shipment->SendCargoDeliveredAtDestinationPortNotification(
+                                    $savedId
+                                );
+
+                                break;
+                            
                         }
                     }
                 }
-            }else{
+
+            }
+            else {
+
                 $save = ShipmentDetails::create([
-                    'process_order_id'=>$request->id,
+                    'process_order_id' => $request->id,
+
                     'delivery_status' => $request->deliveryStatus,
                     'tracking_points' => $request->trackPoints,
+
                     'invoice_number' => $request->invoiceNo,
+
                     'cbw_doc_status' => $request->cbwDocStatus,
+
                     'region' => $request->region,
                     'shipping_line' => $request->shippingLine,
                     'ed_bl_number' => $request->blNumber,
                     'container_number' => $request->containerNumber,
                     'courier_tracking' => $request->courierTracking,
+
                     'etd_origin' => $request->etdOrigin,
                     'atd_origin' => $request->atdOrigin,
+
                     'eta_destination' => $request->etaDestination,
                     'ata_destination' => $request->ataDestination,
+
                     'delivery_date' => $request->deliveryDate,
                     'date_docs_completed' => $request->dateDocsCompleted,
+
                     'remarks' => $request->remarks,
+
                     'email_recipients' => $receiversToSave,
                     'cc_recipients' => $ccRecipientsToSave,
-                    'vessel_name' => $request->vesselName
+
+                    'vessel_name' => $request->vesselName,
+
+                    'atp_date' => $request->atpd,
+                    'dt_date' => $request->dtd,
+
+                    'notification_enabled' => $sendEmail ? '1' : '0'
                 ]);
 
                 if ($save) {
                     $savedId = $save->id;
+                    
                     if (!empty($request->trackPoints)) {
+
                         ShipmentTracking::create([
                             'shipment_details_id' => $savedId,
                             'tracking_point' => $request->trackPoints,
@@ -390,23 +509,84 @@ class ShipmentController extends Controller
                             'status' => $request->deliveryStatus
                         ]);
                     }
+
+                    // Email notification
+                    if ($sendEmail) {
+
+                        switch ($request->deliveryStatus) {
+
+                            case "DLY":
+
+                                $this->shipment->SendDelayedNotification(
+                                    $savedId
+                                );
+
+                                break;
+
+                            case "DPT":
+
+                                $this->shipment->SendCargoDepartedNotification(
+                                    $savedId
+                                );
+
+                                break;
+
+                            case "ATP":
+
+                                $this->shipment->SendCargoTranshipmentArrivalNotification(
+                                    $savedId
+                                );
+
+                                break;
+
+                            case "LCV":
+
+                                $this->shipment->SendCargoLoadedInConnectingVesselNotification(
+                                    $savedId
+                                );
+
+                                break;
+
+                            case "AFD":
+
+                                $this->shipment->SendCargoArrivedAtDestinationPortNotification(
+                                    $savedId
+                                );
+
+                                break;
+
+                            case "DLV":
+
+                                $this->shipment->SendCargoDeliveredAtDestinationPortNotification(
+                                    $savedId
+                                );
+
+                                break;
+                        }
+                    }
                 }
             }
-            
-            $isSuccess = true;
-            $response = [
+            // Success
+            return response()->json([
                 "message" => "Shipment information updated successfully.",
-                "isSuccess" => $isSuccess
-            ];
-            
-        } catch (\Exception $th) {
-            Log::error("FAILED IN UPDATING SHIPMENT DETAILS :".$th);
-        }
+                "isSuccess" => true
+            ], 200);
 
-        if ($isSuccess) {
-            return response()->json($response,200);
-        }else{
-            return response()->json($response,400);
+        } catch (\Exception $th) {
+
+            Log::error(
+                "FAILED IN UPDATING SHIPMENT DETAILS : " .
+                $th->getMessage(),
+                [
+                    'request' => $request->all(),
+                    'trace' => $th->getTraceAsString()
+                ]
+            );
+
+            return response()->json([
+                "message" => "Failed to update shipment information.",
+                "isSuccess" => false
+            ], 400);
         }
     }
 

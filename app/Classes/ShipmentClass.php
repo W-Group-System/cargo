@@ -199,4 +199,86 @@ class ShipmentClass{
         return $isSuccess;
     }
 
+
+    public function SendCargoDeliveredAtDestinationPortNotification($id)
+    {
+        $isSuccess = false;
+
+        try {
+
+            $shipmentData = ShipmentDetails::with([
+                'ProcessedOrder.OrderData',
+                'ProcessedOrder.Warehouse'
+            ])->where('id', $id)->first();
+
+            $params = [
+                'shipmentDetailsId' => $id,
+
+                'customerName' => isset($shipmentData->ProcessedOrder->OrderData[0]->ContactName)
+                    && !empty($shipmentData->ProcessedOrder->OrderData[0]->ContactName)
+                    ? $shipmentData->ProcessedOrder->OrderData[0]->ContactName
+                    : '',
+
+                'poNumber' => isset($shipmentData->ProcessedOrder->OrderData[0]->BuyersPO)
+                    && !empty($shipmentData->ProcessedOrder->OrderData[0]->BuyersPO)
+                    ? $shipmentData->ProcessedOrder->OrderData[0]->BuyersPO
+                    : '',
+
+                'buyerInvoice' => $shipmentData->ProcessedOrder->CardCode . "/" . $shipmentData->invoice_number,
+
+                'containerNumber' => $shipmentData->container_number,
+
+                'vesselVoyage' => $shipmentData->vessel_name,
+
+
+                'trackPoint' => !empty($shipmentData->tracking_points)
+                    ? $shipmentData->tracking_points
+                    : '',
+                
+                'destinationPort'=>isset($shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination)&&!empty($shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination)?$shipmentData->ProcessedOrder->OrderData[0]->PortOfDestination:'',
+
+                'ata' => isset($shipmentData->ata_destination)
+                    && !empty($shipmentData->ata_destination)
+                    ? Carbon::parse($shipmentData->ata_destination)->format('M d, Y')
+                    : '',
+
+                'buyersCode' => $shipmentData->ProcessedOrder->CardCode,
+
+                'warehouse' => isset($shipmentData->ProcessedOrder->Warehouse->description)
+                    ? $shipmentData->ProcessedOrder->Warehouse->description
+                    : ''
+            ];
+
+            $receivers = !empty($shipmentData->email_recipients)
+                ? explode(",", $shipmentData->email_recipients)
+                : [];
+
+            $ccRecipients = !empty($shipmentData->cc_recipients)
+                ? explode(",", $shipmentData->cc_recipients)
+                : [];
+
+            if (count($receivers) > 0) {
+
+                $this->notification->SendEmail(
+                    "DLV",
+                    $params,
+                    $receivers,
+                    $ccRecipients
+                );
+
+                $isSuccess = true;
+            }
+
+        } catch (\Throwable $th) {
+
+            Log::error(
+                "ERROR IN SENDING CARGO DESTINATION PORT ARRIVAL NOTIFICATION: " .
+                $th->getMessage()
+            );
+        }
+
+        return $isSuccess;
+    }
+
+
 }

@@ -59,7 +59,7 @@ class HomeController extends Controller
 
         $shipped = DB::table('shipment_details as sd')
             ->leftJoin('processed_orders as po', 'sd.process_order_id', '=', 'po.id')
-            ->whereRaw('COALESCE(sd.delivery_status, "") <> "P"');
+            ->whereRaw('COALESCE(sd.delivery_status, "") NOT IN ("P", "", "DLV", "AFD")');
 
         $irregularities = DB::table('shipment_details as sd')
             ->leftJoin('processed_orders as po', 'sd.process_order_id', '=', 'po.id')

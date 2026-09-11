@@ -10,6 +10,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\ShipmentController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,5 +70,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/roles/save',[RolesController::class,'SaveRole'])->name('save.role');
     Route::get('/roles/access',[RolesController::class,'RoleAccessList'])->name('role.access.list');
     Route::post('/roles/acces/save',[RolesController::class,'SaveRoleAccess'])->name('save.role.access');
-    
+
+    // Report
+    Route::get('/report/order',[ReportController::class,'orderReport'])->name('report.order')->middleware('access');
+    Route::get('/report/shipment', [ReportController::class,'shipmentReport'])->name('report.shipment')->middleware('access');
 });

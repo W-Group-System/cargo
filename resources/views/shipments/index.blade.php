@@ -8,153 +8,168 @@
 <div class="main-panel">
     <div class="content-wrapper">
         <div class="col-lg-12 grid-margin stretch-card">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title">Shipment Management</h4>
-                     <div class="row">
-                        <div class="col-6 col-lg-3 col-md-6">
-                            <div class="card border border-primary clickable-card" data-status="PENDING">
-                                <div class="card-body px-3 py-4-5">
-                                    <div class="row">
-                                        <div class="col-md-8">
-                                            <h6 class="text-muted font-semibold">Pending Shipments</h6>
-                                            <h6 class="font-extrabold mb-0" id="pending">0</h6>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="stats-icon purple">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-truck-front-fill" viewBox="0 0 16 16">
-                                                    <path d="M3.5 0A2.5 2.5 0 0 0 1 2.5v9c0 .818.393 1.544 1 2v2a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5V14h6v1.5a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-2c.607-.456 1-1.182 1-2v-9A2.5 2.5 0 0 0 12.5 0zM3 3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3.9c0 .625-.562 1.092-1.17.994C10.925 7.747 9.208 7.5 8 7.5s-2.925.247-3.83.394A1.008 1.008 0 0 1 3 6.9zm1 9a1 1 0 1 1 0-2 1 1 0 0 1 0 2m8 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2m-5-2h2a1 1 0 1 1 0 2H7a1 1 0 1 1 0-2"/>
-                                                </svg>
+                <!-- Cards -->
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Shipment Management</h4>
+                        <div class="row">
+                            <!-- Pending -->
+                            <div class="col-6 col-lg-3 col-md-6">
+                                <div class="card border border-primary clickable-card" data-status="PENDING">
+                                    <div class="card-body px-3 py-4-5">
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <h6 class="text-muted font-semibold">Pending Shipments</h6>
+                                                <h6 class="font-extrabold mb-0" id="pending">0</h6>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="stats-icon purple">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-truck-front-fill" viewBox="0 0 16 16">
+                                                        <path d="M3.5 0A2.5 2.5 0 0 0 1 2.5v9c0 .818.393 1.544 1 2v2a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5V14h6v1.5a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-2c.607-.456 1-1.182 1-2v-9A2.5 2.5 0 0 0 12.5 0zM3 3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3.9c0 .625-.562 1.092-1.17.994C10.925 7.747 9.208 7.5 8 7.5s-2.925.247-3.83.394A1.008 1.008 0 0 1 3 6.9zm1 9a1 1 0 1 1 0-2 1 1 0 0 1 0 2m8 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2m-5-2h2a1 1 0 1 1 0 2H7a1 1 0 1 1 0-2"/>
+                                                    </svg>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-6 col-lg-3 col-md-6">
-                            <div class="card border border-primary clickable-card" data-status="IN-TRANSIT">
-                                <div class="card-body px-3 py-4-5">
-                                    <div class="row">
-                                        <div class="col-md-8">
-                                            <h6 class="text-muted font-semibold">In Transit</h6>
-                                            <h6 class="font-extrabold mb-0" id="inTransit">0</h6>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="stats-icon blue">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-truck-front-fill" viewBox="0 0 16 16">
-                                                    <path d="M3.5 0A2.5 2.5 0 0 0 1 2.5v9c0 .818.393 1.544 1 2v2a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5V14h6v1.5a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-2c.607-.456 1-1.182 1-2v-9A2.5 2.5 0 0 0 12.5 0zM3 3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3.9c0 .625-.562 1.092-1.17.994C10.925 7.747 9.208 7.5 8 7.5s-2.925.247-3.83.394A1.008 1.008 0 0 1 3 6.9zm1 9a1 1 0 1 1 0-2 1 1 0 0 1 0 2m8 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2m-5-2h2a1 1 0 1 1 0 2H7a1 1 0 1 1 0-2"/>
-                                                </svg>
+                            <!-- End Pending -->
+                            <!-- In Transit -->
+                            <div class="col-6 col-lg-3 col-md-6">
+                                <div class="card border border-primary clickable-card" data-status="IN-TRANSIT">
+                                    <div class="card-body px-3 py-4-5">
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <h6 class="text-muted font-semibold">In Transit</h6>
+                                                <h6 class="font-extrabold mb-0" id="inTransit">0</h6>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="stats-icon blue">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-truck-front-fill" viewBox="0 0 16 16">
+                                                        <path d="M3.5 0A2.5 2.5 0 0 0 1 2.5v9c0 .818.393 1.544 1 2v2a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5V14h6v1.5a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-2c.607-.456 1-1.182 1-2v-9A2.5 2.5 0 0 0 12.5 0zM3 3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3.9c0 .625-.562 1.092-1.17.994C10.925 7.747 9.208 7.5 8 7.5s-2.925.247-3.83.394A1.008 1.008 0 0 1 3 6.9zm1 9a1 1 0 1 1 0-2 1 1 0 0 1 0 2m8 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2m-5-2h2a1 1 0 1 1 0 2H7a1 1 0 1 1 0-2"/>
+                                                    </svg>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-6 col-lg-3 col-md-6">
-                            <div class="card border border-primary clickable-card" data-status="SHIPPED">
-                                <div class="card-body px-3 py-4-5">
-                                    <div class="row">
-                                        <div class="col-md-8">
-                                            <h6 class="text-muted font-semibold">Shipped</h6>
-                                            <h6 class="font-extrabold mb-0" id="shipped">0</h6>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="stats-icon green">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-truck-front-fill" viewBox="0 0 16 16">
-                                                    <path d="M3.5 0A2.5 2.5 0 0 0 1 2.5v9c0 .818.393 1.544 1 2v2a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5V14h6v1.5a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-2c.607-.456 1-1.182 1-2v-9A2.5 2.5 0 0 0 12.5 0zM3 3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3.9c0 .625-.562 1.092-1.17.994C10.925 7.747 9.208 7.5 8 7.5s-2.925.247-3.83.394A1.008 1.008 0 0 1 3 6.9zm1 9a1 1 0 1 1 0-2 1 1 0 0 1 0 2m8 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2m-5-2h2a1 1 0 1 1 0 2H7a1 1 0 1 1 0-2"/>
-                                                </svg>
+                            <!-- End In Transit -->
+                            <!-- Shipped -->
+                            <div class="col-6 col-lg-3 col-md-6">
+                                <div class="card border border-primary clickable-card" data-status="SHIPPED">
+                                    <div class="card-body px-3 py-4-5">
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <h6 class="text-muted font-semibold">Shipped</h6>
+                                                <h6 class="font-extrabold mb-0" id="shipped">0</h6>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="stats-icon green">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-truck-front-fill" viewBox="0 0 16 16">
+                                                        <path d="M3.5 0A2.5 2.5 0 0 0 1 2.5v9c0 .818.393 1.544 1 2v2a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5V14h6v1.5a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-2c.607-.456 1-1.182 1-2v-9A2.5 2.5 0 0 0 12.5 0zM3 3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3.9c0 .625-.562 1.092-1.17.994C10.925 7.747 9.208 7.5 8 7.5s-2.925.247-3.83.394A1.008 1.008 0 0 1 3 6.9zm1 9a1 1 0 1 1 0-2 1 1 0 0 1 0 2m8 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2m-5-2h2a1 1 0 1 1 0 2H7a1 1 0 1 1 0-2"/>
+                                                    </svg>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-6 col-lg-3 col-md-6">
-                            <div class="card border border-primary clickable-card" data-status="IRREGULARITIES">
-                                <div class="card-body px-3 py-4-5">
-                                    <div class="row">
-                                        <div class="col-md-8">
-                                            <h6 class="text-muted font-semibold">Irregularities</h6>
-                                            <h6 class="font-extrabold mb-0" id="irregularities">0</h6>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="stats-icon red">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-truck-front-fill" viewBox="0 0 16 16">
-                                                    <path d="M3.5 0A2.5 2.5 0 0 0 1 2.5v9c0 .818.393 1.544 1 2v2a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5V14h6v1.5a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-2c.607-.456 1-1.182 1-2v-9A2.5 2.5 0 0 0 12.5 0zM3 3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3.9c0 .625-.562 1.092-1.17.994C10.925 7.747 9.208 7.5 8 7.5s-2.925.247-3.83.394A1.008 1.008 0 0 1 3 6.9zm1 9a1 1 0 1 1 0-2 1 1 0 0 1 0 2m8 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2m-5-2h2a1 1 0 1 1 0 2H7a1 1 0 1 1 0-2"/>
-                                                </svg>
+                            <!-- End Shipped -->
+                            <!-- Irregularities -->
+                            <div class="col-6 col-lg-3 col-md-6">
+                                <div class="card border border-primary clickable-card" data-status="IRREGULARITIES">
+                                    <div class="card-body px-3 py-4-5">
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <h6 class="text-muted font-semibold">Irregularities</h6>
+                                                <h6 class="font-extrabold mb-0" id="irregularities">0</h6>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="stats-icon red">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-truck-front-fill" viewBox="0 0 16 16">
+                                                        <path d="M3.5 0A2.5 2.5 0 0 0 1 2.5v9c0 .818.393 1.544 1 2v2a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5V14h6v1.5a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-2c.607-.456 1-1.182 1-2v-9A2.5 2.5 0 0 0 12.5 0zM3 3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3.9c0 .625-.562 1.092-1.17.994C10.925 7.747 9.208 7.5 8 7.5s-2.925.247-3.83.394A1.008 1.008 0 0 1 3 6.9zm1 9a1 1 0 1 1 0-2 1 1 0 0 1 0 2m8 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2m-5-2h2a1 1 0 1 1 0 2H7a1 1 0 1 1 0-2"/>
+                                                    </svg>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            <!-- End Irregularities -->
                         </div>
-                    </div>
-                    <div class="row g-3 align-items-center">
-                        <div class="col-auto">
-                            <form method="GET" id="shipmentListForm" class="form-inline mt-4">
-                            @csrf
-                            <div class="row g-3 align-items-center">
-                                <div class="col-auto">
-                                    <label class="col-form-label">Filter by date sync:</label>
-                                </div>
-                                <div class="col-auto">
-                                    <input type="hidden" name="start_date" id="start_date" value="{{ request('start_date') }}">
-                                    <input type="hidden" name="end_date" id="end_date" value="{{ request('end_date') }}">
+                        <!-- Filter Inputs -->
+                        <div class="row g-3 align-items-center">
+                            <div class="col-auto">
+                                <form method="GET" id="shipmentListForm" class="form-inline mt-4">
+                                @csrf
+                                <div class="row g-3 align-items-center">
+                                    <div class="col-auto">
+                                        <label class="col-form-label">Filter by date sync:</label>
+                                    </div>
+                                    <div class="col-auto">
+                                        <input type="hidden" name="start_date" id="start_date" value="{{ request('start_date') }}">
+                                        <input type="hidden" name="end_date" id="end_date" value="{{ request('end_date') }}">
 
-                                    <div id="reportrange" style="cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
-                                        <i class="bi bi-calendar"></i>&nbsp;
-                                        <span>
-                                            @if(request('start_date') && request('end_date'))
-                                                {{ request('start_date') }} - {{ request('end_date') }}
-                                            @else
-                                                Select Date Range
-                                            @endif
-                                        </span> 
-                                        <i class="bi bi-caret-down"></i>
+                                        <div id="reportrange" style="cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                            <i class="bi bi-calendar"></i>&nbsp;
+                                            <span>
+                                                @if(request('start_date') && request('end_date'))
+                                                    {{ request('start_date') }} - {{ request('end_date') }}
+                                                @else
+                                                    Select Date Range
+                                                @endif
+                                            </span> 
+                                            <i class="bi bi-caret-down"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <select name="warehouse" id="warehouse" class="form-select">
+                                            <option value="">- Select Warehouse -</option>
+                                            @foreach (["whi"=>"WHI", "ccc"=>"CCC", "pbi"=>"PBI"] as $key => $value)
+                                                <option value="{{ $key }}">
+                                                    {{ $value }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-auto">
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="bi bi-search"></i>&nbsp;Search
+                                        </button>
                                     </div>
                                 </div>
-                                <div class="col-auto">
-                                    <select name="warehouse" id="warehouse" class="form-select">
-                                        <option value="">- Select Warehouse -</option>
-                                        @foreach (["whi"=>"WHI", "ccc"=>"CCC", "pbi"=>"PBI"] as $key => $value)
-                                            <option value="{{ $key }}">
-                                                {{ $value }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-auto">
-                                    <button type="submit" class="btn btn-success">
-                                        <i class="bi bi-search"></i>&nbsp;Search
-                                    </button>
-                                </div>
+                            </form>
                             </div>
-                        </form>
                         </div>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0" id="shipmentTable">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Status</th>
-                                    <th>Buyers Code</th>
-                                    <th>Buyers Name</th>
-                                    <th>Warehouse</th>
-                                    <th>Invoice #</th>
-                                    <th>ATD</th>
-                                    <th>ETA</th>
-                                    <th class="text-align-center" width="120">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
+                        <!-- End Filter Inputs -->
+                        <!-- Table -->
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" id="shipmentTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Status</th>
+                                        <th>Buyers Code</th>
+                                        <th>Buyers Name</th>
+                                        <th>Warehouse</th>
+                                        <th>Invoice #</th>
+                                        <th>ATD</th>
+                                        <th>ETA</th>
+                                        <th class="text-align-center" width="120">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Table -->
                     </div>
                 </div>
-            </div>
+                <!-- End Cards -->
         </div>
     </div>
 </div>
+<!-- Modal -->
 @component('components.modal',['modal_id' => 'updateStatusModal','title' => 'Update shipment information','form_id' => 'updateShipmentForm', 'size' => 'modal-xl','canUpdate'=>$canUpdate])
     <div class="row g-4">
         <div class="col-12 col-lg-6">
@@ -605,6 +620,7 @@
         </div>
     </div>
 @endcomponent
+<!-- End Modal -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -652,19 +668,25 @@
             ReloadDataTable();
         });
 
-        let cardStatusFilter = '';
-        $('.clickable-card').click(function () {
-            if ($(this).hasClass('active')) {
-                $(this).removeClass('active');
-                cardStatusFilter = '';
-            } else {
-                $('.clickable-card').removeClass('active');
-                $(this).addClass('active');
-                cardStatusFilter = $(this).data('status');
-            }
-            ReloadDataTable();
-        });
+    let cardStatusFilter = '';
 
+    $('.clickable-card').click(function () {
+        if ($(this).hasClass('active')) {
+            $(this).removeClass('active');
+            cardStatusFilter = '';
+        } else {
+            $('.clickable-card').removeClass('active');
+            $(this).addClass('active');
+            cardStatusFilter = $(this).data('status');
+        }
+
+        ReloadDataTable();
+    });
+
+        // Problem is here, the DataTable is not reloading when the cardStatusFilter changes. 
+        // I removed this line of code  module: 'SHIPMENT', to ensure that the DataTable reloads correctly 
+        // when the cardStatusFilter changes.
+        
         let orderTable = $('#shipmentTable').DataTable({
             processing: true,
             serverSide: true,
@@ -1138,31 +1160,77 @@
             $('#files-tab,#cargo-tab').removeClass('active');
         });
 
-        $('#updateShipmentForm').submit(function (e) { 
+        // $('#updateShipmentForm').submit(function (e) { 
+        //     e.preventDefault();
+        //     $.ajax({
+        //         type: "POST",
+        //         url: "{{ route('shipment.update') }}",
+        //         data: $(this).serializeArray(),
+        //         dataType: "JSON",
+        //         beforeSend: function () {
+        //             $('.closeBtn').prop('disabled',true);
+        //             $('.submitBtn').prop('disabled',true).html('<span class="spinner-border spinner-border-sm" role="status"></span>');
+        //         },
+        //         success: function (response) {
+        //             Swal.fire('Success',response.message,'success');
+        //             $('#updateStatusModal').modal('hide');
+        //         },
+        //         error: function (xhr) {
+        //             Swal.fire('Error',xhr.responseJSON?.message || 'Error','error');
+        //         },
+        //         complete: function(){
+        //             ReloadDataTable();
+        //             $('.closeBtn').prop('disabled',false);
+        //             $('.submitBtn').prop('disabled',false).html('Save');
+        //         }
+        //     });
+            
+        // });
+
+        $('#updateShipmentForm').submit(function (e) {
             e.preventDefault();
+
             $.ajax({
                 type: "POST",
                 url: "{{ route('shipment.update') }}",
                 data: $(this).serializeArray(),
                 dataType: "JSON",
+
                 beforeSend: function () {
-                    $('.closeBtn').prop('disabled',true);
-                    $('.submitBtn').prop('disabled',true).html('<span class="spinner-border spinner-border-sm" role="status"></span>');
+                    $('.closeBtn').prop('disabled', true);
+                    $('.submitBtn')
+                        .prop('disabled', true)
+                        .html('<span class="spinner-border spinner-border-sm" role="status"></span>');
                 },
+
                 success: function (response) {
-                    Swal.fire('Success',response.message,'success');
+                    Swal.fire(
+                        'Success',
+                        response.message,
+                        'success'
+                    );
+
                     $('#updateStatusModal').modal('hide');
                 },
+
                 error: function (xhr) {
-                    Swal.fire('Error',xhr.responseJSON?.message || 'Error','error');
+                    Swal.fire(
+                        'Error',
+                        xhr.responseJSON?.message || 'Error',
+                        'error'
+                    );
                 },
-                complete: function(){
+
+                complete: function () {
                     ReloadDataTable();
-                    $('.closeBtn').prop('disabled',false);
-                    $('.submitBtn').prop('disabled',false).html('Save');
+
+                    $('.closeBtn').prop('disabled', false);
+
+                    $('.submitBtn')
+                        .prop('disabled', false)
+                        .html('Save');
                 }
             });
-            
         });
 
         $('#receiver,#cc').select2({
@@ -1193,13 +1261,14 @@
                     warehouse: $('select[name="warehouse"]').val()
                 },
                 success: function (response) {
+                      
                     $('#pending').text(response.pending);
                     $('#inTransit').text(response.in_transit);
                     $('#shipped').text(response.shipped);
                     $('#irregularities').text(response.irregularities);
                 }
             });
-        }
+        }        
     });
 </script>
 @endsection

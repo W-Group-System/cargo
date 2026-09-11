@@ -99,13 +99,15 @@
                             @foreach ($modules as $key => $value)
                                 <li class="sidebar-title">{{$key}}</li>
                                 @foreach ($value as $k => $v)
-                                    @if ($v['canRead'] == "1")
+                                    @if ($v['canRead'] == 1)
+                                    <!-- <li class="sidebar-item {{ ($key == ($ActiveHeader ?? '') && $k == $ActiveModule) ? 'active':'' }}"> -->
                                         <li class="sidebar-item {{ $k == $ActiveModule ? 'active':'' }}">
                                             <a href="{{ url($v['url']) }}" onclick='show()' class='sidebar-link'>
                                                 {!! $v['icon'] !!}
                                                 <span>{{$k}}</span>
                                             </a>
                                         </li>
+                                        
                                     @endif
                                 @endforeach
                             @endforeach

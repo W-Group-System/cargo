@@ -463,6 +463,11 @@
             }
         });
 
+        // Will auto refresh the datatable every 60 seconds, but commented out for now
+        setInterval(function () {
+            orderTable.ajax.reload(null, false);
+        }, 10000);
+
         orderTable.on('draw', function() {
             //
         });
