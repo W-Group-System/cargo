@@ -35,121 +35,583 @@ class OrderController extends Controller
         return view('orders.indexV2', $data);
     }
 
-    public function SapOrderListDictinct(Request $request){
-        $response = [
-            "isSuccess"=>false,
-            "message"=>"Failed to retrieve information.",
-            "total"=>0,
-            "page"=>1,
-            "data"=>null
-        ];
+    // public function SapOrderListDictinct(Request $request){
+    //     $response = [
+    //         "isSuccess"=>false,
+    //         "message"=>"Failed to retrieve information.",
+    //         "total"=>0,
+    //         "page"=>1,
+    //         "data"=>null
+    //     ];
 
-        $isSuccess = false;
+    //     $isSuccess = false;
 
-        try {
-            $page = $request->page ?? 1;
-            $limit = $request->limit ?? 10;
-            $search = $request->search;
-            $start = $request->start_date??"";
-            $end = $request->end_date??"";
-            $buyersCode = $request->buyersCode??"";
-            $buyersName = $request->buyersName??"";
-            $dateCreated = $request->dateCreated??"";
+    //     try {
+    //         $page = $request->page ?? 1;
+    //         $limit = $request->limit ?? 10;
+    //         $search = $request->search;
+    //         $start = $request->start_date??"";
+    //         $end = $request->end_date??"";
+    //         $buyersCode = $request->buyersCode??"";
+    //         $buyersName = $request->buyersName??"";
+    //         $dateCreated = $request->dateCreated??"";
 
-            $endpoint = null;
+    //         $endpoint = null;
 
-            $data = collect();  
-            if ($request->has('sap_server')) {
-                $sapServer = $request->sap_server;
+    //         $data = collect();  
+    //         if ($request->has('sap_server')) {
+    //             $sapServer = $request->sap_server;
 
-                $client = new Client();
-                switch ($sapServer) {
-                    case 'whi':
-                        $endpointData = ThirdrdPartyEndpoint::where("Code","WHI-DIST")->first();
-                        break;
-                    case 'pbi':
-                        $endpointData = ThirdrdPartyEndpoint::where("Code","PBI-DIST")->first();
-                        break;
-                    case 'ccc':
-                        $endpointData = ThirdrdPartyEndpoint::where("Code","CCC-DIST")->first();
-                        break;
-                    default:
-                        $endpointData = null;
-                }
+    //             $client = new Client();
+    //             switch ($sapServer) {
+    //                 case 'whi':
+    //                     $endpointData = ThirdrdPartyEndpoint::where("Code","WHI-DIST")->first();
+    //                     break;
+    //                 case 'pbi':
+    //                     $endpointData = ThirdrdPartyEndpoint::where("Code","PBI-DIST")->first();
+    //                     break;
+    //                 case 'ccc':
+    //                     $endpointData = ThirdrdPartyEndpoint::where("Code","CCC-DIST")->first();
+    //                     break;
+    //                 default:
+    //                     $endpointData = null;
+    //             }
                 
-                if (!empty($endpointData) > 0) {
+    //             if (!empty($endpointData) > 0) {
 
-                    $endpoint = $endpointData->Endpoint."?page={$page}&limit={$limit}";
+    //                 $endpoint = $endpointData->Endpoint."?page={$page}&limit={$limit}";
 
-                    if (!empty($start)) {
-                        if(empty($end)){
-                            $end = $start;
-                        }
-                        $endpoint = $endpoint."&startDate={$start}&endDate={$end}";
-                    }
+    //                 if (!empty($start)) {
+    //                     if(empty($end)){
+    //                         $end = $start;
+    //                     }
+    //                     $endpoint = $endpoint."&startDate={$start}&endDate={$end}";
+    //                 }
 
-                    if (!empty($buyersCode)) {
-                        $endpoint = $endpoint."&buyersCode={$buyersCode}";
-                    }
+    //                 if (!empty($buyersCode)) {
+    //                     $endpoint = $endpoint."&buyersCode={$buyersCode}";
+    //                 }
 
-                    if (!empty($buyersName)) {
-                        $endpoint = $endpoint."&buyersName={$buyersName}";
-                    }
+    //                 if (!empty($buyersName)) {
+    //                     $endpoint = $endpoint."&buyersName={$buyersName}";
+    //                 }
 
-                    if (!empty($dateCreated)) {
-                        $endpoint = $endpoint."&dateCreated={$dateCreated}";
-                    }
+    //                 if (!empty($dateCreated)) {
+    //                     $endpoint = $endpoint."&dateCreated={$dateCreated}";
+    //                 }
 
-                    $sapResponse = $client->request('GET', $endpoint, [
-                        'headers' => [
-                            'Accept' => 'application/json', 
-                            'apiKey' => $endpointData->ApiKey
-                        ]
-                    ]);
+    //                 $sapResponse = $client->request('GET', $endpoint, [
+    //                     'headers' => [
+    //                         'Accept' => 'application/json', 
+    //                         'apiKey' => $endpointData->ApiKey
+    //                     ]
+    //                 ]);
 
-                    if ($sapResponse && $sapResponse->getStatusCode() === 200) {
-                        $body = $sapResponse->getBody()->getContents();
-                        $allData = collect(json_decode($body));
-                        $buyersCodes = collect($allData['data'])->pluck('BuyersCode');
-                        $processedList = ProcessedOrders::with(['ProcessedOrderStatus'])
-                            ->select('OrderStatus','CardCode')
-                            ->where('SapServer', $sapServer)
-                            ->whereIn('CardCode',$buyersCodes)
-                            ->get()
-                            ->pluck("ProcessedOrderStatus.description","CardCode");
+    //                 if ($sapResponse && $sapResponse->getStatusCode() === 200) {
+    //                     $body = $sapResponse->getBody()->getContents();
+    //                     $allData = collect(json_decode($body));
+    //                     $buyersCodes = collect($allData['data'])->pluck('BuyersCode');
+    //                     $processedList = ProcessedOrders::with(['ProcessedOrderStatus'])
+    //                         ->select('OrderStatus','CardCode')
+    //                         ->where('SapServer', $sapServer)
+    //                         ->whereIn('CardCode',$buyersCodes)
+    //                         ->get()
+    //                         ->pluck("ProcessedOrderStatus.description","CardCode");
 
-                        $dataList = array();
-                        $response["isSuccess"] = true;
-                        $response["message"] = "Successfully retrieved information.";
-                        $response["total"] = $allData["total"];
+    //                     $dataList = array();
+    //                     $response["isSuccess"] = true;
+    //                     $response["message"] = "Successfully retrieved information.";
+    //                     $response["total"] = $allData["total"];
                         
-                        foreach ($allData["data"] as $key => $value) {
-                            $dataList[] = [
-                                "DocDate"=> Carbon::parse($value->DocDate)->format('Y-m-d'),
-                                "BuyersCode"=>$value->BuyersCode,
-                                "CardName"=>$value->CardName,
-                                "Count"=>$value->Count,
-                                "OrderStatus"=>(isset($processedList[$value->BuyersCode])?$processedList[$value->BuyersCode]:''),
-                                "Remarks"=> (isset($processedList[$value->BuyersCode])?$processedList[$value->BuyersCode]:'')
-                            ];
-                        }
-                        $response["data"] = $dataList;
-                    }
-                    $isSuccess = true;
-                }
-            }
+    //                     foreach ($allData["data"] as $key => $value) {
+    //                         $dataList[] = [
+    //                             "DocDate"=> Carbon::parse($value->DocDate)->format('Y-m-d'),
+    //                             "BuyersCode"=>$value->BuyersCode,
+    //                             "CardName"=>$value->CardName,
+    //                             "Count"=>$value->Count,
+    //                             "OrderStatus"=>(isset($processedList[$value->BuyersCode])?$processedList[$value->BuyersCode]:''),
+    //                             "Remarks"=> (isset($processedList[$value->BuyersCode])?$processedList[$value->BuyersCode]:'')
+    //                         ];
+    //                     }
+    //                     $response["data"] = $dataList;
+    //                 }
+    //                 $isSuccess = true;
+    //             }
+    //         }
             
-        } catch (\Throwable $th) {
-            Log::error("ERROR IN GETTING SAP ORDER LIST: ".$th);
-            // dd("ERROR IN GETTING SAP ORDER LIST: ".$th);
-        }
+    //     } catch (\Throwable $th) {
+    //         Log::error("ERROR IN GETTING SAP ORDER LIST: ".$th);
+    //         // dd("ERROR IN GETTING SAP ORDER LIST: ".$th);
+    //     }
         
-        if ($isSuccess) {
+    //     if ($isSuccess) {
+    //         return response()->json($response, 200);
+    //     }else{
+    //         return response()->json($response, 400);
+    //     }
+    // }
+
+public function SapOrderListDictinct(Request $request)
+{
+    $response = [
+        "isSuccess" => false,
+        "message" => "Failed to retrieve information.",
+        "total" => 0,
+        "page" => 1,
+        "data" => []
+    ];
+
+    $isSuccess = false;
+
+    try {
+
+        /*
+        |--------------------------------------------------------------------------
+        | PAGINATION
+        |--------------------------------------------------------------------------
+        */
+
+        $page = $request->page ?? 1;
+        $limit = $request->limit ?? 10;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FILTERS
+        |--------------------------------------------------------------------------
+        */
+
+        $start = $request->start_date ?? "";
+        $end = $request->end_date ?? "";
+
+        $buyersCode = $request->buyersCode ?? "";
+        $buyersName = $request->buyersName ?? "";
+        $dateCreated = $request->dateCreated ?? "";
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SAP SERVER
+        |--------------------------------------------------------------------------
+        */
+
+        $sapServer = $request->sap_server ?? "";
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | IMPORTANT
+        |--------------------------------------------------------------------------
+        |
+        | If no SAP server is selected, do not call SAP.
+        |
+        */
+
+        if (empty($sapServer)) {
+
+            $response["message"] = "Please select a SAP Server.";
+
             return response()->json($response, 200);
-        }else{
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | GET SAP ENDPOINT
+        |--------------------------------------------------------------------------
+        */
+
+        switch ($sapServer) {
+
+            case 'whi':
+
+                $endpointData = ThirdrdPartyEndpoint::where(
+                    "Code",
+                    "WHI-DIST"
+                )->first();
+
+                break;
+
+
+            case 'pbi':
+
+                $endpointData = ThirdrdPartyEndpoint::where(
+                    "Code",
+                    "PBI-DIST"
+                )->first();
+
+                break;
+
+
+            case 'ccc':
+
+                $endpointData = ThirdrdPartyEndpoint::where(
+                    "Code",
+                    "CCC-DIST"
+                )->first();
+
+                break;
+
+
+            default:
+
+                $endpointData = null;
+
+                break;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CHECK ENDPOINT
+        |--------------------------------------------------------------------------
+        */
+
+        if (empty($endpointData)) {
+
+            $response["message"] =
+                "SAP endpoint not found.";
+
             return response()->json($response, 400);
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CREATE SAP URL
+        |--------------------------------------------------------------------------
+        */
+
+        $endpoint =
+            $endpointData->Endpoint .
+            "?page={$page}&limit={$limit}";
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATE RANGE
+        |--------------------------------------------------------------------------
+        |
+        | IMPORTANT:
+        |
+        | If start_date is empty:
+        |
+        |     NO startDate/endDate
+        |
+        | will be added.
+        |
+        | Therefore SAP returns ALL records.
+        |
+        */
+
+        if (!empty($start)) {
+
+            if (empty($end)) {
+                $end = $start;
+            }
+
+            $endpoint .=
+                "&startDate=" .
+                urlencode($start) .
+                "&endDate=" .
+                urlencode($end);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | BUYERS CODE
+        |--------------------------------------------------------------------------
+        */
+
+        if (!empty($buyersCode)) {
+
+            $endpoint .=
+                "&buyersCode=" .
+                urlencode($buyersCode);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | BUYERS NAME
+        |--------------------------------------------------------------------------
+        */
+
+        if (!empty($buyersName)) {
+
+            $endpoint .=
+                "&buyersName=" .
+                urlencode($buyersName);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATE CREATED
+        |--------------------------------------------------------------------------
+        */
+
+        if (!empty($dateCreated)) {
+
+            $endpoint .=
+                "&dateCreated=" .
+                urlencode($dateCreated);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CALL SAP
+        |--------------------------------------------------------------------------
+        */
+
+        $client = new Client();
+
+        $sapResponse = $client->request(
+            'GET',
+            $endpoint,
+            [
+                'headers' => [
+                    'Accept' => 'application/json',
+                    'apiKey' => $endpointData->ApiKey
+                ]
+            ]
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CHECK SAP RESPONSE
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            !$sapResponse ||
+            $sapResponse->getStatusCode() !== 200
+        ) {
+
+            $response["message"] =
+                "Failed to retrieve data from SAP.";
+
+            return response()->json(
+                $response,
+                400
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DECODE RESPONSE
+        |--------------------------------------------------------------------------
+        */
+
+        $body =
+            $sapResponse
+                ->getBody()
+                ->getContents();
+
+        $decodedData =
+            json_decode($body);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDATE RESPONSE
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$decodedData) {
+
+            $response["message"] =
+                "Invalid response from SAP.";
+
+            return response()->json(
+                $response,
+                400
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CONVERT DATA TO COLLECTION
+        |--------------------------------------------------------------------------
+        */
+
+        $allData =
+            collect($decodedData);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | GET SAP DATA
+        |--------------------------------------------------------------------------
+        */
+
+        $sapData =
+            collect($allData->get('data', []));
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | GET BUYERS CODES
+        |--------------------------------------------------------------------------
+        */
+
+        $buyersCodes =
+            $sapData
+                ->pluck('BuyersCode')
+                ->filter()
+                ->values();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | GET PROCESSED ORDER STATUS
+        |--------------------------------------------------------------------------
+        */
+
+        $processedList = collect();
+
+
+        if ($buyersCodes->isNotEmpty()) {
+
+            $processedList =
+                ProcessedOrders::with([
+                    'ProcessedOrderStatus'
+                ])
+                ->select(
+                    'OrderStatus',
+                    'CardCode'
+                )
+                ->where(
+                    'SapServer',
+                    $sapServer
+                )
+                ->whereIn(
+                    'CardCode',
+                    $buyersCodes
+                )
+                ->get()
+                ->pluck(
+                    "ProcessedOrderStatus.description",
+                    "CardCode"
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FORMAT RESPONSE DATA
+        |--------------------------------------------------------------------------
+        */
+
+        $dataList = [];
+
+
+        foreach ($sapData as $value) {
+
+            $dataList[] = [
+
+                "DocDate" =>
+                    !empty($value->DocDate)
+                        ? Carbon::parse(
+                            $value->DocDate
+                        )->format('Y-m-d')
+                        : '',
+
+                "BuyersCode" =>
+                    $value->BuyersCode ?? '',
+
+                "CardName" =>
+                    $value->CardName ?? '',
+
+                "Count" =>
+                    $value->Count ?? 0,
+
+                "OrderStatus" =>
+                    isset(
+                        $processedList[
+                            $value->BuyersCode
+                        ]
+                    )
+                        ? $processedList[
+                            $value->BuyersCode
+                        ]
+                        : '',
+
+                "Remarks" =>
+                    isset(
+                        $processedList[
+                            $value->BuyersCode
+                        ]
+                    )
+                        ? $processedList[
+                            $value->BuyersCode
+                        ]
+                        : ''
+            ];
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SUCCESS
+        |--------------------------------------------------------------------------
+        */
+
+        $response["isSuccess"] = true;
+
+        $response["message"] =
+            "Successfully retrieved information.";
+
+        $response["total"] =
+            $allData->get('total', count($dataList));
+
+        $response["page"] =
+            $page;
+
+        $response["data"] =
+            $dataList;
+
+        $isSuccess = true;
+
+
+    } catch (\Throwable $th) {
+
+        Log::error(
+            "ERROR IN GETTING SAP ORDER LIST: " .
+            $th->getMessage()
+        );
+
+        $response["message"] =
+            "An error occurred while retrieving SAP orders.";
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RETURN
+    |--------------------------------------------------------------------------
+    */
+
+    if ($isSuccess) {
+
+        return response()->json(
+            $response,
+            200
+        );
+
+    }
+
+    return response()->json(
+        $response,
+        400
+    );
+}
+
 
     public function store(Request $request)
     {
@@ -245,41 +707,83 @@ class OrderController extends Controller
         }
     }
 
-    public function SoNumberDetails(Request $request){
+    public function SoNumberDetails(Request $request)
+    {
         $response = [
-            "isSuccess"=>false,
-            "message"=>"Failed to retrieve information.",
-            "data"=>[]
+            "isSuccess" => false,
+            "message" => "Failed to retrieve information.",
+            "data" => []
         ];
+
         $isSuccess = false;
+
         try {
-            $cardCode = $request->buyersCpde??"";
-            $sapServer = $request->sapServer??"";
-            $soNumber = $request->soNo??"";
-            $page = $request->page??"1";
-            $limit = $request->limit??"1";
-            $soNumberDetails = $this->orderClass->SapOrderList($cardCode,$sapServer,$soNumber,"");
+
+            $cardCode = $request->buyersCode ?? "";
+            $sapServer = $request->sapServer ?? "";
+            $soNumber = $request->soNo ?? "";
+            $page = $request->page ?? "1";
+            $limit = $request->limit ?? "1";
+
+            $soNumberDetails = $this->orderClass->SapOrderList(
+                $cardCode,
+                $sapServer,
+                $soNumber,
+                ""
+            );
+
             if ($soNumberDetails["isSuccess"]) {
-                $incoTerms = $soNumberDetails["data"][0]->IncoTerms??"";
-                $PortOfOrigin = $soNumberDetails["data"][0]->LoadingPort??"";
-                $PortOfDestination = $soNumberDetails["data"][0]->PortOfDestination??"";
-                $trackingPoints = ["tracking_points" => Helper::LoadTrackingPointsPerIncoTerms($incoTerms,["PortOfOrigin"=>$PortOfOrigin,"PortOfDestination"=>$PortOfDestination])];
+
+                $incoTerms = $soNumberDetails["data"][0]->IncoTerms ?? "";
+                $PortOfOrigin = $soNumberDetails["data"][0]->LoadingPort ?? "";
+                $PortOfDestination = $soNumberDetails["data"][0]->PortOfDestination ?? "";
+
+                /*
+                * Get PickupDate from processed_orders
+                */
+                $pickupDate = DB::table('processed_orders as po')
+                    ->join('orders as o', 'o.process_order_id', '=', 'po.id')
+                    ->where('o.DocNum', $soNumber)
+                    ->where('po.CardCode', $cardCode)
+                    ->where('po.SapServer', $sapServer)
+                    ->value('po.PickupDate');
+
+                $trackingPoints = [
+                    "tracking_points" => Helper::LoadTrackingPointsPerIncoTerms(
+                        $incoTerms,
+                        [
+                            "PortOfOrigin" => $PortOfOrigin,
+                            "PortOfDestination" => $PortOfDestination
+                        ]
+                    )
+                ];
 
                 $response = [
-                    "isSuccess"=>true,
-                    "message"=>"Successfully retrieved information.",
-                    "data"=> array_merge($soNumberDetails["data"],$trackingPoints)
+                    "isSuccess" => true,
+                    "message" => "Successfully retrieved information.",
+                    "data" => array_merge(
+                        $soNumberDetails["data"],
+                        $trackingPoints,
+                        [
+                            "pickupDate" => $pickupDate
+                        ]
+                    )
                 ];
+
                 $isSuccess = true;
             }
+
         } catch (\Throwable $th) {
-            Log::error("ERROR IN GETTING SO NUMBER DETAILS: ".$th->getMessage());
+
+            Log::error(
+                "ERROR IN GETTING SO NUMBER DETAILS: " . $th->getMessage()
+            );
         }
 
         if ($isSuccess) {
-            return response()->json($response,200);
-        }else{
-            return response()->json($response,400);
+            return response()->json($response, 200);
+        } else {
+            return response()->json($response, 400);
         }
     }
     public function SapOrderList($cardCode,$sapServer,$soNumber){

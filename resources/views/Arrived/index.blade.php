@@ -1005,10 +1005,36 @@
                     let soNo = response.data[0].DocNum;
                     let packaging = response.data[0].U_Packaging;
                     let label = response.data[0].U_Label;
-                    let dateCreated = response.data[0].DocDate;
                     let portDestination = response.data[0].PortOfDestination;
                     let incoTerms = response.data[0].IncoTerms;
                     let mode = response.data[0].U_Modeship;
+
+                    let dateCreated = response.data[0].DocDate;
+                    if (dateCreated) {
+                        let date = new Date(dateCreated);
+
+                        dateCreated = date.toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: '2-digit',
+                            year: 'numeric'
+                        }) + ' ' + date.toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                        });
+                    }
+        
+                    // Pickup Date
+                    let pickupDate = response.data.pickupDate;
+                    if(pickupDate) {
+                        let date = new Date(pickupDate);
+
+                        pickupDate = date.toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: '2-digit',
+                            year: 'numeric'
+                        });
+                    }
 
                     let orderItemList = response.data[0].items;
                     let html = `
@@ -1019,6 +1045,7 @@
                         <p style="margin-bottom: 0.25rem;">Inco terms: <span style="font-weight: 700;" id="dateCreated">${incoTerms}</span></p>
                         <p style="margin-bottom: 0.25rem;">Mode: <span style="font-weight: 700;" id="dateCreated">${mode}</span></p>
                         <p style="margin-bottom: 0.25rem;">Port of destination: <span style="font-weight: 700;" id="dateCreated">${portDestination}</span></p>
+                        <p style="margin-bottom: 0.25rem;">Pickup date: <span style="font-weight: 700;" id="pickupDate">${pickupDate ?? '-'}</span></p>
                     `;
                     html += `<div class="border rounded p-2 overflow-auto" style="max-height: 150px;">`;
                     orderItemList.forEach(item => {

@@ -616,10 +616,24 @@
                     let soNo = response.data[0].DocNum;
                     let packaging = response.data[0].U_Packaging;
                     let label = response.data[0].U_Label;
-                    let dateCreated = response.data[0].DocDate;
                     let portDestination = response.data[0].PortOfDestination;
                     let incoTerms = response.data[0].IncoTerms;
                     let mode = response.data[0].U_Modeship;
+                    
+                    let dateCreated = response.data[0].DocDate;
+                    if (dateCreated) {
+                        let date = new Date(dateCreated);
+
+                        dateCreated = date.toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: '2-digit',
+                            year: 'numeric'
+                        }) + ' ' + date.toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                        });
+                    }
 
                     let orderItemList = response.data[0].items;
                     let html = `

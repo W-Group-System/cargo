@@ -470,7 +470,7 @@
                         <div class="row mb-3">
                             <label class="col-md-4 col-form-label">ATD Origin</label>
                             <div class="col-md-8">
-                                <input type="date" class="form-control triggerStatus" data-status="IT" name="atdOrigin" id="atdOrigin">
+                                <input type="date" class="form-control triggerStatus" data-status="SATD" name="atdOrigin" id="atdOrigin">
                             </div>
                         </div>
 
@@ -1049,72 +1049,119 @@
             }
         }
 
-        function GetCargoDetails(soNo,cardCode,sapServer,loadTrackinPoints = false){
+        // CargoTab Contents
+        function GetCargoDetails(soNo, cardCode, sapServer, loadTrackinPoints = false) {
+
             $.ajax({
                 type: "GET",
                 url: "{{ route('cargo.details.soNo') }}",
+
                 data: {
                     page: 1,
                     limit: 1,
-                    buyersCode : cardCode,
+                    buyersCode: cardCode,
                     soNo: soNo,
                     sapServer: sapServer
                 },
+
                 dataType: "JSON",
-                beforeSend: function(){
-                    $('.soInfoContainer').html('<center><div class="spinner-border"></div></center>');
+
+                beforeSend: function () {
+                    $('.soInfoContainer').html(
+                        '<center><div class="spinner-border"></div></center>'
+                    );
                 },
+
                 success: function (response) {
+
                     let soNo = response.data[0].DocNum;
                     let packaging = response.data[0].U_Packaging;
                     let label = response.data[0].U_Label;
-                    let dateCreated = response.data[0].DocDate;
                     let portDestination = response.data[0].PortOfDestination;
                     let incoTerms = response.data[0].IncoTerms;
                     let mode = response.data[0].U_Modeship;
 
+                    let dateCreated = response.data[0].DocDate;
+                    if (dateCreated) {
+                        let date = new Date(dateCreated);
+
+                        dateCreated = date.toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: '2-digit',
+                            year: 'numeric'
+                        }) + ' ' + date.toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                        });
+                    }
+                    // Pickup Date
+                    let pickupDate = response.data.pickupDate;
+                    if(pickupDate) {
+                        let date = new Date(pickupDate);
+
+                        pickupDate = date.toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: '2-digit',
+                            year: 'numeric'
+                        });
+                    }
+
                     let orderItemList = response.data[0].items;
+
                     let html = `
                         <p style="margin-bottom: 0.25rem;">SO No.: <span style="font-weight: 700;" id="soNo">${soNo}</span></p>
                         <p style="margin-bottom: 0.25rem;">Packing: <span style="font-weight: 700;" id="packaging">${packaging}</span></p>
                         <p style="margin-bottom: 0.25rem;">Label: <span style="font-weight: 700;" id="label">${label}</span></p>
                         <p style="margin-bottom: 0.25rem;">Date created: <span style="font-weight: 700;" id="dateCreated">${dateCreated}</span></p>
-                        <p style="margin-bottom: 0.25rem;">Inco terms: <span style="font-weight: 700;" id="dateCreated">${incoTerms}</span></p>
-                        <p style="margin-bottom: 0.25rem;">Mode: <span style="font-weight: 700;" id="dateCreated">${mode}</span></p>
-                        <p style="margin-bottom: 0.25rem;">Port of destination: <span style="font-weight: 700;" id="dateCreated">${portDestination}</span></p>
+                        <p style="margin-bottom: 0.25rem;">Inco terms: <span style="font-weight: 700;">${incoTerms}</span></p>
+                        <p style="margin-bottom: 0.25rem;">Mode: <span style="font-weight: 700;">${mode}</span></p>
+                        <p style="margin-bottom: 0.25rem;">Port of destination: <span style="font-weight: 700;">${portDestination}</span></p>
+                        <p style="margin-bottom: 0.25rem;">Pickup date: <span style="font-weight: 700;" id="pickupDate">${pickupDate ?? '-'}</span></p>
                     `;
-                    html += `<div class="border rounded p-2 overflow-auto" style="max-height: 150px;">`;
+                    html += `<div class="border rounded p-2 overflow-auto" style="max-height: 150px;"> `;
                     orderItemList.forEach(item => {
-                        let qty = '-';
-                        let itemCode = '-';
-                        let description = '-';
-                        
-                        qty = item.Quantity;
-                        itemCode = item.ItemCode;
-                        description = item.Dscription;
-                    
-                        html += `<br>
-                                    <p style="margin-bottom: 0.25rem;">Item Code: <span style="font-weight: 700;" id="itemCode">${itemCode}</span></p>
-                                    <p style="margin-bottom: 0.25rem;">Description: <span style="font-weight: 700;" id="description">${description}</span></p>
-                                    <p style="margin-bottom: 0.25rem;">Quantity: <span style="font-weight: 700;" id="qty">${qty}</span></p>
-                                    <p style="margin-bottom: 0.25rem;">Remarks: <span style="font-weight: 700;" id="remarks">-</span></p>`
-                                ;
+
+                        let qty = item.Quantity ?? '-';
+                        let itemCode = item.ItemCode ?? '-';
+                        let description = item.Dscription ?? '-';
+                        html += `
+                            <br>
+                            <p style="margin-bottom: 0.25rem;">Item Code: <span style="font-weight: 700;" id="itemCode">${itemCode}</span></p>
+                            <p style="margin-bottom: 0.25rem;">Description: <span style="font-weight: 700;" id="description">${description}</span></p>
+                            <p style="margin-bottom: 0.25rem;">Quantity: <span style="font-weight: 700;" id="qty">${qty}</span></p>
+                            <p style="margin-bottom: 0.25rem;">Remarks: <span style="font-weight: 700;" id="remarks">-</span></p>
+                        `;
                     });
+
                     html += '</div>';
-                    
+
                     $('.soInfoContainer').html(html);
-                    
+
                     if (loadTrackinPoints) {
-                        let trackingPointHtml = `<option value="">- Track Points -</option>`;
-                        $.each(Object.entries(response.data['tracking_points']), function(index, item) {
-                            let selectAttr = '';
-                            if (item[1] === currentTrackPoint) {
-                                selectAttr = 'selected';
+
+                        let trackingPointHtml =
+                            `<option value="">- Track Points -</option>`;
+
+                        $.each(
+                            Object.entries(response.data['tracking_points']),
+                            function (index, item) {
+
+                                let selectAttr = '';
+
+                                if (item[1] === currentTrackPoint) {
+                                    selectAttr = 'selected';
+                                }
+
+                                trackingPointHtml += `
+                                    <option value="${item[1]}" ${selectAttr}>
+                                        ${item[1]}
+                                    </option>
+                                `;
                             }
-                            trackingPointHtml += `<option value="${item[1]}" ${selectAttr}>${item[1]}</option>`
-                        });
+                        );
+
                         $('#trackPoints').html(trackingPointHtml);
-                        
                         $('#accHolder').val(response.data[0].bde_name['SlpName']);
                         $('#mode').val(response.data[0].U_Modeship);
                         $('#incoTerms').val(response.data[0].IncoTerms);
@@ -1125,6 +1172,7 @@
                 }
             });
         }
+        // End Contents
 
         function LoadCoLoadList(coLoadArray){
             let coLoadHtml = '';
