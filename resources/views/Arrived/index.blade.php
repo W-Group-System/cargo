@@ -184,7 +184,7 @@
                             <div class="col-md-8">
                                 <select name="deliveryStatus" id="deliveryStatus" class="form-select" required>
                                     <option value="">- Delivery Status -</option> 
-                                    @foreach (["AFD" => "Arrived final destination","DLV" => "Delivered - Door"] as $key=>$value)
+                                    @foreach (["AFD" => "Arrived at Destination Port","DLV" => "Delivered - Door"] as $key=>$value)
                                         <option value="{{$key}}">{{$value}}</option>
                                     @endforeach
                                 </select>
