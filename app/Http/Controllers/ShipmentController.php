@@ -67,6 +67,8 @@ class ShipmentController extends Controller
             
             $ordersList = ProcessedOrders::from("processed_orders as po")->select(
                 "po.id",
+                // Added this to fix tracking point
+                "sd.id as shipment_details_id",
                 "po.SapServer",
                 "po.CardCode",
                 "po.CardName",
@@ -278,7 +280,7 @@ class ShipmentController extends Controller
         ];
 
         try {
-
+            
             $receivers = $request->receiver ?? [];
             $ccRecipients = $request->cc ?? [];
 

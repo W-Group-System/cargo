@@ -19,9 +19,9 @@
     </a>
 </header>
 
-        <div class="page-content">
-            <section class="row">
-                <div class="row mb-4">
+<div class="page-content">
+    <section class="row">
+        <div class="row mb-4">
             <div class="col-12">
                 <h4 class="card-title mb-3">Dashboard Cargo Tracking</h4>
 
@@ -318,7 +318,8 @@
             },
             rowCallback : function(row,data,DisplayIndex){
                 $(row).on('click', function () {
-                    LoadTrackingPoints(data.shipment_details?.id??"");
+                    //LoadTrackingPoints(data.shipment_details?.id??"");
+                    LoadTrackingPoints(data.shipment_details_id??"");
                 });
             }
         });
