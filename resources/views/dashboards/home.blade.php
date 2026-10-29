@@ -318,7 +318,7 @@
             },
             rowCallback : function(row,data,DisplayIndex){
                 $(row).on('click', function () {
-                    LoadTrackingPoints(data.shipment_details?.id??"");
+                    LoadTrackingPoints(data.shipment_details_id ?? "");
                 });
             }
         });

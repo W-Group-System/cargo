@@ -95,7 +95,8 @@ $(document).ready(function(){
     let canCreate = "{{ $canCreate }}";
     let canDelete = "{{ $canDelete }}";
     
-    var start = moment().subtract(29, 'days');
+    // var start = moment().subtract(29, 'days');
+    var start = moment().startOf('year');
     var end = moment();
 
     function cb(start, end) {

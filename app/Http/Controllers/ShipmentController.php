@@ -79,6 +79,7 @@ class ShipmentController extends Controller
                 "po.coloaded_by",
                 "po.coload_order",
                 "po.cbw_doc_status",
+                "sd.id as shipment_details_id",
                 "sd.invoice_number",
                 DB::raw("DATE_FORMAT(sd.atd_origin, '%Y-%m-%d') as atdOrigin"),
                 DB::raw("DATE_FORMAT(sd.eta_destination, '%Y-%m-%d') as etaDestination"),
